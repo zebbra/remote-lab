@@ -1,0 +1,18 @@
+# Minimal local DERP map to satisfy Headscale's requirement for at least one DERP entry.
+# Note: This is a placeholder. For real relaying, run a proper DERP server (embedded with TLS)
+# or point to a valid DERP host. See docs: https://tailscale.com/kb/1118/custom-derp-servers/
+# Schema: map[int]DERPRegion. Keys are numeric region IDs.
+regions:
+  999:
+    regionid: 999
+    regioncode: local
+    regionname: Local Placeholder DERP
+    nodes:
+      - name: local-placeholder
+        regionid: 999
+        # Hostname/IP of DERP. Placeholder uses loopback; clients will ignore if unreachable.
+        host: 127.0.0.1
+        ipv4: 127.0.0.1
+        # Disable STUN here; this is just to satisfy non-empty map.
+        stunport: 0
+        stunonly: false

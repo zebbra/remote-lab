@@ -1,0 +1,77 @@
+[tool.poetry]
+name = "neops_remote_lab"
+version = "0.0.0"
+description = ""
+authors = ["zebbra AG"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+python-dotenv = "^1.1"
+neops-workflow-engine-client = "^0.41.12-beta.11"
+fastapi = "^0.116.0"
+uvicorn = "^0.29.0"
+filelock = "^3.18.0"
+urllib3 = ">=2.5.0"
+pyyaml = "^6.0"
+colorlog = "^6.8.2"
+starlette = ">=0.47.2"
+requests = "^2.32.4"
+python-multipart = "^0.0.20"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.1"
+pytest-asyncio = "^1.1.0"
+pyyaml = "^6.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+mypy = "*"
+pylint = "*"
+types-pyyaml = "^6.0.12.20250516"
+types-requests = "^2.31.0"
+colorlog = "^6.8.2"
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
+addopts = [
+    "--ignore=docs",
+]
+
+[tool.poetry.scripts]
+remote_lab = 'neops_remote_lab.__main__:main'
+
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+disallow_untyped_defs = true
+check_untyped_defs  = true
+disallow_incomplete_defs  = true
+disallow_any_unimported  = true
+disallow_any_decorated  = true
+disallow_any_generics  = true
+disallow_subclassing_any  = true
+disallow_untyped_calls  = true
+enable_incomplete_feature = "NewGenericSyntax"
+
+[tool.pylint]
+max-line-length = 120
+disable = [
+    "missing-docstring",
+    "unused-argument",
+    "line-too-long",
+    "fixme",
+    "protected-access",
+    "too-few-public-methods",
+    "redefined-outer-name",
+    "broad-exception-caught",
+    "too-many-instance-attributes",
+    "arguments-renamed"
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
