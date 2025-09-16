@@ -15,13 +15,8 @@ filelock = "^3.18.0"
 urllib3 = ">=2.5.0"
 pyyaml = "^6.0"
 colorlog = "^6.8.2"
-requests = "^2.32.4"
 python-multipart = "^0.0.20"
 pydantic = "^2.7"
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.4.1"
-pytest-asyncio = "^1.1.0"
 pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
@@ -29,8 +24,10 @@ black = "*"
 mypy = "*"
 pylint = "*"
 types-pyyaml = "^6.0.12.20250516"
-types-requests = "^2.31.0"
 colorlog = "^6.8.2"
+pytest = "^8.4.1"
+pytest-asyncio = "^1.1.0"
+
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"

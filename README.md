@@ -20,7 +20,7 @@ infrastructure safely.
 
 You to author tests that consume these labs? See the Testing Framework guide: [/development/testing-framework/](./testing-framework.md)
 
-For secure reachability to the Remote Lab subnet(s) using Tailscale clients managed by a self‑hosted control plane, see: [Headscale + Headplane with Docker Compose](./headscale_headplane.md).
+For secure reachability to the Remote Lab subnet(s) using Tailscale clients managed by a self‑hosted control plane, see: [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md).
 
 ## 🚀 Quick-Start
 
