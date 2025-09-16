@@ -11,7 +11,7 @@ import pytest
 
 from neops_remote_lab.devices.netlab_device import NetlabDevice
 from neops_remote_lab.client import RemoteLabClient
-from neops_remote_lab.models import DeviceInfo
+from neops_remote_lab.models import DeviceInfoDto
 
 NETLAB_LAB_ORDER: dict[str, int] = {}  # fixture_name → rank
 _counter = count()  # monotonically increasing
@@ -54,7 +54,7 @@ def remote_lab_client() -> Iterator[Optional[RemoteLabClient]]:
     client.close()
 
 
-def _to_netlab_device(device_info: DeviceInfo) -> NetlabDevice:
+def _to_netlab_device(device_info: DeviceInfoDto) -> NetlabDevice:
     """Create NetlabDevice directly from the raw inspect data received via the API."""
     return NetlabDevice(device_info.name, device_info.raw)
 

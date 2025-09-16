@@ -17,18 +17,17 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, UploadFile, status, Response
 
-from neops_remote_lab.devices.netlab_device import NetlabDevice
 from neops_remote_lab.netlab.lab_manager import LabManager
 
 from neops_remote_lab.models import (
-    ActiveSessionResponse,
-    AcquireResponse,
-    CreateSessionResponse,
-    DeviceInfo,
-    LabStatus,
-    SessionInfo,
+    ActiveSessionResponseDto,
+    AcquireResponseDto,
+    CreateSessionResponseDto,
+    DeviceInfoDto,
+    LabStatusDto,
+    SessionInfoDto,
     SessionState,
-    SessionStatusResponse,
+    SessionStatusResponseDto,
 )
 
 _log = logging.getLogger("remote-lab-server")
@@ -90,7 +89,7 @@ _SHUTDOWN_EVENT = asyncio.Event()
 
 # --- Session & Queue State ---
 _SESSION_QUEUE: list[str] = []
-_SESSIONS: dict[str, SessionInfo] = {}
+_SESSIONS: dict[str, SessionInfoDto] = {}
 _SESSION_CLEANUP_INTERVAL = 5  # seconds between cleanup runs
 _WAITING_SESSION_TIMEOUT = 600  # seconds until a waiting session is dropped (lab start can take minutes)
 _ACTIVE_SESSION_STALE = 300  # seconds of heartbeat inactivity
@@ -152,13 +151,6 @@ def _save_uploads(topology_file: UploadFile, extra_files: list[UploadFile]) -> P
             shutil.copyfileobj(item.file, f)
 
     return topo_dest
-
-
-def _device_info_from_netlab(dev: NetlabDevice) -> DeviceInfo:
-    return DeviceInfo(
-        name=dev.name,
-        raw=dev.raw,
-    )
 
 
 # ------------------------------------------------------------------ Async helpers
@@ -295,12 +287,12 @@ async def _cleanup_loop_async() -> None:
 # --- API Endpoints ---
 
 
-@app.post("/session", response_model=CreateSessionResponse, status_code=status.HTTP_201_CREATED)
-async def create_session() -> CreateSessionResponse:
+@app.post("/session", response_model=CreateSessionResponseDto, status_code=status.HTTP_201_CREATED)
+async def create_session() -> CreateSessionResponseDto:
     sid = str(uuid.uuid4())
     now = time.time()
     position = len(_SESSION_QUEUE)
-    session = SessionInfo(
+    session = SessionInfoDto(
         id=sid,
         status=SessionState.WAITING,
         position=position,
@@ -312,11 +304,11 @@ async def create_session() -> CreateSessionResponse:
     _promote_if_needed()
 
     _log.info("Created session %s at queue position %d", sid[:8], position)
-    return CreateSessionResponse(session_id=sid, position=position)
+    return CreateSessionResponseDto(session_id=sid, position=position)
 
 
-@app.get("/session/{session_id}", response_model=SessionStatusResponse)
-async def get_session_status(session_id: str) -> SessionStatusResponse:
+@app.get("/session/{session_id}", response_model=SessionStatusResponseDto)
+async def get_session_status(session_id: str) -> SessionStatusResponseDto:
     session = _SESSIONS.get(session_id)
     if not session:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Session not found")
@@ -329,11 +321,11 @@ async def get_session_status(session_id: str) -> SessionStatusResponse:
         session.position = -1  # Session not in queue (should not happen normally)
         _log.error("Session %s not found in queue!", session_id[:8])
 
-    return SessionStatusResponse(status=session.status, position=session.position)
+    return SessionStatusResponseDto(status=session.status, position=session.position)
 
 
-@app.get("/active-session", response_model=ActiveSessionResponse)
-async def get_active_session() -> ActiveSessionResponse:
+@app.get("/active-session", response_model=ActiveSessionResponseDto)
+async def get_active_session() -> ActiveSessionResponseDto:
     """Get the currently active session (first in queue)."""
     if not _SESSION_QUEUE:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No active session")
@@ -348,7 +340,7 @@ async def get_active_session() -> ActiveSessionResponse:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No active session")
 
     session.last_seen_at = time.time()
-    return ActiveSessionResponse(session_id=active_session_id, status=session.status, position=0)
+    return ActiveSessionResponseDto(session_id=active_session_id, status=session.status, position=0)
 
 
 @app.delete("/session/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -384,7 +376,7 @@ async def end_session(session_id: str) -> Response:
 # --- Lab Management Endpoints (Session-Protected) ---
 
 
-def _get_active_session(x_session_id: str = Header(..., alias=HEADER_SESSION_ID)) -> SessionInfo:
+def _get_active_session(x_session_id: str = Header(..., alias=HEADER_SESSION_ID)) -> SessionInfoDto:
     _log.debug("_get_active_session check for %s", x_session_id[:8])
 
     session = _SESSIONS.get(x_session_id)
@@ -399,13 +391,13 @@ def _get_active_session(x_session_id: str = Header(..., alias=HEADER_SESSION_ID)
     return session
 
 
-@app.post("/lab", response_model=AcquireResponse)
+@app.post("/lab", response_model=AcquireResponseDto)
 async def acquire_lab(
-    session: SessionInfo = Depends(_get_active_session),
+    session: SessionInfoDto = Depends(_get_active_session),
     topology: UploadFile = File(...),
     reuse: bool = Form(True),
     extra_files: List[UploadFile] = File(default_factory=list),
-) -> AcquireResponse:
+) -> AcquireResponseDto:
     session.last_seen_at = time.time()
     if topology.filename is None or not topology.filename.lower().endswith((".yml", ".yaml")):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Topology must be a .yml or .yaml file")
@@ -430,18 +422,17 @@ async def acquire_lab(
         raise HTTPException(status.HTTP_423_LOCKED, "Lab currently busy")
 
     reused = LabManager.status().ref_count > 1
-    return AcquireResponse(reused=reused, devices=[_device_info_from_netlab(d) for d in devices])
+    return AcquireResponseDto(reused=reused, devices=devices)
 
 
-@app.get("/lab", response_model=LabStatus)
-async def get_lab_status(session: SessionInfo = Depends(_get_active_session)) -> LabStatus:
+@app.get("/lab", response_model=LabStatusDto)
+async def get_lab_status(session: SessionInfoDto = Depends(_get_active_session)) -> LabStatusDto:
     session.last_seen_at = time.time()
-    base_status = LabManager.status(include_devices=True)
-    return LabStatus.from_base_status(base_status)
+    return LabManager.status(include_devices=True)
 
 
 @app.post("/lab/release", status_code=status.HTTP_204_NO_CONTENT)
-async def release_lab(session: SessionInfo = Depends(_get_active_session)) -> Response:
+async def release_lab(session: SessionInfoDto = Depends(_get_active_session)) -> Response:
     session.last_seen_at = time.time()
     if not LabManager.has_running_lab():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No lab running")
@@ -453,7 +444,7 @@ async def release_lab(session: SessionInfo = Depends(_get_active_session)) -> Re
 @app.delete("/lab", status_code=status.HTTP_202_ACCEPTED)
 async def destroy_lab(
     force: bool = True,
-    session: SessionInfo = Depends(_get_active_session),
+    session: SessionInfoDto = Depends(_get_active_session),
 ) -> Response:
     session.last_seen_at = time.time()
     if not LabManager.has_running_lab():
@@ -466,14 +457,14 @@ async def destroy_lab(
     return Response(status_code=status.HTTP_202_ACCEPTED)
 
 
-@app.get("/lab/devices", response_model=list[DeviceInfo])
-async def list_devices(session: SessionInfo = Depends(_get_active_session)) -> list[DeviceInfo]:
+@app.get("/lab/devices", response_model=list[DeviceInfoDto])
+async def list_devices(session: SessionInfoDto = Depends(_get_active_session)) -> list[DeviceInfoDto]:
     session.last_seen_at = time.time()
     if not LabManager.has_running_lab():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No lab running")
 
     devices = LabManager.current_devices()
-    return [_device_info_from_netlab(d) for d in devices]
+    return devices
 
 
 @app.get("/healthz", status_code=status.HTTP_204_NO_CONTENT)

@@ -15,9 +15,9 @@ filelock = "^3.18.0"
 urllib3 = ">=2.5.0"
 pyyaml = "^6.0"
 colorlog = "^6.8.2"
-starlette = ">=0.47.2"
 requests = "^2.32.4"
 python-multipart = "^0.0.20"
+pydantic = "^2.7"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.1"

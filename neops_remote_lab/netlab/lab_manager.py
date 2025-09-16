@@ -21,29 +21,17 @@ import logging
 import shutil
 import tempfile
 import time
-from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
 from filelock import FileLock
 
 from .connector import inspect_node, list_nodes, run_netlab
-from ..devices.netlab_device import NetlabDevice
-
-
-@dataclass
-class LabStatus:
-    """Base status information about the current laboratory state."""
-
-    running: bool
-    topology: Optional[str]
-    ref_count: int
-    devices: List[NetlabDevice]
+from ..models import DeviceInfoDto, LabStatusDto as ApiLabStatus
 
 
 __all__ = [
     "LabManager",
-    "LabStatus",
     "GLOBAL_LOCK",
 ]
 
@@ -110,13 +98,13 @@ class LabManager:
     class _Handle:
         """Internal record describing the currently running lab."""
 
-        def __init__(self, workdir: Path, devices: List[NetlabDevice]) -> None:
+        def __init__(self, workdir: Path, devices: List[DeviceInfoDto]) -> None:
             self.workdir = workdir
             self.devices = devices
             self.ref = 1  # how many tests are using this lab
 
     @classmethod
-    def _start(cls, topo: Path) -> List[NetlabDevice]:
+    def _start(cls, topo: Path) -> List[DeviceInfoDto]:
         """Start a new Netlab lab for *topo* and remember it as the current one."""
         # Ensure no stale 'default' instance from previous runs is still active. While the GLOBAL_LOCK
         # prevents concurrent *pytest* workers from stepping on each other, our CI runners are long-living and
@@ -132,7 +120,7 @@ class LabManager:
         run_netlab(["up", topo.name], cwd=workdir)
 
         node_names = list_nodes(cwd=workdir)
-        devices = [NetlabDevice(n, inspect_node(n, cwd=workdir)) for n in node_names]
+        devices = [DeviceInfoDto(name=n, raw=inspect_node(n, cwd=workdir)) for n in node_names]
 
         cls._current_topo = topo
         cls._handle = LabManager._Handle(workdir, devices)
@@ -144,8 +132,8 @@ class LabManager:
     # Public API
     # ------------------------------------------------------------------
     @classmethod
-    def acquire(cls, topo: Path, *, reuse: bool = True) -> List[NetlabDevice]:
-        """Return a list of `NetlabDevice` objects for *topo*.
+    def acquire(cls, topo: Path, *, reuse: bool = True) -> List[DeviceInfoDto]:
+        """Return a list of `DeviceInfoDto` objects for *topo*.
 
         Parameters
         ----------
@@ -170,23 +158,24 @@ class LabManager:
 
     # ------------------------------------------------------------------ new public helpers
     @classmethod
-    def try_acquire(cls, topo: Path, *, reuse: bool = True) -> List[NetlabDevice] | None:
+    def try_acquire(cls, topo: Path, *, reuse: bool = True) -> List[DeviceInfoDto] | None:
         """Non-blocking variant of :py:meth:`acquire`. Returns devices or ``None``."""
         return cls._attempt_acquire(topo.resolve(), reuse)
 
     # ------------------------------------------------------------------ status helpers
     @classmethod
-    def status(cls, *, include_devices: bool = False) -> LabStatus:
+    def status(cls, *, include_devices: bool = False) -> ApiLabStatus:
         """Return status information about the current lab."""
 
         running = cls._handle is not None
-        devices: List[NetlabDevice] = cls._handle.devices if (include_devices and cls._handle) else []
+        devices: List[DeviceInfoDto] = cls._handle.devices if (include_devices and cls._handle) else []
 
-        return LabStatus(
+        return ApiLabStatus(
             running=running,
             topology=str(cls._current_topo) if cls._current_topo else None,
             ref_count=cls._handle.ref if cls._handle else 0,
             devices=devices,
+            netlab_status=None,
         )
 
     @classmethod
@@ -240,7 +229,7 @@ class LabManager:
             # Don't re-raise - this is expected if no default instance exists
 
     @classmethod
-    def _attempt_acquire(cls, topo: Path, reuse: bool) -> List[NetlabDevice] | None:
+    def _attempt_acquire(cls, topo: Path, reuse: bool) -> List[DeviceInfoDto] | None:
         """Single attempt to acquire/start a lab inside GLOBAL_LOCK."""
         with GLOBAL_LOCK:
             # 1. No lab → start
@@ -309,7 +298,7 @@ class LabManager:
         return cls._current_topo
 
     @classmethod
-    def current_devices(cls) -> List[NetlabDevice]:
+    def current_devices(cls) -> List[DeviceInfoDto]:
         """Return a *copy* of the current device list (empty if no lab)."""
         return list(cls._handle.devices) if cls._handle else []
 

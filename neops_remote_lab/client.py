@@ -11,9 +11,10 @@ from requests import Response
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from models import DeviceInfo, SessionState
+from neops_remote_lab.models import DeviceInfoDto, SessionState
 
 _log = logging.getLogger(__name__)
+
 
 class RemoteLabClient:
     """A session-aware client for the remote lab manager."""
@@ -143,7 +144,7 @@ class RemoteLabClient:
         elapsed = time.monotonic() - start_time
         raise TimeoutError(f"Session did not become active within {timeout} seconds (elapsed: {elapsed:.1f}s)")
 
-    def acquire(self, topology: pathlib.Path, reuse: bool) -> list[DeviceInfo]:
+    def acquire(self, topology: pathlib.Path, reuse: bool) -> list[DeviceInfoDto]:
         _log.info("Starting lab acquisition for %s (reuse=%s)", topology.name, reuse)
 
         with topology.open("rb") as f:
@@ -176,7 +177,7 @@ class RemoteLabClient:
                     raise
 
         response_data = resp.json()
-        devices = [DeviceInfo(**d) for d in response_data["devices"]]
+        devices = [DeviceInfoDto(**d) for d in response_data["devices"]]
         _log.info("Lab acquisition complete: %d devices", len(devices))
         return devices
 
