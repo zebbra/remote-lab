@@ -106,7 +106,7 @@ def main() -> None:
     except Exception as exc:  # noqa: BLE001
         _logger.error("Failed to execute 'netlab version': %s", exc)
         _logger.error("Please verify your Netlab installation: https://netlab.tools/install/ubuntu/")
-        raise SystemExit(1)
+        raise SystemExit(1) from exc
 
     uvicorn.run(
         app,
