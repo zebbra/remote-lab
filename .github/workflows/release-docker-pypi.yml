@@ -1,0 +1,87 @@
+name: Release (Docker + PyPI)
+
+on:
+  push:
+    tags:
+      - '*'
+
+
+jobs:
+  check-semver:
+    runs-on: hetzner
+    steps:
+      - name: Check semver integrity
+        uses: zebbra/actions/check-semver@check-semver/v1
+
+  publish-docker-image:
+    needs: check-semver
+    runs-on: hetzner
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Log in to Quay.io
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: zebbra/actions/docker-build@docker-build/v1
+        with:
+          image_name: quay.io/zebbra/neops-worker-sdk
+          description: Neops Worker SDK
+          tags: |
+            type=raw,value=latest
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+          cache_from_overrides: |
+            type=gha,scope=main
+            type=gha,scope=develop
+          push: true
+
+  publish-python-package:
+    runs-on: hetzner
+    needs: check-semver
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '>=3.8'
+          cache: 'pip'
+
+      - name: Build Python package
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          VERSION_INFO="${VERSION:-develop}"
+          sed "s|0.0.0|$(echo $VERSION | sed s/-/./ | sed s/develop/dev/ )|g" -i pyproject.toml
+          pip install poetry
+          poetry install
+          poetry build
+          echo "Built version $VERSION_INFO"
+
+      - name: Publish Python package
+        env:
+          PYPI_TOKEN: ${{ secrets.PY_PI_TOKEN }}
+        run: |
+          pip install poetry
+          if [ -z "$PYPI_TOKEN" ]; then
+            echo "PYPI_TOKEN secret token is not set. Exiting."
+            exit 1
+          fi
+          poetry config pypi-token.pypi $PYPI_TOKEN
+          (poetry publish --skip-existing --no-interaction) || true
