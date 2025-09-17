@@ -10,6 +10,7 @@ python = "^3.12"
 python-dotenv = "^1.1"
 neops-workflow-engine-client = "^0.41.12-beta.11"
 fastapi = "^0.116.0"
+starlette = ">=0.47.2"
 uvicorn = "^0.29.0"
 filelock = "^3.18.0"
 urllib3 = ">=2.5.0"
@@ -26,6 +27,7 @@ types-pyyaml = "^6.0.12.20250516"
 colorlog = "^6.8.2"
 pytest = "^8.4.1"
 pytest-asyncio = "^1.1.0"
+httpx = "^0.28.1"
 
 
 [tool.pytest.ini_options]
