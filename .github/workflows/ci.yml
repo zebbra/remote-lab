@@ -15,7 +15,6 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.12"
-  IMAGE_NAME: "quay.io/zebbra/neops-worker-sdk"
 
 defaults:
   run:
@@ -51,68 +50,15 @@ jobs:
 
       - name: Lint & Type-check
         run: |
-          poetry run black --check neops_worker_sdk
-          poetry run pylint --fail-under=9.5 neops_worker_sdk
-          poetry run mypy neops_worker_sdk
+          poetry run black --check neops_remote_lab
+          poetry run pylint --fail-under=9.5 neops_remote_lab
+          poetry run mypy neops_remote_lab
 
       - name: Run fast tests (sdk/testing, no function_block)
-        run: poetry run pytest -q -m "(sdk or testing) and not function_block"
+        run: poetry run pytest
 
       - name: Summary
         run: echo "### Lint/type-check/audit/tests passed ✅" >> $GITHUB_STEP_SUMMARY
-
-  fb-test:
-    name: Function-block tests (soft-fail)
-    needs: lint-test
-    runs-on: neops-labs
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        id: setup_python
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Cache venv and Poetry cache (scoped to runner)
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pypoetry
-            .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ runner.name }}-${{ steps.setup_python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-${{ runner.arch }}-${{ runner.name }}-${{ steps.setup_python.outputs.python-version }}-
-
-      - name: Install Poetry & dependencies (if needed)
-        run: |
-          pip install --quiet poetry
-          poetry config virtualenvs.in-project true
-          poetry sync --no-interaction --with dev,test -E remote-lab
-
-      - name: Run function-block tests
-        run: poetry run pytest -q -m "function_block"
-
-  docker:
-    name: Build Docker (conditional push & smart cache)
-    needs: lint-test
-    runs-on: hetzner
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: docker/login-action@v3
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-
-      - name: Build Docker
-        uses: zebbra/actions/docker-build@docker-build/v1
-        with:
-          image_name: ${{ env.IMAGE_NAME }}
-          context: .
-          description: Neops Worker SDK
-
 
   wheel:
     name: Build Python wheel (no publish)

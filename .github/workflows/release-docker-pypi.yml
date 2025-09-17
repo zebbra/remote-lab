@@ -12,40 +12,7 @@ jobs:
     steps:
       - name: Check semver integrity
         uses: zebbra/actions/check-semver@check-semver/v1
-
-  publish-docker-image:
-    needs: check-semver
-    runs-on: hetzner
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
-
-      - name: Log in to Quay.io
-        uses: docker/login-action@v3
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-
-      - name: Build and push Docker image
-        uses: zebbra/actions/docker-build@docker-build/v1
-        with:
-          image_name: quay.io/zebbra/neops-worker-sdk
-          description: Neops Worker SDK
-          tags: |
-            type=raw,value=latest
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
-          cache_from_overrides: |
-            type=gha,scope=main
-            type=gha,scope=develop
-          push: true
-
+        
   publish-python-package:
     runs-on: hetzner
     needs: check-semver
