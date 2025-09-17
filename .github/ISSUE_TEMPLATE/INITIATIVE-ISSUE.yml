@@ -1,0 +1,15 @@
+name: Project Management - New Initiative
+description: Create an epic issue for project management
+type: 5-Initiative
+labels: []
+projects:
+  - zebbra/7
+assignees: []
+body:
+  - type: textarea
+    id: issue
+    attributes:
+      label: Define your initiative
+      placeholder: Define your initiative here...
+    validations:
+      required: true

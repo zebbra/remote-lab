@@ -1,0 +1,53 @@
+name: Change request
+description: File a change request
+type: 2-Change
+labels: []
+projects:
+  - zebbra/7
+assignees: []
+body:
+  - type: dropdown
+    attributes:
+      label: Application Part
+      description: What part of the application would be affected?
+      multiple: false
+      options:
+        - User Interface
+        - Backend
+        - Other
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: what-change
+    attributes:
+      label: What would you like changed?
+      description: Describe your idea for a change to us!
+      placeholder: I'd like to see...
+    validations:
+      required: true
+  - type: textarea
+    id: why-change
+    attributes:
+      label: Why is the change needed?
+      description: Tell us why the change improves things!
+      placeholder: I think this change would be useful because...
+    validations:
+      required: true
+  - type: textarea
+    id: what-change-media
+    attributes:
+      label: Upload media
+      description: Upload any screenshots, videos or other media that can help us
+        understand the desired change.
+      placeholder: Drag and drop, paste or use the file picker.
+    validations:
+      required: false
+  - type: textarea
+    id: misc
+    attributes:
+      label: Anything else?
+      description: Any other information you think might be useful.
+      placeholder: Tell us more!
+    validations:
+      required: false

@@ -1,0 +1,53 @@
+name: Feature request
+description: File a feature request
+type: 3-New Feature
+labels: []
+projects:
+  - zebbra/7
+assignees: []
+body:
+  - type: dropdown
+    attributes:
+      label: Application Part
+      description: What part of the application would be affected?
+      multiple: false
+      options:
+        - User Interface
+        - Backend
+        - Other
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: what-new
+    attributes:
+      label: What feature would you like to request?
+      description: Describe your envisioned feature to us!
+      placeholder: I'd like to see...
+    validations:
+      required: true
+  - type: textarea
+    id: why-request
+    attributes:
+      label: Why is the new feature needed?
+      description: Tell us why the feature improves things!
+      placeholder: I think this feature would be useful because...
+    validations:
+      required: true
+  - type: textarea
+    id: what-request-media
+    attributes:
+      label: Upload media
+      description: Upload any screenshots, videos or other media that can help us
+        understand the desired feature.
+      placeholder: Drag and drop, paste or use the file picker.
+    validations:
+      required: false
+  - type: textarea
+    id: misc
+    attributes:
+      label: Anything else?
+      description: Any other information you think might be useful.
+      placeholder: Tell us more!
+    validations:
+      required: false

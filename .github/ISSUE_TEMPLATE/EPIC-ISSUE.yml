@@ -1,0 +1,15 @@
+name: Project Management - New Epic
+description: Create an epic issue for project management
+type: 4-Epic
+labels: []
+projects:
+  - zebbra/7
+assignees: []
+body:
+  - type: textarea
+    id: issue
+    attributes:
+      label: Define your epic
+      placeholder: Define your epic here...
+    validations:
+      required: true

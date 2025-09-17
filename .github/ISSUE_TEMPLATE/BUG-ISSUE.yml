@@ -1,0 +1,63 @@
+name: Bug report
+description: File a bug report
+type: 1-Bug
+labels: []
+projects:
+  - zebbra/7
+assignees: []
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Tell us how to reproduce the issue.
+      placeholder: 1. Go to '...'
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened-media
+    attributes:
+      label: Upload media
+      description: Upload any screenshots, videos or other media that can help us
+        understand the issue.
+      placeholder: Drag and drop, paste or use the file picker.
+    validations:
+      required: false
+  - type: textarea
+    id: which-version
+    attributes:
+      label: What version/s?
+      description: Tell us what version of the software you are using.
+      placeholder: ex. neops-core v1.2.3, neops-web-client v4.5.6
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste relevant logs, making sure not to submit any SENSITIVE DATA.
+        This will be automatically formatted into code, so no need for backticks.
+      placeholder: 'echo hello world
+
+        error: something went wrong
+
+        '
+      render: shell
+    validations:
+      required: false
+  - type: textarea
+    id: misc
+    attributes:
+      label: Anything else?
+      description: Any other information you think might be useful.
+      placeholder: Tell us more!
+    validations:
+      required: false

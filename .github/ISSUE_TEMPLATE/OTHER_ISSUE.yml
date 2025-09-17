@@ -1,0 +1,32 @@
+name: Other issue
+description: File other type of issue
+labels: 2-Task
+projects:
+  - zebbra/7
+assignees: []
+body:
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is this about?
+      description: Tell us what this is about.
+      placeholder: We're listening!
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened-media
+    attributes:
+      label: Upload media
+      description: Upload any screenshots, videos or other media that can help us
+        understand the issue.
+      placeholder: Drag and drop, paste or use the file picker.
+    validations:
+      required: false
+  - type: textarea
+    id: misc
+    attributes:
+      label: Anything else?
+      description: Any other information you think might be useful.
+      placeholder: Tell us more!
+    validations:
+      required: false

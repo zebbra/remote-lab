@@ -1,0 +1,18 @@
+changelog:
+  categories:
+    - title: Breaking Changes 🛠
+      labels:
+        - pr-breaking-change
+    - title: Exciting New Features 🎉
+      labels:
+        - pr-new-feature
+    - title: Bug Fixes 🐛
+      labels:
+        - pr-bugfix
+    - title: Security Improvements 🔒
+      labels:
+        - pr-security
+    - title: Other Changes 🔄
+      labels:
+        - pr-other
+        - "*"

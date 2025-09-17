@@ -1,0 +1,49 @@
+name: Enforce PR Label
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+
+concurrency:
+  group: enforce-label
+  cancel-in-progress: true
+
+jobs:
+  enforce-label:
+    runs-on: hetzner
+    steps:
+      - uses: actions/checkout@v4
+
+      - if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          sudo apt-get install -y gh
+          
+          # Get the labels for the current PR
+          LABELS=$(gh pr view $PR_NUMBER --json labels --jq '.labels[].name')
+
+          # Define the required label types
+          VALID_LABELS=("pr-bugfix" "pr-breaking-change" "pr-other" "pr-new-feature" "pr-security")
+
+          # Flag to track if a valid label is found
+          VALID_LABEL_FOUND=false
+
+          # Check if any of the PR's labels match the required labels
+          for label in $LABELS; do
+            for valid_label in "${VALID_LABELS[@]}"; do
+              if [[ "$label" == "$valid_label" ]]; then
+                VALID_LABEL_FOUND=true
+                break 2
+              fi
+            done
+          done
+
+          # If no valid label is found, fail the workflow
+          if [[ "$VALID_LABEL_FOUND" == "false" ]]; then
+            echo "Error: PR must have one of the following labels: ${VALID_LABELS[*]}"
+            exit 1
+          fi
