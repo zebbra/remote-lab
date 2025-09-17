@@ -46,7 +46,7 @@ jobs:
         run: |
           pip install --quiet poetry
           poetry config virtualenvs.in-project true
-          poetry sync --no-interaction --no-root --with dev,test -E remote-lab
+          poetry sync --no-interaction --no-root --with dev
 
       - name: Lint & Type-check
         run: |
@@ -54,7 +54,7 @@ jobs:
           poetry run pylint --fail-under=9.5 neops_remote_lab
           poetry run mypy neops_remote_lab
 
-      - name: Run fast tests (sdk/testing, no function_block)
+      - name: Run tests
         run: poetry run pytest
 
       - name: Summary
