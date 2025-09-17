@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from typing import List, Optional, Dict, Any
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 # Forward reference of DeviceInfoDto requires it defined first.
 class DeviceInfoDto(BaseModel):  # type: ignore[misc]
     """Full information about a Netlab node as exchanged via the API."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     name: str = Field(..., description="Node name as reported by Netlab")
     raw: Dict[str, Any] = Field(..., description="Raw `netlab inspect` dictionary for the node")
