@@ -6,7 +6,7 @@ across multiple pytest worker processes via :pydata:`GLOBAL_LOCK`.
 Key features
 ============
 1. Exactly one active lab at any time per host.
-2. Reference counting – optional *reuse* of the same topology for faster tests.
+2. Reference counting – optional *reuse* of the same topology (equality check by comparing hash of content) for faster tests.
 3. Non-blocking :pyfunc:`try_acquire` used by the remote server to implement an
    HTTP 423 response while keeping the original blocking :pyfunc:`acquire` for
    local tests.
@@ -17,6 +17,7 @@ Key features
 from __future__ import annotations
 
 import atexit
+import hashlib
 import logging
 import shutil
 import tempfile
@@ -26,9 +27,8 @@ from typing import List, Optional
 
 from filelock import FileLock
 
-from .connector import inspect_node, list_nodes, run_netlab
-from ..models import DeviceInfoDto, LabStatusDto as ApiLabStatus
-
+from neops_remote_lab.netlab.connector import inspect_node, list_nodes, run_netlab
+from neops_remote_lab.models import DeviceInfoDto, LabStatusDto as ApiLabStatus
 
 __all__ = [
     "LabManager",
@@ -39,19 +39,27 @@ WAIT_INTERVAL = 2  # seconds between acquire retries
 
 _log = logging.getLogger(__name__)
 
-# A system-wide file lock guarantees exclusivity across *multiple* pytest
-# worker processes or any other Python processes using this module.
+# A system-wide file lock guarantees exclusivity across multiple processes.
 GLOBAL_LOCK = FileLock(str(Path(tempfile.gettempdir()) / "netlab_pytest.lock"))
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# temp-dir handling
-# ──────────────────────────────────────────────────────────────────────────────
+def _compute_file_sha256(path: Path, *, chunk_size: int = 1 << 20) -> str:
+    """Return SHA-256 hex digest of the file at path (chunked, memory efficient)."""
+    hasher = hashlib.sha256()
+    with path.open("rb") as f:
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
 def prepare_workdir(src: Path) -> Path:
     """
-    Copy *src* (file **or** directory) into a brand-new temporary directory.
+    Copy src (file) into a brand-new temporary directory.
 
-    *netlab* insists on operating in an empty directory; copying guarantees a
+    netlab insists on operating in an empty directory; copying guarantees a
     clean workspace and avoids polluting your repo.
     """
     tmpdir = Path(tempfile.mkdtemp(prefix=f"netlab_topo_{src.stem}_"))
@@ -92,7 +100,8 @@ def prepare_workdir(src: Path) -> Path:
 
 
 class LabManager:
-    _current_topo: Path | None = None  # full resolved path of running lab
+    _current_topo: Path | None = None  # full resolved path of running lab (source file)
+    _current_topo_hash: str | None = None  # SHA-256 fingerprint of topology content
     _handle: _Handle | None = None  # metadata + devices for the running lab
 
     class _Handle:
@@ -115,6 +124,10 @@ class LabManager:
         # ``expected_failure=True`` so it silently succeeds when no lab is running.
         cls._terminate_default_netlab_instance(reason="startup-sanity-check")
 
+        # Store topology identity (hash) for reuse detection
+        cls._current_topo = topo
+        cls._current_topo_hash = _compute_file_sha256(topo)
+
         workdir = prepare_workdir(topo)
         _log.info("Starting lab %s - this may take several minutes...", topo.name)
         run_netlab(["up", topo.name], cwd=workdir)
@@ -122,7 +135,6 @@ class LabManager:
         node_names = list_nodes(cwd=workdir)
         devices = [DeviceInfoDto(name=n, raw=inspect_node(n, cwd=workdir)) for n in node_names]
 
-        cls._current_topo = topo
         cls._handle = LabManager._Handle(workdir, devices)
 
         _log.info("Lab %s started (%d devices)", topo.name, len(devices))
@@ -149,20 +161,52 @@ class LabManager:
         topo = topo.resolve()
 
         while True:
-            devices = cls._attempt_acquire(topo, reuse)
+            devices = cls.try_acquire(topo, reuse=reuse)
             if devices is not None:
                 return devices
 
             _log.debug("Lab busy – waiting %.1fs", WAIT_INTERVAL)
             time.sleep(WAIT_INTERVAL)
 
-    # ------------------------------------------------------------------ new public helpers
     @classmethod
     def try_acquire(cls, topo: Path, *, reuse: bool = True) -> List[DeviceInfoDto] | None:
-        """Non-blocking variant of :py:meth:`acquire`. Returns devices or ``None``."""
-        return cls._attempt_acquire(topo.resolve(), reuse)
+        """Non-blocking variant of acquire.
 
-    # ------------------------------------------------------------------ status helpers
+        Returns devices if the lab is available (reused or freshly started) or
+        ``None`` if currently busy.
+        """
+        topo = topo.resolve()
+
+        new_hash = _compute_file_sha256(topo)
+        with GLOBAL_LOCK:
+            # 1. No lab → start
+            if cls._handle is None:
+                _log.info("No active lab – starting %s", topo.name)
+                return cls._start(topo)
+
+            # 2. Same topology content --------------------------------------------------
+            if cls._current_topo_hash == new_hash:
+                if reuse:
+                    cls._handle.ref += 1
+                    _log.info("Re-using lab %s (ref=%d)", (cls._current_topo or topo).name, cls._handle.ref)
+                    return cls._handle.devices
+
+                if cls._handle.ref == 0:
+                    _log.info("Exclusive request – restarting idle lab %s", (cls._current_topo or topo).name)
+                    cls._terminate_current(reason="exclusive-request")
+                    return cls._start(topo)
+
+                return None  # busy
+
+            # 3. Different topology content -------------------------------------------
+            if cls._handle.ref == 0:
+                current_name = cls._current_topo.name if cls._current_topo else "<unknown>"
+                _log.info("Switching topology from %s to %s", current_name, topo.name)
+                cls._terminate_current(reason="topology-switch")
+                return cls._start(topo)
+
+            return None  # busy
+
     @classmethod
     def status(cls, *, include_devices: bool = False) -> ApiLabStatus:
         """Return status information about the current lab."""
@@ -182,8 +226,14 @@ class LabManager:
     def release(cls, topo: Path) -> None:
         topo = topo.resolve()
         with GLOBAL_LOCK:
-            if cls._current_topo != topo:
-                # Should never happen; indicates mismatched acquire/release
+            # If callers pass a different path with same content, accept it
+            same_content = False
+            try:
+                same_content = cls._current_topo_hash == _compute_file_sha256(topo)
+            except Exception:  # pragma: no cover - release on missing files should be no-op
+                same_content = False
+
+            if not same_content and cls._current_topo != topo:
                 _log.error("Release called for non-current topo %s (current %s)", topo, cls._current_topo)
                 return
 
@@ -194,18 +244,15 @@ class LabManager:
                 _log.error("Reference counter underflow for topo %s", topo.name)
                 cls._handle.ref = 0
 
-            # When ref hits 0 the lab becomes idle.  It remains running until a
+            # When ref hits 0 the lab becomes idle. It remains running until a
             # different topology is requested or the interpreter exits.
             if cls._handle.ref == 0:
-                _log.info(
-                    "Lab %s became idle – awaiting next user or teardown (refcount=0)",
-                    topo.name,
-                )
+                _log.info("Lab %s became idle – awaiting next user or teardown (refcount=0)", topo.name)
 
     # ------------------------------------------------------------------ internal helpers
     @classmethod
     def _terminate_current(cls, reason: str | None = None) -> None:
-        """Tear down the currently running lab *unconditionally*.  Caller must hold GLOBAL_LOCK."""
+        """Tear down the currently running lab unconditionally. Caller must hold GLOBAL_LOCK."""
         if cls._handle is None:
             return
 
@@ -217,6 +264,7 @@ class LabManager:
             shutil.rmtree(cls._handle.workdir, ignore_errors=True)
             cls._handle = None
             cls._current_topo = None
+            cls._current_topo_hash = None
 
     @classmethod
     def _terminate_default_netlab_instance(cls, reason: str | None = None) -> None:
@@ -228,55 +276,10 @@ class LabManager:
             _log.debug("Default instance cleanup failed (this is normal if no instance was running): %s", e)
             # Don't re-raise - this is expected if no default instance exists
 
-    @classmethod
-    def _attempt_acquire(cls, topo: Path, reuse: bool) -> List[DeviceInfoDto] | None:
-        """Single attempt to acquire/start a lab inside GLOBAL_LOCK."""
-        with GLOBAL_LOCK:
-            # 1. No lab → start
-            if cls._handle is None:
-                _log.info("No active lab – starting %s", topo.name)
-                return cls._start(topo)
-
-            # 2. Same topology --------------------------------------------------
-            if cls._current_topo == topo:
-                if reuse:
-                    cls._handle.ref += 1
-                    _log.info("Re-using lab %s (ref=%d)", topo.name, cls._handle.ref)
-                    return cls._handle.devices
-
-                if cls._handle.ref == 0:
-                    _log.info("Exclusive request – restarting idle lab %s", topo.name)
-                    cls._terminate_current(reason="exclusive-request")
-                    return cls._start(topo)
-
-                return None  # busy
-
-            # 3. Different topology -------------------------------------------
-            if cls._handle.ref == 0:
-                current_name = cls._current_topo.name if cls._current_topo else "<unknown>"
-                _log.info("Switching topology from %s to %s", current_name, topo.name)
-                cls._terminate_current(reason="topology-switch")
-                return cls._start(topo)
-
-            return None  # busy
-
     # ------------------------------------------------------------------ cleanup helper
     @staticmethod
     def cleanup(*, default_instance: bool = False, silent: bool = False, reason: str = "manual-cleanup") -> None:
-        """Tear down labs based on the specified target.
-
-        Parameters
-        ----------
-        default_instance : bool, default False
-            If True, clean up the default netlab instance.
-            If False, clean up the currently managed lab.
-        silent : bool, default False
-            Disable logging temporarily (useful during interpreter shutdown
-            when streams may already be closed).
-        reason : str, default "manual-cleanup"
-            Human-readable explanation passed through to the teardown log so
-            you immediately know *why* the cleanup was performed.
-        """
+        """Tear down labs based on the specified target."""
 
         if silent:
             logging.disable(logging.CRITICAL)
@@ -299,7 +302,7 @@ class LabManager:
 
     @classmethod
     def current_devices(cls) -> List[DeviceInfoDto]:
-        """Return a *copy* of the current device list (empty if no lab)."""
+        """Return a copy of the current device list (empty if no lab)."""
         return list(cls._handle.devices) if cls._handle else []
 
     @classmethod
@@ -314,11 +317,7 @@ class LabManager:
         cls.release(cls._current_topo)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # atexit: last-resort cleanup (silent to avoid closed-stream errors)
-# ──────────────────────────────────────────────────────────────────────────────
-
-
 def _atexit_cleanup() -> None:  # registered below
     LabManager.cleanup(silent=True, reason="atexit")
 
