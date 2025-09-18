@@ -1,9 +1,38 @@
 [tool.poetry]
 name = "neops_remote_lab"
 version = "0.0.0"
-description = ""
+description = "FastAPI-based Remote Lab Manager for Netlab topologies to enable remote testing of Neops Function Blocks against virtual networking labs"
 authors = ["zebbra AG"]
 readme = "README.md"
+license = "Proprietary"
+keywords = [
+    "neops",
+    "networking",
+    "netlab",
+    "remote",
+    "lab",
+    "fastapi",
+    "pytest",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Environment :: Console",
+    "Framework :: Neops",
+    "Topic :: Software Development :: Testing",
+    "Topic :: System :: Networking",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+]
+
+# Ensure non-Python assets ship with the package (wheel + sdist)
+include = [
+    "neops_remote_lab/logging_config.yaml",
+    "neops_remote_lab/py.typed",
+]
 
 [tool.poetry.dependencies]
 python = "^3.12"

@@ -18,6 +18,7 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, UploadFile, status, Response
 
 from neops_remote_lab.netlab.lab_manager import LabManager
+from neops_remote_lab import __version__
 
 from neops_remote_lab.models import (
     ActiveSessionResponseDto,
@@ -77,7 +78,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(
     title="Netlab Remote Lab Manager",
-    version="0.2.0",
+    version=__version__,
     description="Manages a queue of exclusive sessions for Netlab topologies.",
     lifespan=lifespan,
 )

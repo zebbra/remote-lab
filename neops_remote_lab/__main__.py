@@ -1,4 +1,4 @@
-"""Run the remote lab server via `poetry run remote_lab` or `python -m neops_worker_sdk.testing.remote_lab`"""
+"""Run the remote lab server via `poetry run remote_lab` or `python -m neops_remote_lab`"""
 
 from __future__ import annotations
 
@@ -12,28 +12,26 @@ import subprocess
 
 import uvicorn
 import yaml
+from importlib import resources as _resources
 
 from neops_remote_lab.server import app
+from neops_remote_lab import __version__
 
 _logger = logging.getLogger("remote-lab-server")
 
 
 def setup_logging(config_path: str, log_level: str) -> None:
     """Setup logging configuration from YAML file or fallback to basic config."""
-    log_config_path = Path(config_path)
-
-    if not log_config_path.exists():
-        print(f"Logging config file not found: {log_config_path}")
-        logging.basicConfig(
-            level=getattr(logging, log_level.upper(), "INFO"),
-            format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-            datefmt="%H:%M:%S",
-        )
-        return
-
+    # Try filesystem path first
     try:
-        with open(log_config_path, "r", encoding="utf-8") as f:
-            config = yaml.safe_load(f)
+        log_config_path = Path(config_path)
+        if log_config_path.exists():
+            with open(log_config_path, "r", encoding="utf-8") as f:
+                config = yaml.safe_load(f)
+        else:
+            # Fallback to packaged default file inside the module
+            with _resources.files("neops_remote_lab").joinpath("logging_config.yaml").open("r", encoding="utf-8") as f:
+                config = yaml.safe_load(f)
 
         level = log_level.upper()
         if level != "INFO":
@@ -51,7 +49,7 @@ def setup_logging(config_path: str, log_level: str) -> None:
                     config["root"]["handlers"] = ["debug_console"]
 
         logging.config.dictConfig(config)
-        _logger.info("Loaded logging config from %s (level: %s)", log_config_path, level)
+        _logger.info("Loaded logging config (level: %s)", level)
 
     except (yaml.YAMLError, IOError, KeyError) as e:
         print(f"Error processing logging config: {e}")
@@ -63,9 +61,8 @@ def setup_logging(config_path: str, log_level: str) -> None:
 
 
 def main() -> None:
-    default_logger_config_path = Path(__file__).resolve().parent.parent / "logging_config.yaml"
-
     parser = argparse.ArgumentParser(description="Start the Remote Lab Manager")
+    default_logger_config_path = Path("logging_config.yaml")  # user may override; packaged default is auto-loaded
     parser.add_argument("--debug", action="store_true", help="Enable debug logging and stream netlab output.")
     parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=8000)
@@ -75,6 +72,7 @@ def main() -> None:
         default=str(default_logger_config_path),
         help="Path to logging config file",
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
 
     if args.debug:
