@@ -9,10 +9,17 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
+import json
+import time
+import getpass
+import platform
+import tempfile
 
 import uvicorn
 import yaml
 from importlib import resources as _resources
+from filelock import FileLock, Timeout
 
 from neops_remote_lab.server import app
 from neops_remote_lab import __version__
@@ -52,12 +59,91 @@ def setup_logging(config_path: str, log_level: str) -> None:
         _logger.info("Loaded logging config (level: %s)", level)
 
     except (yaml.YAMLError, IOError, KeyError) as e:
-        print(f"Error processing logging config: {e}")
+        _logger.error("Error processing logging config: %s", e)
         logging.basicConfig(
             level=getattr(logging, log_level.upper(), "INFO"),
             format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
             datefmt="%H:%M:%S",
         )
+
+
+def _instance_paths() -> tuple[Path, Path]:
+    tmpdir = Path(tempfile.gettempdir())
+    return (tmpdir / "neops_remote_lab_server.lock", tmpdir / "neops_remote_lab_server.meta.json")
+
+
+def _read_instance_meta(meta_path: Path) -> dict[str, object] | None:
+    try:
+        if not meta_path.exists():
+            return None
+        return json.loads(meta_path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        _logger.warning("Failed to read instance metadata from %s: %s", meta_path, exc)
+        return None
+
+
+def _pid_is_alive(pid: int) -> bool:
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)  # Unix: signal 0 checks process existence
+        return True
+    except Exception:
+        return False
+
+
+def _acquire_single_instance_lock() -> tuple[FileLock, Path]:
+    """Acquire the global single-instance lock or exit after logging details.
+
+    Returns the acquired FileLock and the metadata path.
+    """
+    lock_path, meta_path = _instance_paths()
+    lock = FileLock(str(lock_path))
+
+    try:
+        lock.acquire(timeout=0)
+        return lock, meta_path
+    except Timeout:
+        # Another instance is running – log details if available
+        _logger.error("Another Remote Lab Manager instance is already running.")
+        data = _read_instance_meta(meta_path)
+
+        if data is not None:
+            raw_pid = data.get("pid", 0)
+            pid = int(raw_pid) if isinstance(raw_pid, (int, str)) else 0
+            if not _pid_is_alive(pid):
+                _logger.warning("Stale instance metadata detected – cleaning up...")
+                try:
+                    meta_path.unlink()
+                except Exception:
+                    pass
+                # Retry acquiring the lock
+                try:
+                    lock.acquire(timeout=0)
+                    _logger.info("Recovered from stale state – proceeding to start server.")
+                    return lock, meta_path
+                except Timeout:
+                    _logger.error("Lock still held but metadata was stale – another process likely took the lock.")
+            else:
+                _logger.error("Running instance details:")
+                _logger.error("  PID:        %s", data.get("pid", "?"))
+                _logger.error("  User:       %s@%s", data.get("user", "?"), data.get("host", "?"))
+                _logger.error("  Version:    %s", data.get("version", "?"))
+                started_raw = data.get("started_at", 0)
+                try:
+                    started_ts = float(started_raw)  # type: ignore[arg-type]
+                except Exception:
+                    started_ts = 0.0
+                _logger.error("  Started:    %s", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(started_ts)))
+                _logger.error("  Bind:       %s:%s", data.get("host_bind", "?"), data.get("port", "?"))
+                _logger.error("  Log level:  %s", data.get("log_level", "?"))
+                _logger.error("  Log config: %s", data.get("log_config", "?"))
+                _logger.error("  CWD:        %s", data.get("cwd", "?"))
+                _logger.error("  Command:    %s", data.get("cmd", "?"))
+        else:
+            _logger.error("No metadata file found for existing instance (%s).", meta_path)
+
+        raise SystemExit(1)
 
 
 def main() -> None:
@@ -81,6 +167,39 @@ def main() -> None:
         os.environ["NEOPS_NETLAB_STREAM_OUTPUT"] = "1"
 
     setup_logging(args.log_config, args.log_level)
+
+    # ------------------------------------------------------------------ single-instance guard
+    lock, meta_path = _acquire_single_instance_lock()
+
+    # We own the lock from here on. Ensure release and metadata cleanup on exit
+    def _cleanup_lock() -> None:
+        try:
+            if meta_path.exists():
+                meta_path.unlink()
+        finally:
+            try:
+                lock.release()
+            except Exception:
+                pass
+
+    # Write metadata file for user visibility and diagnostics
+    try:
+        meta = {
+            "pid": os.getpid(),
+            "user": getpass.getuser(),
+            "host": platform.node(),
+            "started_at": time.time(),
+            "port": args.port,
+            "host_bind": args.host,
+            "log_level": args.log_level,
+            "log_config": args.log_config,
+            "version": __version__,
+            "cwd": str(Path.cwd()),
+            "cmd": " ".join(sys.argv),
+        }
+        meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    except Exception as exc:  # noqa: BLE001
+        _logger.warning("Failed to write instance metadata: %s", exc)
 
     _logger.info("Starting Remote Lab Manager on %s:%d", args.host, args.port)
 
@@ -106,14 +225,17 @@ def main() -> None:
         _logger.error("Please verify your Netlab installation: https://netlab.tools/install/ubuntu/")
         raise SystemExit(1) from exc
 
-    uvicorn.run(
-        app,
-        host=args.host,
-        port=args.port,
-        log_level=args.log_level.lower(),
-        access_log=True,
-        log_config=None,  # Don't let uvicorn override our logging config
-    )
+    try:
+        uvicorn.run(
+            app,
+            host=args.host,
+            port=args.port,
+            log_level=args.log_level.lower(),
+            access_log=True,
+            log_config=None,  # Don't let uvicorn override our logging config
+        )
+    finally:
+        _cleanup_lock()
 
 
 if __name__ == "__main__":
