@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-try:  # Python 3.8+ importlib.metadata backport for runtime resolution
-    from importlib.metadata import PackageNotFoundError, version as _dist_version
-except Exception:  # pragma: no cover
-    _dist_version = None  # type: ignore[assignment]
-    PackageNotFoundError = Exception  # type: ignore[misc,assignment]
+from importlib.metadata import version as _dist_version, PackageNotFoundError
 
-# Public models re-exported at the package root for convenient imports
-from .models import (  # noqa: F401
+# Re-export public models from the models package for convenience
+from .models import (
     DeviceInfoDto,
     LabStatusDto,
     AcquireResponseDto,
@@ -18,22 +14,10 @@ from .models import (  # noqa: F401
     ActiveSessionResponseDto,
 )
 
-
-def _resolve_version() -> str:
-    """Return installed distribution version; fallback to '0.0.0' when unavailable.
-
-    Using importlib.metadata ensures the version matches the built wheel uploaded to PyPI.
-    """
-    dist_name = "neops_remote_lab"
-    try:
-        if _dist_version is None:  # type: ignore[truthy-function]
-            return "0.0.0"
-        return _dist_version(dist_name)
-    except PackageNotFoundError:  # pragma: no cover - during editable installs or tests
-        return "0.0.0"
-
-
-__version__: str = _resolve_version()
+try:
+    __version__: str = _dist_version("neops_remote_lab")
+except PackageNotFoundError:  # pragma: no cover
+    __version__ = "0.0.0"
 
 __all__ = [
     "__version__",
