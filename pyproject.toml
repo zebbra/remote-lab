@@ -34,6 +34,7 @@ pyyaml = "^6.0"
 colorlog = "^6.8.2"
 python-multipart = "^0.0.20"
 pydantic = "^2.7"
+requests = "^2.32.5"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
@@ -44,6 +45,7 @@ colorlog = "^6.8.2"
 pytest = "^8.4.1"
 pytest-asyncio = "^1.1.0"
 httpx = "^0.28.1"
+types-requests = "^2.32.4.20250913"
 
 
 [tool.pytest.ini_options]
@@ -56,6 +58,9 @@ addopts = [
 [tool.poetry.scripts]
 remote_lab = 'neops_remote_lab.__main__:main'
 
+
+[tool.poetry.plugins."pytest11"]
+neops-remote-lab = "neops_remote_lab.pytest_plugins"
 
 [tool.black]
 line-length = 120
