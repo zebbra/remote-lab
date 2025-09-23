@@ -56,7 +56,7 @@ addopts = [
 ]
 
 [tool.poetry.scripts]
-remote_lab = 'neops_remote_lab.__main__:main'
+neops-remote-lab = 'neops_remote_lab.__main__:main'
 
 
 [tool.poetry.plugins."pytest11"]
