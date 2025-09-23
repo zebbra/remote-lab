@@ -46,7 +46,7 @@ jobs:
         run: |
           pip install --quiet poetry
           poetry config virtualenvs.in-project true
-          poetry sync --no-interaction --no-root --with dev
+          poetry install --no-interaction --with dev
 
       - name: Lint & Type-check
         run: |
