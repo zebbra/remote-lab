@@ -72,6 +72,8 @@ jobs:
 #          echo "pep440=${PEP440_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Build Python package
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           echo "Raw tag: ${TAG}"
