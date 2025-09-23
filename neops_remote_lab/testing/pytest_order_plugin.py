@@ -114,4 +114,3 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[Item]) -> N
     # Log the structured order in one or two calls
     formatted_order = _format_execution_order(items)
     _log.info(formatted_order)
-
