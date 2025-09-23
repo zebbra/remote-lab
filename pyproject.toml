@@ -14,19 +14,6 @@ keywords = [
     "fastapi",
     "pytest",
 ]
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "Environment :: Console",
-    "Framework :: Neops",
-    "Topic :: Software Development :: Testing",
-    "Topic :: System :: Networking",
-    "License :: Other/Proprietary License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.12",
-    "Typing :: Typed",
-]
 
 # Ensure non-Python assets ship with the package (wheel + sdist)
 include = [
