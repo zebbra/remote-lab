@@ -1,4 +1,4 @@
-# Remote Lab Manager
+# Neops Remote Lab
 
 Run Netlab topologies on a **remote host** while keeping your pytest suite local.
 The service exposes a small REST API that schedules *exclusive* sessions in a
