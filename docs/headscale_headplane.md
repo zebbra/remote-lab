@@ -13,7 +13,7 @@ This guide shows how to deploy a self‑hosted [Headscale](https://headscale.net
 The Compose files and configuration in this repo are located at:
 
 ```
-neops_worker_sdk/testing/remote_lab/headscale/
+neops-remote-lab/headscale/
   ├─ docker-compose.yml
   ├─ headplane.config.yaml
   └─ config/

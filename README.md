@@ -7,6 +7,21 @@ infrastructure safely.
 
 ---
 
+## 📦 Installation
+
+Remote Lab Manager is available on PyPI as [`neops_remote_lab`](https://pypi.org/project/neops_remote_lab). You can install it using pip:
+
+```bash
+pip install neops-remote-lab
+```
+
+You can also install it using Poetry:
+```bash
+poetry add neops-remote-lab
+```
+
+
+
 ## ✨ Key Points
 
 * **One-lab rule** – only one Netlab topology may run per host; the manager
@@ -15,44 +30,119 @@ infrastructure safely.
   fixtures will transparently switch to remote mode.
 * **Stateless HTTP API** – every request is authenticated via an `X-Session-ID`
   header issued when the session is created.
-* **Python client available** – import `RemoteLabClient` for programmatic use.
+* **Python client available** – import  RemoteLabClient` for programmatic use.
 ---
 
-You to author tests that consume these labs? See the Testing Framework guide: [/development/testing-framework/](./testing-framework.md)
+## 🔧 Prerequisites
+The Remote Lab Manager requires two main components to function properly:
 
-For secure reachability to the Remote Lab subnet(s) using Tailscale clients managed by a self‑hosted control plane, see: [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md).
+1. **Netlab** – for orchestrating network topologies on the remote host
+2. **VPN connectivity** – to route traffic between your local machine and lab subnets
+
+### Netlab
+The Remote Lab Manager orchestrates your topologies with **Netlab** (Containerlab/libvirt + Ansible). Install Netlab on the Remote Lab VM and validate the setup before running tests. Our guide configures rootless Containerlab so you can operate without `sudo` – ideal for CI and automation.
+
+Quick validation:
+```bash
+netlab test clab
+```
+
+See [Netlab Installation & Rootless Containerlab](./docs/netlab_configuration.md) for step‑by‑step instructions and troubleshooting.
+
+### Headscale and Tailscale
+Use **Headscale (control plane) with Tailscale clients** to route traffic between your local machine/CI and the lab subnets. You can also bring your own VPN (e.g., WireGuard); the only requirement is that your test runner can reach the lab subnet(s). Headscale/Headplane may run on the Remote Lab VM or any reachable host.
+
+See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) for deployment, access, and client enrollment.
+
 
 ## 🚀 Quick-Start
 
-### 1. Start the Server
+### On your Remote Lab VM
+#### 1. Configure Headscale and Tailscale OR your own VPN solution (e.g. WireGuard)
+In order to connect to the Remote Lab subnet(s) from your local machine, you need to configure a VPN solution.
 
-**Native Python**
+See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) for more details.
+
+#### 2. Start the Remote Lab Server
+
+For local development, you can use the following commands to start the Remote Lab Server:
+****
 ```bash
 # Install deps (inside a venv)
-poetry install --extras remote-lab  # includes FastAPI, Uvicorn, etc.
+poetry install  # includes FastAPI, Uvicorn, etc.
 
 # Run the service
-poetry run remote_lab --host 0.0.0.0 --port 8000 --log-level info
+poetry run neops-remote-lab --host 0.0.0.0 --port 8000 --log-level info
 ```
 
-### 2. Configure Your Tests
+You can also install the remote lab server from **PyPI**:
+```bash
+# Install from pypi
+pip install neops-remote-lab
+
+# Run the service
+neops-remote-lab --host 0.0.0.0 --port 8000 --log-level info
+```
+
+
+### On your Local Machine
+#### 1. Setup your local machine to connect to the Remote Lab subnet(s)
+Your network needs to be able to reach the Remote Lab subnet(s). After you configured Headscale on your Remote Lab VM, you can connect to it from your local machine.
+
+See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) for more details.
+
+#### 2. Configure Your Tests (in your project)
+In projects that use `neops-remote-lab`, set the Remote Lab Manager URL:
 
 ```bash
 export REMOTE_LAB_URL=http://<host>:8000
 
 # Hetzner neops-labs VM:
 export REMOTE_LAB_URL=http://91.99.184.46:8000 
-# Optional: put this into a .env file – test suite auto-loads it via python-dotenv
+
+# Optional: put this into a .env file and load it using python-dotenv or your preferred method
 ```
 
-### 3. Run pytest as usual
+Additionally, you can also set the following environment variables to override the default timeouts:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `REMOTE_LAB_REQUEST_TIMEOUT` | Per-request timeout in seconds | 30 |
+| `REMOTE_LAB_SESSION_TIMEOUT` | Session heartbeat timeout in seconds | 300 |
+| `REMOTE_LAB_ACQUISITION_TIMEOUT` | Max seconds to wait for lab acquisition | 600 |
+
+
+After setting **at least** the `REMOTE_LAB_URL` environment variable, you can then use the fixtures provided by `neops-remote-lab`.
+
+***Example: Define and use a lab fixture***
+
+Declare a fixture for your topology using the provided factory (e.g., `tests/conftest.py`) and use it in your tests (e.g., `tests/function_block_test.py`).
+
+```python
+from neops_remote_lab.testing.fixture import remote_lab_fixture
+
+# Declare a fixture for your topology file. Set reuse_lab=True to share the same
+# lab across multiple tests in the module (reference-counted on the server).
+frr_lab = remote_lab_fixture(
+    "tests/topologies/simple_frr.yml",
+    reuse_lab=True,
+)
+```
+
+> **Notes:**
+> - The package registers a pytest plugin, so `remote_lab_fixture` can be imported directly as shown.
+> - The `REMOTE_LAB_URL` environment variable must be set; the session-scoped `remote_lab_client` fixture will fail fast if it is not.
+
+
+#### 3. Run pytest as usual (in your project)
 
 ```bash
-pytest tests/function_blocks/
+# Run your tests (example paths)
+pytest -q
+pytest tests/  # or any subset, markers, etc.
 ```
 
-If `REMOTE_LAB_URL` is set the fixtures automatically use the remote server;
-otherwise they fall back to local `netlab` execution.
+If `REMOTE_LAB_URL` is set, the fixtures will connect to the configured Remote Lab server and manage the lifecycle of your Netlab topology for each test.
 
 ---
 
@@ -115,6 +205,9 @@ curl -X DELETE http://localhost:8000/session/$SESSION
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `REMOTE_LAB_URL` | Base URL used by client and fixtures | – |
+| `REMOTE_LAB_REQUEST_TIMEOUT` | Per-request timeout in seconds | 30 |
+| `REMOTE_LAB_SESSION_TIMEOUT` | Session heartbeat timeout in seconds | 300 |
+| `REMOTE_LAB_ACQUISITION_TIMEOUT` | Max seconds to wait for lab acquisition | 600 |
 
 ---
 
