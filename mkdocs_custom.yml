@@ -1,0 +1,65 @@
+site_name: Your Project Docs
+
+nav:
+  - Start: index.md
+#  - Dummy Project: '!include ./submodules/zebbra-mkdocs-dummyproject/mkdocs_custom.yml'
+
+
+# --8<-- [start:theme]
+theme:
+  # Dark and light mode, defaults to system theme
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/link
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: deep orange
+      toggle:
+        icon: material/toggle-switch-off
+        name: Switch to system preference
+# --8<-- [end:theme]
+
+# --8<-- [start:repo]
+repo_url: https://github.com/zebbra/neops
+edit_uri: edit/main/docs
+# --8<-- [end:repo]
+
+# --8<-- [start:social]
+extra:
+  social:
+    - icon: fontawesome/solid/house
+      link: https://zebbra.ch
+      name: Zebbra
+# --8<-- [end:social]
+
+# --8<-- [start:copyright]
+copyright: Copyright &copy; Zebbra AG
+# --8<-- [end:copyright]
+
+plugins:
+  # Enables search
+  # - git-authors
+  # - git-revision-date-localized
+  # Monorepo allows to use the !include in the navigation
+  - monorepo
+  - exclude:
+      glob:
+        - '*.tmp'
+        - '*.pdf'
+        - '*.gz'
+        - node_modules
+        - '**/node_modules/*'
+        - .venv
+        - '**/.venv/*'
+      regex:
+        - .*\.(tmp|bin|tar)$

@@ -1,0 +1,69 @@
+theme:
+  name: material
+  custom_dir: docs/override
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - header.autohide
+    - announce.dismiss
+    - navigation.footer
+    - navigation.indexes
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - navigation.instant
+    - search.share
+    - search.suggest
+    - search.highlight
+    - content.action.edit
+  logo: assets/logo.svg
+  favicon: assets/favicon.png
+
+# --8<-- [start:markdown_extensions]
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      # Make the build fail if a snippet can't be found.
+      check_paths: true
+      restrict_base_path: false
+      # https://github.com/mkdocs/mkdocs/issues/2154
+      # https://github.com/mkdocs/mkdocs/issues/3453
+      base_path:
+        - !relative
+#        - "submodules/zebbra-mkdocs-dummyproject"
+#        - "submodules/zebbra-mkdocs-dummyproject/docs"
+  # https://github.com/mkdocs/mkdocs/pull/3258
+  #  - !relative  # Obtains the directory of the currently rendered Markdown file
+  #  - !relative $config_dir  # Obtains the directory of mkdocs.yml
+  #  - !relative $docs_dir  # Obtains the docs_dir
+  #  - !relative $docs_dir/some/child/dir
+  # Emojy/Symbol/Fontawesome support in markdown
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list
+  - md_in_html
+# --8<-- [end:markdown_extensions]
+
+# --8<-- [start:plugins]
+plugins:
+  # Enables search
+  - search
+  # Allows to add a whole directory in the navigation instead of just files
+  # Sub-nav items are automatically created if the provided dir contains subdirectories
+  - include_dir_to_nav
+
+# --8<-- [end:plugins]
