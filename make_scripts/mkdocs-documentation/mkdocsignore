@@ -1,0 +1,9 @@
+# Instructs how to clean a directory
+
+*/**/*
+!assets/**/*
+!search/**/*
+!override/**/*
+!**/index.html
+!*.png
+!*.svg
