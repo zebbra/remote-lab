@@ -1,0 +1,5 @@
+# provide folders to ignore here (i.e., do not create symlinks for those)
+# Symlinks are used to ensure that we never create a reference outside the docs folder to allow merging all docs
+# together
+node_modules
+submodules
