@@ -39,6 +39,8 @@ markdown_extensions:
 - md_in_html
 nav:
 - Start: index.md
+- Connectivity: headscale_headplane.md
+- Netlab: netlab_configuration.md
 plugins:
 - search
 - include_dir_to_nav
@@ -55,7 +57,7 @@ plugins:
     regex:
     - .*\.(tmp|bin|tar)$
 repo_url: https://github.com/zebbra/neops
-site_name: Your Project Docs
+site_name: Neops Remote Lab
 theme:
   custom_dir: docs/override
   favicon: assets/favicon.png

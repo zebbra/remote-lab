@@ -1,7 +1,9 @@
-site_name: Your Project Docs
+site_name: Neops Remote Lab
 
 nav:
   - Start: index.md
+  - Connectivity: headscale_headplane.md
+  - Netlab: netlab_configuration.md
 #  - Dummy Project: '!include ./submodules/zebbra-mkdocs-dummyproject/mkdocs_custom.yml'
 
 
