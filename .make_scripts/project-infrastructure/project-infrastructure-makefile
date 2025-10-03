@@ -1,0 +1,8 @@
+sync-infrastructure-assets:
+	.make_scripts/project-infrastructure/sync_infrastructure_assets.sh
+github-set-branch-protections:
+	.make_scripts/project-infrastructure/github_set_branch_protections.sh
+github-set-default-branch:
+	.make_scripts/project-infrastructure/github_set_default_branch.sh
+github-autodelete-merged-branches:
+	.make_scripts/project-infrastructure/github_autodelete_merged_branches.sh
