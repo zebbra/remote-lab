@@ -29,48 +29,6 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-#      - name: Compute PEP 440 version from tag
-#        id: version
-#        env:
-#          TAG: ${{ github.ref_name }}
-#        run: |
-#          set -euo pipefail
-#          echo "Raw tag: ${TAG}"
-#          VERSION="${TAG#v}"
-#          if [ -z "${VERSION}" ]; then
-#            echo "Tag name missing."
-#            exit 1
-#          fi
-#
-#          PEP440_VERSION="$VERSION"
-#          if [[ "$VERSION" == *-* ]]; then
-#            BASE="${VERSION%%-*}"
-#            SUFFIX="${VERSION#*-}"
-#            STAGE="${SUFFIX%%.*}"
-#            NUM="${SUFFIX##*.}"
-#            case "$STAGE" in
-#              beta)
-#                PEP440_VERSION="${BASE}b${NUM}"
-#                ;;
-#              alpha)
-#                PEP440_VERSION="${BASE}a${NUM}"
-#                ;;
-#              rc)
-#                PEP440_VERSION="${BASE}rc${NUM}"
-#                ;;
-#              dev|develop)
-#                PEP440_VERSION="${BASE}.dev${NUM}"
-#                ;;
-#              *)
-#                PEP440_VERSION="${BASE}.${SUFFIX}"
-#                ;;
-#            esac
-#          fi
-#
-#          echo "PEP 440 version: ${PEP440_VERSION}"
-#          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-#          echo "pep440=${PEP440_VERSION}" >> "$GITHUB_OUTPUT"
-
       - name: Build Python package
         env:
           TAG: ${{ github.ref_name }}
