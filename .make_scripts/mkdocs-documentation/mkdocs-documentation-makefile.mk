@@ -1,6 +1,6 @@
 .PHONY: doc-update-assets doc-create-mkdocs doc-serve doc-build
 
-MKDOCS_ENV=./make_scripts/mkdocs-documentation
+MKDOCS_ENV= .make_scripts/mkdocs-documentation
 
 doc-update-assets:
 	$(MKDOCS_ENV)/setup_documentation.sh
@@ -28,4 +28,4 @@ doc-site-clean:
 doc-create-mkdocs-build-workflow:
 	touch .github
 	touch .github/workflows
-	cp make_scripts/mkdocs-documentation/.github/workflows/build-documentation.yml .github/workflows
+	cp .make_scripts/mkdocs-documentation/.github/workflows/build-documentation.yml .github/workflows

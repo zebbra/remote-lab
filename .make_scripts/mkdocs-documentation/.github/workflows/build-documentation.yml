@@ -23,7 +23,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./make_scripts/mkdocs-documentation/Dockerfile
+          file: .make_scripts/mkdocs-documentation/Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
