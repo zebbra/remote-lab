@@ -1,0 +1,22 @@
+tag-major:
+	.make_scripts/release-management/tag_major.sh
+tag-major-beta:
+	.make_scripts/release-management/tag_major_beta.sh
+tag-minor:
+	.make_scripts/release-management/tag_minor.sh
+tag-minor-beta:
+	.make_scripts/release-management/tag_minor_beta.sh
+tag-patch:
+	.make_scripts/release-management/tag_patch.sh
+tag-patch-beta:
+	.make_scripts/release-management/tag_patch_beta.sh
+tag-latest-beta:
+	.make_scripts/release-management/tag_latest_beta.sh
+sync-release-assets:
+	.make_scripts/release-management/sync_release_assets.sh
+check-for-releases:
+	.make_scripts/release-management/check_for_releases.sh
+tag-major-minor-ruleset:
+	.make_scripts/release-management/tag_major_minor_ruleset.sh
+hard-reset-tags:
+	.make_scripts/release-management/hard_reset_tags.sh

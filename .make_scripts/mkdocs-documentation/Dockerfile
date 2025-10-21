@@ -6,7 +6,7 @@ RUN pip install poetry
 
 COPY . .
 
-RUN poetry --project make_scripts/mkdocs-documentation/ install
+RUN poetry --project .make_scripts/mkdocs-documentation/ install
 
 
 # We need the .git repository to get authors and last-modified dates 
