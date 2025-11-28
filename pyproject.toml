@@ -24,7 +24,7 @@ include = [
 [tool.poetry.dependencies]
 python = "^3.12"
 python-dotenv = "^1.1"
-neops-workflow-engine-client = "^0.41.12-beta.11"
+neops-workflow-engine-client = "^0.42.0-beta"
 fastapi = "^0.116.0"
 starlette = ">=0.47.2"
 uvicorn = "^0.29.0"

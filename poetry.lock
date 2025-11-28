@@ -474,14 +474,14 @@ files = [
 
 [[package]]
 name = "neops-workflow-engine-client"
-version = "0.41.12b23"
+version = "0.42.0b5"
 description = "Neops Workflow Engine"
 optional = false
 python-versions = "<4.0,>=3.8"
 groups = ["main"]
 files = [
-    {file = "neops_workflow_engine_client-0.41.12b23-py3-none-any.whl", hash = "sha256:48c3dcfd9f3f6e24b759d8a3e88e64dc209dc5df25b4ca86b3e769e02b37f143"},
-    {file = "neops_workflow_engine_client-0.41.12b23.tar.gz", hash = "sha256:e1d97c8d70db7b618b2324de09a635d166e84fc9d9c711d6a8b486ab4fc48ee7"},
+    {file = "neops_workflow_engine_client-0.42.0b5-py3-none-any.whl", hash = "sha256:1e846cdc04c18e3dc756e7e022556c5878a0690414a83c1ced57f0b8a33397af"},
+    {file = "neops_workflow_engine_client-0.42.0b5.tar.gz", hash = "sha256:0a5bd2a42126fc9dec2146e5d5806bb1077d36eac52aeab53e809dde3fce80be"},
 ]
 
 [package.dependencies]
@@ -1039,4 +1039,4 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.5.0)
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "fe6cd7cc12b66f4d064e4924e213879f07d610794fc3c6e82647d866b484e557"
+content-hash = "7d49aff95dd1976ed2eece3f0424cd899aa359bbc8d097c6593210aa3f43fd5b"
