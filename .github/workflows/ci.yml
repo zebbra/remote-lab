@@ -54,6 +54,9 @@ jobs:
           poetry run pylint --fail-under=9.5 neops_remote_lab
           poetry run mypy neops_remote_lab
 
+      - name: Security audit
+        run: poetry run pip-audit --strict --progress-spinner=off
+
       - name: Run tests
         run: poetry run pytest
 

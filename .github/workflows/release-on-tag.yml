@@ -43,10 +43,14 @@ jobs:
           echo "Using tag ${TAG} -> version ${VERSION}"
 
           pip install --upgrade pip
-          pip install poetry
+          pip install poetry pip-audit
           poetry version "${VERSION}"
+          poetry install --only main
           poetry build
           echo "Built version ${VERSION}"
+
+      - name: Security audit (production dependencies only)
+        run: pip-audit --strict --progress-spinner=off
 
       - name: Publish Python package
         env:
