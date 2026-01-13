@@ -11,7 +11,7 @@ jobs:
     runs-on: hetzner
     steps:
       - name: Check semver integrity
-        uses: zebbra/actions/check-semver@check-semver/v1
+        uses: zebbra/actions/check-semver@check-semver/latest
         
   publish-python-package:
     runs-on: hetzner
