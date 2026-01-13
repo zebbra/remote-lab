@@ -26,42 +26,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        id: setup_python
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
 
-      - name: Cache venv and Poetry cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pypoetry
-            .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ steps.setup_python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-${{ runner.arch }}-${{ steps.setup_python.outputs.python-version }}-
+      - name: Sync dependencies (dev)
+        run: uv sync --group dev --frozen
 
-      - name: Install Poetry & dependencies
-        run: |
-          pip install --quiet poetry
-          poetry config virtualenvs.in-project true
-          poetry install --no-interaction --with dev
+      - name: Ruff format (check)
+        run: uv run ruff format --check neops_remote_lab tests
 
-      - name: Lint & Type-check
-        run: |
-          poetry run black --check neops_remote_lab
-          poetry run pylint --fail-under=9.5 neops_remote_lab
-          poetry run mypy neops_remote_lab
+      - name: Ruff lint
+        run: uv run ruff check neops_remote_lab tests
+
+      - name: Type-check
+        run: uv run pyrefly check
 
       - name: Security audit
-        run: poetry run pip-audit --strict --progress-spinner=off
+        run: uv run pip-audit --strict --progress-spinner=off
 
       - name: Run tests
-        run: poetry run pytest
+        run: uv run pytest
 
       - name: Summary
-        run: echo "### Lint/type-check/audit/tests passed ✅" >> $GITHUB_STEP_SUMMARY
+        run: echo "### Ruff/pyrefly/pip-audit/pytest passed ✅" >> $GITHUB_STEP_SUMMARY
 
   wheel:
     name: Build Python wheel (no publish)
@@ -69,27 +60,18 @@ jobs:
     runs-on: hetzner
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        id: setup_python
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
 
-      - name: Cache pip (for Poetry install)
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-          key: pip-${{ runner.os }}-${{ runner.arch }}-${{ steps.setup_python.outputs.python-version }}-poetry
-          restore-keys: |
-            pip-${{ runner.os }}-${{ runner.arch }}-${{ steps.setup_python.outputs.python-version }}-
-
-      - name: Install Poetry
-        run: |
-          pip install --quiet poetry
+      - name: Sync dependencies (prod)
+        run: uv sync --frozen
 
       - name: Build wheel
-        run: poetry build -f wheel
+        run: uv build
 
       - uses: actions/upload-artifact@v4
         with:
