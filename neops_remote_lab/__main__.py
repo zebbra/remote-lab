@@ -122,9 +122,7 @@ def _acquire_single_instance_lock() -> tuple[BaseFileLock, Path]:
                     _logger.info("Recovered from stale state - proceeding to start server.")
                     return lock, meta_path
                 except Timeout:
-                    _logger.error(
-                        "Lock still held but metadata was stale - another process likely took the lock."
-                    )
+                    _logger.error("Lock still held but metadata was stale - another process likely took the lock.")
             else:
                 _logger.error("Running instance details:")
                 _logger.error("  PID:        %s", data.get("pid", "?"))
