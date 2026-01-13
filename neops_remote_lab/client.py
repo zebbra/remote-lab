@@ -5,6 +5,7 @@ import os
 import pathlib
 import time
 from http import HTTPStatus
+from typing import Any
 
 import requests
 from requests import Response
@@ -81,7 +82,7 @@ class RemoteLabClient:
             raise ValueError("base_url cannot be None")
         return f"{self.base_url.rstrip('/')}{path}"
 
-    def _make_request(self, method: str, url: str, **kwargs: object) -> Response:
+    def _make_request(self, method: str, url: str, **kwargs: Any) -> Response:
         """Make an HTTP request and handle exceptions."""
         _log.debug("=> %s %s", method, url)
         try:

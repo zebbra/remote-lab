@@ -19,7 +19,7 @@ from pathlib import Path
 
 import uvicorn
 import yaml
-from filelock import FileLock, Timeout
+from filelock import BaseFileLock, FileLock, Timeout
 
 from neops_remote_lab import __version__
 from neops_remote_lab.server import app
@@ -92,7 +92,7 @@ def _pid_is_alive(pid: int) -> bool:
         return False
 
 
-def _acquire_single_instance_lock() -> tuple[FileLock, Path]:
+def _acquire_single_instance_lock() -> tuple[BaseFileLock, Path]:
     """Acquire the global single-instance lock or exit after logging details.
 
     Returns the acquired FileLock and the metadata path.

@@ -128,8 +128,8 @@ search-path = ["."]
 untyped-def-behavior = "check-and-infer-return-type"
 
 [tool.pyrefly.errors]
-missing-return-type = true
-missing-parameter-type = true
+unannotated-return = true
+unannotated-parameter = true
 
 [tool.hatch.version]
 source = "vcs"

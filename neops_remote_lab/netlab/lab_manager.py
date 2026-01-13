@@ -102,7 +102,7 @@ def prepare_workdir(src: Path) -> Path:
 class LabManager:
     _current_topo: Path | None = None  # full resolved path of running lab (source file)
     _current_topo_hash: str | None = None  # SHA-256 fingerprint of topology content
-    _handle: _Handle | None = None  # metadata + devices for the running lab
+    _handle: LabManager._Handle | None = None  # metadata + devices for the running lab
 
     class _Handle:
         """Internal record describing the currently running lab."""

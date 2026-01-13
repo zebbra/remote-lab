@@ -14,7 +14,7 @@ from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 from types import FrameType
-from typing import ParamSpec, TypeVar, cast
+from typing import ParamSpec, TypeVar
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Response, UploadFile, status
 
@@ -139,14 +139,14 @@ def _save_uploads(topology_file: UploadFile, extra_files: list[UploadFile]) -> P
     workdir = _tmp_upload_dir()
     if topology_file.filename is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Topology file must have a filename")
-    topo_dest = workdir / cast(str, topology_file.filename)
+    topo_dest = workdir / topology_file.filename
     with topo_dest.open("wb") as f:
         shutil.copyfileobj(topology_file.file, f)
 
     for item in extra_files:
         if item.filename is None:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Extra file must have a filename")
-        dest = workdir / cast(str, item.filename)
+        dest = workdir / item.filename
         dest.parent.mkdir(parents=True, exist_ok=True)
         with dest.open("wb") as f:
             shutil.copyfileobj(item.file, f)
@@ -404,7 +404,7 @@ async def acquire_lab(
     if topology.filename is None or not topology.filename.lower().endswith((".yml", ".yaml")):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Topology must be a .yml or .yaml file")
 
-    filename = cast(str, topology.filename)
+    filename = topology.filename
     try:
         saved_topo = _save_uploads(topology, extra_files)
         _log.info("Saved topology %s to %s", filename, saved_topo)
