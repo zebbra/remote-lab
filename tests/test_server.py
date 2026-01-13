@@ -1,7 +1,8 @@
 import io
+import tempfile
 from collections.abc import Generator
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 from fastapi.testclient import TestClient
@@ -32,7 +33,7 @@ def _patch_lab_manager(monkeypatch: pytest.MonkeyPatch) -> type["LabManager"]:
     class _StubLabManager(LabManager):
         """In-memory implementation that overrides _start/_terminate_current only."""
 
-        _DUMMY_DEVICES = [
+        _DUMMY_DEVICES: ClassVar[list[DeviceInfoDto]] = [
             type(
                 "DummyDevice",
                 (),
@@ -68,16 +69,17 @@ def _patch_lab_manager(monkeypatch: pytest.MonkeyPatch) -> type["LabManager"]:
         @classmethod
         def _start(cls, topo: Path) -> list[DeviceInfoDto]:  # type: ignore[override]
             # Simulate an instant startup with dummy devices
-            from pathlib import Path
-
             cls._current_topo = topo.resolve() if topo else Path("dummy.yml")
-            cls._handle = cls._Handle(Path("/tmp"), list(cls._DUMMY_DEVICES))
+            workdir = Path(tempfile.mkdtemp(prefix="neops_lab_stub_"))
+            cls._handle = cls._Handle(workdir, list(cls._DUMMY_DEVICES))
             return cls._handle.devices
 
         @classmethod
         def _terminate_current(cls, reason: str | None = None) -> None:  # type: ignore[override]
             cls._handle = None
             cls._current_topo = None
+            if reason:
+                server._log.debug("Stub lab terminated (reason=%s)", reason)
 
     # Patch the real LabManager symbol in server.py with our subclass
     monkeypatch.setattr(server, "LabManager", _StubLabManager)
@@ -106,7 +108,7 @@ def _get_status(client: TestClient, sid: str) -> dict[str, Any]:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Tests – Session queueing & lifecycle
+# Tests - Session queueing & lifecycle
 # ──────────────────────────────────────────────────────────────────────────────
 
 
@@ -134,7 +136,7 @@ def test_end_of_active_session_promotes_next(client: TestClient) -> None:
     sid1 = _create_session(client)
     sid2 = _create_session(client)
 
-    # End the ACTIVE session – should promote sid2
+    # End the ACTIVE session - should promote sid2
     resp = client.delete(f"/session/{sid1}")
     assert resp.status_code == 204
 
@@ -193,7 +195,7 @@ def test_get_active_session_after_promotion(client: TestClient) -> None:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Tests – Lab management endpoints (with stubbed LabManager)
+# Tests - Lab management endpoints (with stubbed LabManager)
 # ──────────────────────────────────────────────────────────────────────────────
 
 
@@ -231,7 +233,8 @@ def test_acquire_and_release_lab(client: TestClient) -> None:
     assert resp.status_code == 204
 
 
-def test_acquire_returns_423_when_busy(client: TestClient, _patch_lab_manager: type["LabManager"]) -> None:
+@pytest.mark.usefixtures("_patch_lab_manager")
+def test_acquire_returns_423_when_busy(client: TestClient) -> None:
     # Session acquires lab with reuse=True
     sid = _create_session(client)
     files = [
@@ -291,7 +294,7 @@ def test_acquire_wrong_extension_returns_400(client: TestClient) -> None:
 
 def test_waiting_session_cannot_acquire_lab(client: TestClient) -> None:
     # Create ACTIVE + WAITING sessions
-    active_sid = _create_session(client)
+    _create_session(client)
     waiting_sid = _create_session(client)
     assert _get_status(client, waiting_sid)["status"].lower() == "waiting"
 
@@ -378,13 +381,15 @@ def test_list_devices_returns_devices(client: TestClient) -> None:
     resp = client.get("/lab/devices", headers={server.HEADER_SESSION_ID: sid})
     assert resp.status_code == 200
     devices = resp.json()
-    assert isinstance(devices, list) and len(devices) >= 1
+    assert isinstance(devices, list)
+    assert len(devices) >= 1
     # Check for new API format with name and raw fields
     device = devices[0]
     assert {"name", "raw"}.issubset(device.keys())
     # Verify raw contains the expected netlab inspect structure
     raw = device["raw"]
-    assert "mgmt" in raw and "ipv4" in raw["mgmt"]
+    assert "mgmt" in raw
+    assert "ipv4" in raw["mgmt"]
     assert "ansible_user" in raw
     assert "ansible_network_os" in raw
 

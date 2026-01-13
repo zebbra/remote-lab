@@ -14,7 +14,7 @@ from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 from types import FrameType
-from typing import Any, TypeVar, cast
+from typing import ParamSpec, TypeVar, cast
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Response, UploadFile, status
 
@@ -35,7 +35,7 @@ _log = logging.getLogger("remote-lab-server")
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     """Handle application startup and shutdown"""
     # Startup
     _log.info("Remote Lab Manager starting up...")
@@ -103,7 +103,7 @@ HEADER_SESSION_ID = "X-Session-ID"
 
 
 # Signal handlers are now set up at module level for immediate effect
-def signal_handler(signum: int, frame: FrameType | None) -> None:
+def signal_handler(signum: int, _frame: FrameType | None) -> None:
     _log.warning("Received signal %d, shutting down gracefully...", signum)
     _log.info("Active sessions at shutdown: %s", list(_SESSIONS.keys()))
     _SHUTDOWN_EVENT.set()
@@ -156,10 +156,11 @@ def _save_uploads(topology_file: UploadFile, extra_files: list[UploadFile]) -> P
 
 # ------------------------------------------------------------------ Async helpers
 
+P = ParamSpec("P")
 T = TypeVar("T")
 
 
-async def _run_blocking(func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+async def _run_blocking(func: Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
     """Run *func* in a thread so it does not block the event loop.
 
     Only heavyweight operations that ultimately call *netlab* (e.g. `LabManager.try_acquire`,
@@ -184,7 +185,7 @@ async def _run_blocking(func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
 def _promote_if_needed() -> None:
     """Ensure the first session in the queue is marked ACTIVE.
 
-    * FIFO semantics preserved – order of `_SESSION_QUEUE` never changes.
+    * FIFO semantics preserved - order of `_SESSION_QUEUE` never changes.
     * Orphaned IDs are popped.
     * When a new ACTIVE session is promoted log the topology (if available).
     """
@@ -273,7 +274,7 @@ async def _cleanup_loop_async() -> None:
         # Use adaptive sleep interval: longer when no sessions, shorter when active
         if not _SESSIONS:
             sleep_interval = _SESSION_CLEANUP_INTERVAL * 6  # 30 seconds when idle
-        elif len(_SESSIONS) == 1 and list(_SESSIONS.values())[0].status == SessionState.ACTIVE:
+        elif len(_SESSIONS) == 1 and next(iter(_SESSIONS.values())).status == SessionState.ACTIVE:
             sleep_interval = _SESSION_CLEANUP_INTERVAL * 3  # 15 seconds with one active session
         else:
             sleep_interval = _SESSION_CLEANUP_INTERVAL  # 5 seconds when busy
@@ -464,13 +465,12 @@ async def list_devices(session: SessionInfoDto = Depends(_get_active_session)) -
     if not LabManager.has_running_lab():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No lab running")
 
-    devices = LabManager.current_devices()
-    return devices
+    return LabManager.current_devices()
 
 
 @app.get("/healthz", status_code=status.HTTP_204_NO_CONTENT)
 async def healthz() -> Response:
-    """Liveness probe – returns 204 with zero body if service is up."""
+    """Liveness probe - returns 204 with zero body if service is up."""
     # Don't log healthz requests as they're too frequent
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -480,7 +480,7 @@ async def healthz() -> Response:
 
 @app.post("/session/heartbeat", status_code=status.HTTP_204_NO_CONTENT)
 async def heartbeat(x_session_id: str = Header(..., alias=HEADER_SESSION_ID)) -> Response:
-    """Heartbeat endpoint – updates `last_seen_at` of a session.
+    """Heartbeat endpoint - updates `last_seen_at` of a session.
 
     The session ID **must** be provided in the `X-Session-ID` header to keep the
     URL space clean (no path parameters). Returns 204 on success.

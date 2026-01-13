@@ -6,7 +6,7 @@ across multiple pytest worker processes via :pydata:`GLOBAL_LOCK`.
 Key features
 ============
 1. Exactly one active lab at any time per host.
-2. Reference counting – optional *reuse* of the same topology (equality check by comparing hash of content) for faster tests.
+2. Reference counting - optional *reuse* of the same topology (equality check by comparing hash of content) for faster tests.
 3. Non-blocking :pyfunc:`try_acquire` used by the remote server to implement an
    HTTP 423 response while keeping the original blocking :pyfunc:`acquire` for
    local tests.
@@ -95,7 +95,7 @@ def prepare_workdir(src: Path) -> Path:
 # • A global `FileLock` serialises access across *multiple* pytest worker
 #   processes.
 #
-# The implementation keeps a *single* handle instead of a dict – making the
+# The implementation keeps a *single* handle instead of a dict - making the
 # one-lab rule explicit in the code structure.
 
 
@@ -165,7 +165,7 @@ class LabManager:
             if devices is not None:
                 return devices
 
-            _log.debug("Lab busy – waiting %.1fs", WAIT_INTERVAL)
+            _log.debug("Lab busy - waiting %.1fs", WAIT_INTERVAL)
             time.sleep(WAIT_INTERVAL)
 
     @classmethod
@@ -181,7 +181,7 @@ class LabManager:
         with GLOBAL_LOCK:
             # 1. No lab → start
             if cls._handle is None:
-                _log.info("No active lab – starting %s", topo.name)
+                _log.info("No active lab - starting %s", topo.name)
                 return cls._start(topo)
 
             # 2. Same topology content --------------------------------------------------
@@ -192,7 +192,7 @@ class LabManager:
                     return cls._handle.devices
 
                 if cls._handle.ref == 0:
-                    _log.info("Exclusive request – restarting idle lab %s", (cls._current_topo or topo).name)
+                    _log.info("Exclusive request - restarting idle lab %s", (cls._current_topo or topo).name)
                     cls._terminate_current(reason="exclusive-request")
                     return cls._start(topo)
 
@@ -237,7 +237,9 @@ class LabManager:
                 _log.error("Release called for non-current topo %s (current %s)", topo, cls._current_topo)
                 return
 
-            assert cls._handle is not None
+            if cls._handle is None:
+                _log.error("Release called but no current lab handle exists for topo %s", topo.name)
+                return
             cls._handle.ref -= 1
 
             if cls._handle.ref < 0:
@@ -247,7 +249,7 @@ class LabManager:
             # When ref hits 0 the lab becomes idle. It remains running until a
             # different topology is requested or the interpreter exits.
             if cls._handle.ref == 0:
-                _log.info("Lab %s became idle – awaiting next user or teardown (refcount=0)", topo.name)
+                _log.info("Lab %s became idle - awaiting next user or teardown (refcount=0)", topo.name)
 
     # ------------------------------------------------------------------ internal helpers
     @classmethod

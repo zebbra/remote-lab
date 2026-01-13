@@ -67,7 +67,7 @@ def _format_execution_order(items: list[Item]) -> str:
     return "\n".join(lines)
 
 
-def pytest_collection_modifyitems(config: pytest.Config, items: list[Item]) -> None:
+def pytest_collection_modifyitems(_config: pytest.Config, items: list[Item]) -> None:
     """Reorder collected tests so that those sharing the same Remote Lab lab run consecutively.
 
     The function logs (at DEBUG level) the computed rank for every item and
@@ -99,12 +99,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[Item]) -> N
         rank = min(REMOTE_LAB_ORDER[fx] for fx in remote_lab_fxs) if remote_lab_fxs else 999
 
         detailed.append((rank, item.nodeid, remote_lab_fxs))
-        _log.debug(
-            "Collected %s – rank=%s (fixtures=%s)",
-            item.nodeid,
-            rank,
-            ", ".join(meta_parts) or "-",
-        )
+        _log.debug("Collected %s - rank=%s (fixtures=%s)", item.nodeid, rank, ", ".join(meta_parts) or "-")
 
         # Stash rank & original index for the actual sort step
         item._remote_lab_rank = rank  # type: ignore[attr-defined]

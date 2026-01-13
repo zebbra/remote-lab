@@ -26,7 +26,7 @@ _log = logging.getLogger(__name__)
 def _run_streaming(cmd: list[str], *, cwd: Path) -> subprocess.CompletedProcess[str]:
     """Run subprocess while streaming output line-by-line to the logger."""
     output_lines: list[str] = []
-    with subprocess.Popen(
+    with subprocess.Popen(  # noqa: S603 - netlab CLI invoked with static args, no untrusted input
         cmd,
         cwd=cwd,
         text=True,
@@ -38,11 +38,11 @@ def _run_streaming(cmd: list[str], *, cwd: Path) -> subprocess.CompletedProcess[
 
         try:
             if proc.stdout:
-                for line in proc.stdout:
-                    line = line.rstrip()
-                    if line:  # Skip empty lines
-                        _log.debug("[netlab] %s", line)
-                        output_lines.append(line)
+                for raw_line in proc.stdout:
+                    stripped_line = raw_line.rstrip()
+                    if stripped_line:  # Skip empty lines
+                        _log.debug("[netlab] %s", stripped_line)
+                        output_lines.append(stripped_line)
 
             proc.wait()
             _log.debug("Streamed process ended with return code: %d", proc.returncode)
@@ -62,7 +62,7 @@ def _run_streaming(cmd: list[str], *, cwd: Path) -> subprocess.CompletedProcess[
 def _run_captured(cmd: list[str], *, cwd: Path) -> subprocess.CompletedProcess[str]:
     """Run subprocess and capture output at the end."""
     try:
-        completed = subprocess.run(
+        completed = subprocess.run(  # noqa: S603 - netlab CLI invoked with static args, no untrusted input
             cmd,
             cwd=cwd,
             text=True,

@@ -4,7 +4,7 @@ import logging
 import os
 import pathlib
 import time
-from typing import Any
+from http import HTTPStatus
 
 import requests
 from requests import Response
@@ -25,7 +25,7 @@ class RemoteLabClient:
         request_timeout: int = 30,  # Short timeout for quick operations
         session_timeout: int = 600,  # Session queue timeout
         lab_acquisition_timeout: int = 600,  # Long timeout for lab setup (10 minutes)
-    ):
+    ) -> None:
         self.base_url = base_url or os.getenv("REMOTE_LAB_URL")
         if not self.base_url:
             raise ValueError("base_url must be provided either as parameter or REMOTE_LAB_URL environment variable")
@@ -81,7 +81,7 @@ class RemoteLabClient:
             raise ValueError("base_url cannot be None")
         return f"{self.base_url.rstrip('/')}{path}"
 
-    def _make_request(self, method: str, url: str, **kwargs: Any) -> Response:
+    def _make_request(self, method: str, url: str, **kwargs: object) -> Response:
         """Make an HTTP request and handle exceptions."""
         _log.debug("=> %s %s", method, url)
         try:
@@ -128,7 +128,11 @@ class RemoteLabClient:
             except requests.exceptions.RequestException as e:
                 elapsed = time.monotonic() - start_time
                 is_http_error = isinstance(e, requests.exceptions.HTTPError)
-                if is_http_error and e.response and e.response.status_code < 500:
+                if (
+                    is_http_error
+                    and e.response
+                    and e.response.status_code < HTTPStatus.INTERNAL_SERVER_ERROR
+                ):
                     _log.error("Received non-retriable HTTP error after %.1fs: %s", elapsed, e)
                     raise
 
@@ -163,7 +167,7 @@ class RemoteLabClient:
                         timeout=self.lab_acquisition_timeout,
                     )
 
-                    if resp.status_code == 423:  # HTTP 423 Locked
+                    if resp.status_code == HTTPStatus.LOCKED:
                         _log.debug("Lab busy, retrying in 5s...")
                         time.sleep(5)
                         continue

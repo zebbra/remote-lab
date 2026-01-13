@@ -110,6 +110,9 @@ convention = "google"
 "**/__init__.py" = [
   "D104",   # Package docstring
 ]
+"neops_remote_lab/server.py" = [
+  "B008",   # FastAPI dependency injection uses call defaults (Depends/File)
+]
 
 [tool.pyrefly]
 python-version = "3.12"
