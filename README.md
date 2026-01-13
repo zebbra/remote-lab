@@ -15,9 +15,9 @@ Remote Lab Manager is available on PyPI as [`neops_remote_lab`](https://pypi.org
 pip install neops-remote-lab
 ```
 
-You can also install it using Poetry:
+You can also install it using uv:
 ```bash
-poetry add neops-remote-lab
+uv add neops-remote-lab
 ```
 
 
@@ -68,11 +68,11 @@ See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) f
 For local development, you can use the following commands to start the Remote Lab Server:
 ****
 ```bash
-# Install deps (inside a venv)
-poetry install  # includes FastAPI, Uvicorn, etc.
+# Install deps (inside a uv-managed .venv)
+uv sync --group dev
 
 # Run the service
-poetry run neops-remote-lab --host 0.0.0.0 --port 8000 --log-level info
+uv run neops-remote-lab --host 0.0.0.0 --port 8000 --log-level info
 ```
 
 You can also install the remote lab server from **PyPI**:
