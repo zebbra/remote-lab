@@ -1,10 +1,10 @@
 import io
-import time
-from typing import Any, Type, Generator
+from collections.abc import Generator
+from pathlib import Path
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
-from pathlib import Path
 
 from neops_remote_lab import server
 from neops_remote_lab.models import DeviceInfoDto
@@ -26,7 +26,7 @@ def _reset_server_state() -> Generator[None, None, None]:
 
 
 @pytest.fixture(autouse=True)
-def _patch_lab_manager(monkeypatch: pytest.MonkeyPatch) -> Type["LabManager"]:
+def _patch_lab_manager(monkeypatch: pytest.MonkeyPatch) -> type["LabManager"]:
     """Lightweight subclass of the real LabManager so interface changes break tests."""
 
     class _StubLabManager(LabManager):
@@ -84,7 +84,7 @@ def _patch_lab_manager(monkeypatch: pytest.MonkeyPatch) -> Type["LabManager"]:
     return _StubLabManager
 
 
-@pytest.fixture()
+@pytest.fixture
 def client() -> TestClient:
     return TestClient(server.app)
 
@@ -231,7 +231,7 @@ def test_acquire_and_release_lab(client: TestClient) -> None:
     assert resp.status_code == 204
 
 
-def test_acquire_returns_423_when_busy(client: TestClient, _patch_lab_manager: Type["LabManager"]) -> None:
+def test_acquire_returns_423_when_busy(client: TestClient, _patch_lab_manager: type["LabManager"]) -> None:
     # Session acquires lab with reuse=True
     sid = _create_session(client)
     files = [

@@ -75,7 +75,6 @@ select = [
   "B",    # flake8-bugbear
   "UP",   # pyupgrade
   "N",    # pep8-naming
-  "D",    # pydocstyle
   "ANN",  # flake8-annotations
   "S",    # flake8-bandit
   "A",    # flake8-builtins
@@ -86,7 +85,6 @@ select = [
   "ARG",  # flake8-unused-arguments
   "PTH",  # flake8-use-pathlib
   "PERF", # perflint
-  "TRY",  # tryceratops
   "PT",   # flake8-pytest-style
   "PL",   # pylint
   "RUF",  # Ruff-specific rules

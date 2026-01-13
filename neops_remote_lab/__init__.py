@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from importlib.metadata import version as _dist_version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _dist_version
 
 # Re-export public models from the models package for convenience
 from .models import (
+    AcquireResponseDto,
+    ActiveSessionResponseDto,
+    CreateSessionResponseDto,
     DeviceInfoDto,
     LabStatusDto,
-    AcquireResponseDto,
-    SessionState,
     SessionInfoDto,
-    CreateSessionResponseDto,
+    SessionState,
     SessionStatusResponseDto,
-    ActiveSessionResponseDto,
 )
 
 try:

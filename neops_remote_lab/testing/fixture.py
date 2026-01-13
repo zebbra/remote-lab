@@ -3,9 +3,9 @@ from __future__ import annotations
 import atexit
 import logging
 import os
+from collections.abc import Callable, Iterator
 from itertools import count
 from pathlib import Path
-from typing import Callable, Iterator, List
 
 import pytest
 
@@ -18,9 +18,9 @@ _counter = count()  # monotonically increasing
 REMOTE_LAB_FIXTURE_META: dict[str, dict[str, object]] = {}
 
 __all__ = [
-    "remote_lab_fixture",
-    "REMOTE_LAB_ORDER",
     "REMOTE_LAB_FIXTURE_META",
+    "REMOTE_LAB_ORDER",
+    "remote_lab_fixture",
 ]
 
 _log = logging.getLogger(__name__)
@@ -55,7 +55,7 @@ def remote_lab_client() -> Iterator[RemoteLabClient]:
 
 def remote_lab_fixture(
     topology: str | Path, *, name: str | None = None, reuse_lab: bool = False
-) -> Callable[[], Iterator[List[DeviceInfoDto]]]:
+) -> Callable[[], Iterator[list[DeviceInfoDto]]]:
     """Create a remote lab pytest fixture that yields NetlabDevice objects.
 
     Args:
@@ -106,7 +106,7 @@ def remote_lab_fixture(
         relative_path,
     )
 
-    def fixture_impl(remote_lab_client: RemoteLabClient) -> Iterator[List[DeviceInfoDto]]:
+    def fixture_impl(remote_lab_client: RemoteLabClient) -> Iterator[list[DeviceInfoDto]]:
         _log.debug("Acquiring remote lab for %s (reuse=%s)", topo_path.name, reuse_lab)
         device_infos = remote_lab_client.acquire(topo_path, reuse=reuse_lab)
 

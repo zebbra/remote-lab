@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import logging
-from _pytest.nodes import Item
+
 import pytest
-from .fixture import REMOTE_LAB_ORDER, REMOTE_LAB_FIXTURE_META
+from _pytest.nodes import Item
+
+from .fixture import REMOTE_LAB_FIXTURE_META, REMOTE_LAB_ORDER
 
 _log = logging.getLogger("remote-lab-plugin")
 
 __all__ = [
-    "REMOTE_LAB_ORDER",
     "REMOTE_LAB_FIXTURE_META",
+    "REMOTE_LAB_ORDER",
 ]
 
 

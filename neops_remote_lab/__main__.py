@@ -3,26 +3,26 @@
 from __future__ import annotations
 
 import argparse
+import getpass
+import json
 import logging
 import logging.config
 import os
-from pathlib import Path
+import platform
 import shutil
 import subprocess
 import sys
-import json
-import time
-import getpass
-import platform
 import tempfile
+import time
+from importlib import resources as _resources
+from pathlib import Path
 
 import uvicorn
 import yaml
-from importlib import resources as _resources
 from filelock import FileLock, Timeout
 
-from neops_remote_lab.server import app
 from neops_remote_lab import __version__
+from neops_remote_lab.server import app
 
 _logger = logging.getLogger("remote-lab-server")
 
@@ -33,7 +33,7 @@ def setup_logging(config_path: str, log_level: str) -> None:
     try:
         log_config_path = Path(config_path)
         if log_config_path.exists():
-            with open(log_config_path, "r", encoding="utf-8") as f:
+            with open(log_config_path, encoding="utf-8") as f:
                 config = yaml.safe_load(f)
         else:
             # Fallback to packaged default file inside the module
@@ -58,7 +58,7 @@ def setup_logging(config_path: str, log_level: str) -> None:
         logging.config.dictConfig(config)
         _logger.info("Loaded logging config (level: %s)", level)
 
-    except (yaml.YAMLError, IOError, KeyError) as e:
+    except (OSError, yaml.YAMLError, KeyError) as e:
         _logger.error("Error processing logging config: %s", e)
         logging.basicConfig(
             level=getattr(logging, log_level.upper(), "INFO"),
@@ -77,7 +77,7 @@ def _read_instance_meta(meta_path: Path) -> dict[str, object] | None:
         if not meta_path.exists():
             return None
         return json.loads(meta_path.read_text(encoding="utf-8"))
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _logger.warning("Failed to read instance metadata from %s: %s", meta_path, exc)
         return None
 
@@ -198,7 +198,7 @@ def main() -> None:
             "cmd": " ".join(sys.argv),
         }
         meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _logger.warning("Failed to write instance metadata: %s", exc)
 
     _logger.info("Starting Remote Lab Manager on %s:%d", args.host, args.port)
@@ -220,7 +220,7 @@ def main() -> None:
             text=True,
         )
         _logger.debug("Detected %s", completed.stdout.strip())
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _logger.error("Failed to execute 'netlab version': %s", exc)
         _logger.error("Please verify your Netlab installation: https://netlab.tools/install/ubuntu/")
         raise SystemExit(1) from exc

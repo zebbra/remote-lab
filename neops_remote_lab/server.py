@@ -6,23 +6,22 @@ import asyncio
 import functools
 import logging
 import shutil
+import signal
 import tempfile
 import time
-import signal
 import uuid
-from pathlib import Path
-from typing import Any, AsyncGenerator, Callable, List, TypeVar, cast
-from types import FrameType
+from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
+from pathlib import Path
+from types import FrameType
+from typing import Any, TypeVar, cast
 
-from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, UploadFile, status, Response
+from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Response, UploadFile, status
 
-from neops_remote_lab.netlab.lab_manager import LabManager
 from neops_remote_lab import __version__
-
 from neops_remote_lab.models import (
-    ActiveSessionResponseDto,
     AcquireResponseDto,
+    ActiveSessionResponseDto,
     CreateSessionResponseDto,
     DeviceInfoDto,
     LabStatusDto,
@@ -30,6 +29,7 @@ from neops_remote_lab.models import (
     SessionState,
     SessionStatusResponseDto,
 )
+from neops_remote_lab.netlab.lab_manager import LabManager
 
 _log = logging.getLogger("remote-lab-server")
 
@@ -397,7 +397,7 @@ async def acquire_lab(
     session: SessionInfoDto = Depends(_get_active_session),
     topology: UploadFile = File(...),
     reuse: bool = Form(True),
-    extra_files: List[UploadFile] = File(default_factory=list),
+    extra_files: list[UploadFile] = File(default_factory=list),
 ) -> AcquireResponseDto:
     session.last_seen_at = time.time()
     if topology.filename is None or not topology.filename.lower().endswith((".yml", ".yaml")):

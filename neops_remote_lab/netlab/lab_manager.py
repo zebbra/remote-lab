@@ -23,16 +23,16 @@ import shutil
 import tempfile
 import time
 from pathlib import Path
-from typing import List, Optional
 
 from filelock import FileLock
 
+from neops_remote_lab.models import DeviceInfoDto
+from neops_remote_lab.models import LabStatusDto as ApiLabStatus
 from neops_remote_lab.netlab.connector import inspect_node, list_nodes, run_netlab
-from neops_remote_lab.models import DeviceInfoDto, LabStatusDto as ApiLabStatus
 
 __all__ = [
-    "LabManager",
     "GLOBAL_LOCK",
+    "LabManager",
 ]
 
 WAIT_INTERVAL = 2  # seconds between acquire retries
@@ -107,13 +107,13 @@ class LabManager:
     class _Handle:
         """Internal record describing the currently running lab."""
 
-        def __init__(self, workdir: Path, devices: List[DeviceInfoDto]) -> None:
+        def __init__(self, workdir: Path, devices: list[DeviceInfoDto]) -> None:
             self.workdir = workdir
             self.devices = devices
             self.ref = 1  # how many tests are using this lab
 
     @classmethod
-    def _start(cls, topo: Path) -> List[DeviceInfoDto]:
+    def _start(cls, topo: Path) -> list[DeviceInfoDto]:
         """Start a new Netlab lab for *topo* and remember it as the current one."""
         # Ensure no stale 'default' instance from previous runs is still active. While the GLOBAL_LOCK
         # prevents concurrent *pytest* workers from stepping on each other, our CI runners are long-living and
@@ -144,7 +144,7 @@ class LabManager:
     # Public API
     # ------------------------------------------------------------------
     @classmethod
-    def acquire(cls, topo: Path, *, reuse: bool = True) -> List[DeviceInfoDto]:
+    def acquire(cls, topo: Path, *, reuse: bool = True) -> list[DeviceInfoDto]:
         """Return a list of `DeviceInfoDto` objects for *topo*.
 
         Parameters
@@ -169,7 +169,7 @@ class LabManager:
             time.sleep(WAIT_INTERVAL)
 
     @classmethod
-    def try_acquire(cls, topo: Path, *, reuse: bool = True) -> List[DeviceInfoDto] | None:
+    def try_acquire(cls, topo: Path, *, reuse: bool = True) -> list[DeviceInfoDto] | None:
         """Non-blocking variant of acquire.
 
         Returns devices if the lab is available (reused or freshly started) or
@@ -212,7 +212,7 @@ class LabManager:
         """Return status information about the current lab."""
 
         running = cls._handle is not None
-        devices: List[DeviceInfoDto] = cls._handle.devices if (include_devices and cls._handle) else []
+        devices: list[DeviceInfoDto] = cls._handle.devices if (include_devices and cls._handle) else []
 
         return ApiLabStatus(
             running=running,
@@ -296,12 +296,12 @@ class LabManager:
 
     # ------------------------------------------------------------------ extras
     @classmethod
-    def current_topology(cls) -> Optional[Path]:
+    def current_topology(cls) -> Path | None:
         """Return the path of the currently running topology (or None)."""
         return cls._current_topo
 
     @classmethod
-    def current_devices(cls) -> List[DeviceInfoDto]:
+    def current_devices(cls) -> list[DeviceInfoDto]:
         """Return a copy of the current device list (empty if no lab)."""
         return list(cls._handle.devices) if cls._handle else []
 
