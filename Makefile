@@ -19,6 +19,6 @@ test:
 	uv run pytest
 
 audit:
-	uv run pip-audit --strict --progress-spinner=off
+	uv run pip-audit --strict --progress-spinner=off --vulnerability-service osv
 
 check: lint typeCheck audit test

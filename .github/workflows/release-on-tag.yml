@@ -37,7 +37,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Security audit (production dependencies only)
-        run: uv run pip-audit --strict --progress-spinner=off
+        run: uv run pip-audit --strict --progress-spinner=off --vulnerability-service osv
 
       - name: Build Python package
         env:
