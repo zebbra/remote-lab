@@ -26,7 +26,7 @@ def _reset_server_state() -> Generator[None, None, None]:
     server._SESSIONS.clear()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, name="patch_lab_manager")
 def _patch_lab_manager(monkeypatch: pytest.MonkeyPatch) -> type["LabManager"]:
     """Lightweight subclass of the real LabManager so interface changes break tests."""
 
@@ -233,8 +233,8 @@ def test_acquire_and_release_lab(client: TestClient) -> None:
     assert resp.status_code == 204
 
 
-@pytest.mark.usefixtures("_patch_lab_manager")
-def test_acquire_returns_423_when_busy(client: TestClient) -> None:
+@pytest.mark.usefixtures("patch_lab_manager")
+def test_acquire_returns_423_when_busy(client: TestClient, patch_lab_manager: type[LabManager]) -> None:
     # Session acquires lab with reuse=True
     sid = _create_session(client)
     files = [
@@ -253,8 +253,8 @@ def test_acquire_returns_423_when_busy(client: TestClient) -> None:
 
     # Same session tries to acquire a DIFFERENT topology (should force teardown, but lab is busy)
     # Let's modify the stub to simulate this better
-    if _patch_lab_manager._handle is not None:
-        _patch_lab_manager._handle.ref = 2  # Make it look like multiple refs are holding the lab
+    if patch_lab_manager._handle is not None:
+        patch_lab_manager._handle.ref = 2  # Make it look like multiple refs are holding the lab
 
     files = [
         (

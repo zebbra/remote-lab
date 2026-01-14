@@ -67,13 +67,12 @@ def _format_execution_order(items: list[Item]) -> str:
     return "\n".join(lines)
 
 
-def pytest_collection_modifyitems(_config: pytest.Config, items: list[Item]) -> None:
+def pytest_collection_modifyitems(config: pytest.Config, items: list[Item]) -> None:
     """Reorder collected tests so that those sharing the same Remote Lab lab run consecutively.
 
     The function logs (at DEBUG level) the computed rank for every item and
     the final execution order.  INFO level summarises the grouping.
     """
-
     indexed_items: list[tuple[int, Item]] = list(enumerate(items))
 
     detailed: list[tuple[int, str, list[str]]] = []  # (rank, nodeid, fixtures)

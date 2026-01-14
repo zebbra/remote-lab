@@ -104,6 +104,9 @@ convention = "google"
   "S101",   # Allow asserts in tests
   "PLR2004" # Allow magic values in tests
 ]
+"neops_remote_lab/testing/pytest_order_plugin.py" = [
+  "ARG001", # pytest hook must accept `config`
+]
 "**/__init__.py" = [
   "D104",   # Package docstring
 ]
