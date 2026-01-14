@@ -39,6 +39,9 @@ jobs:
       - name: Security audit (production dependencies only)
         run: uv run pip-audit --strict --progress-spinner=off --vulnerability-service osv
 
+      - name: Run tests
+        run: uv run pytest
+
       - name: Build Python package
         env:
           HATCH_BUILD_VERSION: ${{ needs.check-semver.outputs.version }}
