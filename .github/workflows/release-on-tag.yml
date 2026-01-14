@@ -1,9 +1,9 @@
-name: Release (Docker + PyPI)
+name: Release (PyPI)
 
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
 
 
 jobs:
@@ -16,7 +16,8 @@ jobs:
         id: semver
         uses: zebbra/actions/check-semver@check-semver/latest
         
-  publish-python-package:
+  publish-pypi:
+    name: Publish to PyPI
     runs-on: hetzner
     needs: check-semver
 
@@ -39,6 +40,9 @@ jobs:
       - name: Security audit (production dependencies only)
         run: uv run pip-audit --strict --progress-spinner=off --vulnerability-service osv
 
+      - name: Run tests
+        run: uv run pytest
+
       - name: Build Python package
         env:
           HATCH_BUILD_VERSION: ${{ needs.check-semver.outputs.version }}
@@ -52,6 +56,14 @@ jobs:
             echo "PYPI_TOKEN secret token is not set. Exiting."
             exit 1
           fi
-          uv publish --token "$PYPI_TOKEN" --skip-existing
-
-      
+          # uv does not support `--skip-existing`; use the Simple API to pre-check existing distributions.
+          uv publish --token "$PYPI_TOKEN" --check-url https://pypi.org/simple/
+  create-github-release:
+    name: GitHub Release
+    needs: [publish-pypi]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create GitHub Release (for non-beta releases)
+        uses: zebbra/actions/github-release@github-release/latest
