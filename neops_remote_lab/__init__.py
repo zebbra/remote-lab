@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from importlib.metadata import version as _dist_version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _dist_version
 
 # Re-export public models from the models package for convenience
 from .models import (
+    AcquireResponseDto,
+    ActiveSessionResponseDto,
+    CreateSessionResponseDto,
     DeviceInfoDto,
     LabStatusDto,
-    AcquireResponseDto,
-    SessionState,
     SessionInfoDto,
-    CreateSessionResponseDto,
+    SessionState,
     SessionStatusResponseDto,
-    ActiveSessionResponseDto,
 )
 
 try:
@@ -20,14 +21,14 @@ except PackageNotFoundError:  # pragma: no cover
     __version__ = "0.0.0"
 
 __all__ = [
-    "__version__",
+    "AcquireResponseDto",
+    "ActiveSessionResponseDto",
+    "CreateSessionResponseDto",
     # Models
     "DeviceInfoDto",
     "LabStatusDto",
-    "AcquireResponseDto",
-    "SessionState",
     "SessionInfoDto",
-    "CreateSessionResponseDto",
+    "SessionState",
     "SessionStatusResponseDto",
-    "ActiveSessionResponseDto",
+    "__version__",
 ]

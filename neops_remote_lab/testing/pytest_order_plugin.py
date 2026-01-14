@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import logging
-from _pytest.nodes import Item
+
 import pytest
-from .fixture import REMOTE_LAB_ORDER, REMOTE_LAB_FIXTURE_META
+from _pytest.nodes import Item
+
+from .fixture import REMOTE_LAB_FIXTURE_META, REMOTE_LAB_ORDER
 
 _log = logging.getLogger("remote-lab-plugin")
 
 __all__ = [
-    "REMOTE_LAB_ORDER",
     "REMOTE_LAB_FIXTURE_META",
+    "REMOTE_LAB_ORDER",
 ]
 
 
@@ -71,7 +73,6 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[Item]) -> N
     The function logs (at DEBUG level) the computed rank for every item and
     the final execution order.  INFO level summarises the grouping.
     """
-
     indexed_items: list[tuple[int, Item]] = list(enumerate(items))
 
     detailed: list[tuple[int, str, list[str]]] = []  # (rank, nodeid, fixtures)
@@ -97,12 +98,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[Item]) -> N
         rank = min(REMOTE_LAB_ORDER[fx] for fx in remote_lab_fxs) if remote_lab_fxs else 999
 
         detailed.append((rank, item.nodeid, remote_lab_fxs))
-        _log.debug(
-            "Collected %s – rank=%s (fixtures=%s)",
-            item.nodeid,
-            rank,
-            ", ".join(meta_parts) or "-",
-        )
+        _log.debug("Collected %s - rank=%s (fixtures=%s)", item.nodeid, rank, ", ".join(meta_parts) or "-")
 
         # Stash rank & original index for the actual sort step
         item._remote_lab_rank = rank  # type: ignore[attr-defined]

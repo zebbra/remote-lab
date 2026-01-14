@@ -3,26 +3,26 @@
 from __future__ import annotations
 
 import argparse
+import getpass
+import json
 import logging
 import logging.config
 import os
-from pathlib import Path
+import platform
 import shutil
 import subprocess
 import sys
-import json
-import time
-import getpass
-import platform
 import tempfile
+import time
+from importlib import resources as _resources
+from pathlib import Path
 
 import uvicorn
 import yaml
-from importlib import resources as _resources
-from filelock import FileLock, Timeout
+from filelock import BaseFileLock, FileLock, Timeout
 
-from neops_remote_lab.server import app
 from neops_remote_lab import __version__
+from neops_remote_lab.server import app
 
 _logger = logging.getLogger("remote-lab-server")
 
@@ -33,7 +33,7 @@ def setup_logging(config_path: str, log_level: str) -> None:
     try:
         log_config_path = Path(config_path)
         if log_config_path.exists():
-            with open(log_config_path, "r", encoding="utf-8") as f:
+            with log_config_path.open(encoding="utf-8") as f:
                 config = yaml.safe_load(f)
         else:
             # Fallback to packaged default file inside the module
@@ -58,7 +58,7 @@ def setup_logging(config_path: str, log_level: str) -> None:
         logging.config.dictConfig(config)
         _logger.info("Loaded logging config (level: %s)", level)
 
-    except (yaml.YAMLError, IOError, KeyError) as e:
+    except (OSError, yaml.YAMLError, KeyError) as e:
         _logger.error("Error processing logging config: %s", e)
         logging.basicConfig(
             level=getattr(logging, log_level.upper(), "INFO"),
@@ -77,7 +77,7 @@ def _read_instance_meta(meta_path: Path) -> dict[str, object] | None:
         if not meta_path.exists():
             return None
         return json.loads(meta_path.read_text(encoding="utf-8"))
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _logger.warning("Failed to read instance metadata from %s: %s", meta_path, exc)
         return None
 
@@ -92,7 +92,7 @@ def _pid_is_alive(pid: int) -> bool:
         return False
 
 
-def _acquire_single_instance_lock() -> tuple[FileLock, Path]:
+def _acquire_single_instance_lock() -> tuple[BaseFileLock, Path]:
     """Acquire the global single-instance lock or exit after logging details.
 
     Returns the acquired FileLock and the metadata path.
@@ -104,7 +104,7 @@ def _acquire_single_instance_lock() -> tuple[FileLock, Path]:
         lock.acquire(timeout=0)
         return lock, meta_path
     except Timeout:
-        # Another instance is running – log details if available
+        # Another instance is running - log details if available
         _logger.error("Another Remote Lab Manager instance is already running.")
         data = _read_instance_meta(meta_path)
 
@@ -112,18 +112,17 @@ def _acquire_single_instance_lock() -> tuple[FileLock, Path]:
             raw_pid = data.get("pid", 0)
             pid = int(raw_pid) if isinstance(raw_pid, (int, str)) else 0
             if not _pid_is_alive(pid):
-                _logger.warning("Stale instance metadata detected – cleaning up...")
+                _logger.warning("Stale instance metadata detected - cleaning up...")
                 try:
                     meta_path.unlink()
-                except Exception:
-                    pass
-                # Retry acquiring the lock
+                except Exception as exc:
+                    _logger.warning("Failed to remove stale metadata file %s: %s", meta_path, exc)
                 try:
                     lock.acquire(timeout=0)
-                    _logger.info("Recovered from stale state – proceeding to start server.")
+                    _logger.info("Recovered from stale state - proceeding to start server.")
                     return lock, meta_path
                 except Timeout:
-                    _logger.error("Lock still held but metadata was stale – another process likely took the lock.")
+                    _logger.error("Lock still held but metadata was stale - another process likely took the lock.")
             else:
                 _logger.error("Running instance details:")
                 _logger.error("  PID:        %s", data.get("pid", "?"))
@@ -143,14 +142,14 @@ def _acquire_single_instance_lock() -> tuple[FileLock, Path]:
         else:
             _logger.error("No metadata file found for existing instance (%s).", meta_path)
 
-        raise SystemExit(1)
+        raise SystemExit(1) from None
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Start the Remote Lab Manager")
     default_logger_config_path = Path("logging_config.yaml")  # user may override; packaged default is auto-loaded
     parser.add_argument("--debug", action="store_true", help="Enable debug logging and stream netlab output.")
-    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--host", default="0.0.0.0")  # noqa: S104 - CLI intentionally binds externally
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--log-level", default="INFO")
     parser.add_argument(
@@ -179,8 +178,8 @@ def main() -> None:
         finally:
             try:
                 lock.release()
-            except Exception:
-                pass
+            except Exception as exc:
+                _logger.warning("Failed to release process lock: %s", exc)
 
     # Write metadata file for user visibility and diagnostics
     try:
@@ -198,13 +197,14 @@ def main() -> None:
             "cmd": " ".join(sys.argv),
         }
         meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _logger.warning("Failed to write instance metadata: %s", exc)
 
     _logger.info("Starting Remote Lab Manager on %s:%d", args.host, args.port)
 
     # Pre-flight: ensure netlab CLI is available
-    if shutil.which("netlab") is None:
+    netlab_path = shutil.which("netlab")
+    if netlab_path is None:
         _logger.error("'netlab' CLI not found in PATH. The Remote Lab Manager requires Netlab to orchestrate labs.")
         _logger.error("Install Netlab: https://netlab.tools/install/ubuntu/")
         _logger.error("After installation, ensure your shell can find 'netlab' (relogin or reload your shell).")
@@ -212,15 +212,15 @@ def main() -> None:
 
     # Optional: verify netlab responds
     try:
-        completed = subprocess.run(
-            ["netlab", "version"],
+        completed = subprocess.run(  # noqa: S603 - netlab CLI path resolved above, args are static
+            [netlab_path, "version"],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
         )
         _logger.debug("Detected %s", completed.stdout.strip())
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _logger.error("Failed to execute 'netlab version': %s", exc)
         _logger.error("Please verify your Netlab installation: https://netlab.tools/install/ubuntu/")
         raise SystemExit(1) from exc

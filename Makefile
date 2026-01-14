@@ -4,6 +4,21 @@ include .make_scripts/release-management/release-management-makefile
 include .make_scripts/project-infrastructure/project-infrastructure-makefile
 # This includes make: sync-infrastructure-assets, github_autodelete_merged_branches, github_set_branch_protections and github_set_default_branch
 
+lint:
+	uv run ruff format --check neops_remote_lab tests
+	uv run ruff check neops_remote_lab tests
+
+format:
+	uv run ruff format neops_remote_lab tests
+	uv run ruff check --fix neops_remote_lab tests
+
 typeCheck:
-	poetry run mypy ./neops_remote_lab
-	poetry run pylint ./neops_remote_lab
+	uv run pyrefly check
+
+test:
+	uv run pytest
+
+audit:
+	uv run pip-audit --strict --progress-spinner=off --vulnerability-service osv
+
+check: lint typeCheck audit test

@@ -2,18 +2,18 @@ from __future__ import annotations
 
 import ast
 import logging
+import os
 import subprocess
 import time
 from pathlib import Path
-from typing import Any, Dict, List
-import os
+from typing import Any
 
 import yaml
 
 __all__ = [
-    "run_netlab",
     "inspect_node",
     "list_nodes",
+    "run_netlab",
 ]
 
 _log = logging.getLogger(__name__)
@@ -23,10 +23,10 @@ _log = logging.getLogger(__name__)
 # low-level helpers
 
 
-def _run_streaming(cmd: List[str], *, cwd: Path) -> subprocess.CompletedProcess[str]:
+def _run_streaming(cmd: list[str], *, cwd: Path) -> subprocess.CompletedProcess[str]:
     """Run subprocess while streaming output line-by-line to the logger."""
     output_lines: list[str] = []
-    with subprocess.Popen(
+    with subprocess.Popen(  # noqa: S603 - netlab CLI invoked with static args, no untrusted input
         cmd,
         cwd=cwd,
         text=True,
@@ -38,11 +38,11 @@ def _run_streaming(cmd: List[str], *, cwd: Path) -> subprocess.CompletedProcess[
 
         try:
             if proc.stdout:
-                for line in proc.stdout:
-                    line = line.rstrip()
-                    if line:  # Skip empty lines
-                        _log.debug("[netlab] %s", line)
-                        output_lines.append(line)
+                for raw_line in proc.stdout:
+                    stripped_line = raw_line.rstrip()
+                    if stripped_line:  # Skip empty lines
+                        _log.debug("[netlab] %s", stripped_line)
+                        output_lines.append(stripped_line)
 
             proc.wait()
             _log.debug("Streamed process ended with return code: %d", proc.returncode)
@@ -51,7 +51,7 @@ def _run_streaming(cmd: List[str], *, cwd: Path) -> subprocess.CompletedProcess[
             full_output = "\n".join(output_lines)
             return subprocess.CompletedProcess(args=cmd, returncode=proc.returncode, stdout=full_output, stderr="")
 
-        except Exception as e:  # noqa: BLE001 broad-except acceptable for subprocess cleanup
+        except Exception as e:
             _log.error("Exception while streaming subprocess output: %s", e)
             _log.debug("Killing subprocess PID %d", proc.pid)
             proc.kill()
@@ -59,10 +59,10 @@ def _run_streaming(cmd: List[str], *, cwd: Path) -> subprocess.CompletedProcess[
             raise RuntimeError(f"netlab {' '.join(cmd[1:])} interrupted: {e}") from e
 
 
-def _run_captured(cmd: List[str], *, cwd: Path) -> subprocess.CompletedProcess[str]:
+def _run_captured(cmd: list[str], *, cwd: Path) -> subprocess.CompletedProcess[str]:
     """Run subprocess and capture output at the end."""
     try:
-        completed = subprocess.run(
+        completed = subprocess.run(  # noqa: S603 - netlab CLI invoked with static args, no untrusted input
             cmd,
             cwd=cwd,
             text=True,
@@ -77,13 +77,13 @@ def _run_captured(cmd: List[str], *, cwd: Path) -> subprocess.CompletedProcess[s
     except subprocess.TimeoutExpired as e:
         _log.error("Subprocess for `netlab %s` timed out: %s", " ".join(cmd[1:]), e)
         raise
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         _log.error("Subprocess for `netlab %s` failed: %s", " ".join(cmd[1:]), e)
         raise
 
 
 def run_netlab(
-    args: List[str], *, cwd: Path, stream_output: bool = False, expected_failure: bool = False
+    args: list[str], *, cwd: Path, stream_output: bool = False, expected_failure: bool = False
 ) -> subprocess.CompletedProcess[str]:  # pylint: disable=too-many-branches, too-many-statements
     """Run a netlab command with enhanced logging and error handling.
 
@@ -131,7 +131,7 @@ def run_netlab(
     return completed
 
 
-def inspect_node(node: str, *, cwd: Path) -> Dict[str, Any]:
+def inspect_node(node: str, *, cwd: Path) -> dict[str, Any]:
     out = run_netlab(
         [
             "inspect",
@@ -148,7 +148,7 @@ def inspect_node(node: str, *, cwd: Path) -> Dict[str, Any]:
     return yaml.safe_load(out) or {}
 
 
-def list_nodes(*, cwd: Path) -> List[str]:
+def list_nodes(*, cwd: Path) -> list[str]:
     """Return all node names in the current lab (via YAML)."""
 
     out = run_netlab(

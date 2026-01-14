@@ -4,6 +4,7 @@ import logging
 import os
 import pathlib
 import time
+from http import HTTPStatus
 from typing import Any
 
 import requests
@@ -25,7 +26,7 @@ class RemoteLabClient:
         request_timeout: int = 30,  # Short timeout for quick operations
         session_timeout: int = 600,  # Session queue timeout
         lab_acquisition_timeout: int = 600,  # Long timeout for lab setup (10 minutes)
-    ):
+    ) -> None:
         self.base_url = base_url or os.getenv("REMOTE_LAB_URL")
         if not self.base_url:
             raise ValueError("base_url must be provided either as parameter or REMOTE_LAB_URL environment variable")
@@ -103,7 +104,11 @@ class RemoteLabClient:
         return session_id
 
     def _wait_for_active_session(self, timeout: int) -> None:
-        _log.info("Waiting for session %s to become active (timeout=%ds)...", self.session_id[:8], timeout)
+        _log.info(
+            "Waiting for session %s to become active (timeout=%ds)...",
+            self.session_id[:8],
+            timeout,
+        )
         start_time = time.monotonic()
         retries = 0
         max_retries = 10
@@ -111,34 +116,54 @@ class RemoteLabClient:
         while time.monotonic() - start_time < timeout:
             elapsed = time.monotonic() - start_time
             try:
-                resp = self._make_request("GET", self._url(f"/session/{self.session_id}"), timeout=self.request_timeout)
+                resp = self._make_request(
+                    "GET",
+                    self._url(f"/session/{self.session_id}"),
+                    timeout=self.request_timeout,
+                )
                 resp.raise_for_status()
                 data = resp.json()
                 if data["status"] == SessionState.ACTIVE.value:
-                    _log.info("Session %s is active after %.1fs.", self.session_id[:8], elapsed)
+                    _log.info(
+                        "Session %s is active after %.1fs.",
+                        self.session_id[:8],
+                        elapsed,
+                    )
                     return
 
                 retries = 0  # Reset retries on success
                 position = data.get("position", -1)
                 _log.info(
-                    "Session %s is in queue at position %d (elapsed=%.1fs).", self.session_id[:8], position, elapsed
+                    "Session %s is in queue at position %d (elapsed=%.1fs).",
+                    self.session_id[:8],
+                    position,
+                    elapsed,
                 )
                 time.sleep(5)
 
             except requests.exceptions.RequestException as e:
                 elapsed = time.monotonic() - start_time
                 is_http_error = isinstance(e, requests.exceptions.HTTPError)
-                if is_http_error and e.response and e.response.status_code < 500:
+                if is_http_error and e.response and e.response.status_code < HTTPStatus.INTERNAL_SERVER_ERROR:
                     _log.error("Received non-retriable HTTP error after %.1fs: %s", elapsed, e)
                     raise
 
                 retries += 1
                 if retries > max_retries:
-                    _log.error("Exceeded max retries (%d) waiting for session after %.1fs.", max_retries, elapsed)
+                    _log.error(
+                        "Exceeded max retries (%d) waiting for session after %.1fs.",
+                        max_retries,
+                        elapsed,
+                    )
                     raise e
 
                 backoff = min(2**retries, 30)
-                _log.warning("Waiting for session failed after %.1fs (%s). Retrying in %ds...", elapsed, e, backoff)
+                _log.warning(
+                    "Waiting for session failed after %.1fs (%s). Retrying in %ds...",
+                    elapsed,
+                    e,
+                    backoff,
+                )
                 time.sleep(backoff)
 
         elapsed = time.monotonic() - start_time
@@ -153,7 +178,11 @@ class RemoteLabClient:
 
             while True:
                 try:
-                    _log.info("Acquiring lab %s (timeout=%ds)...", topology.name, self.lab_acquisition_timeout)
+                    _log.info(
+                        "Acquiring lab %s (timeout=%ds)...",
+                        topology.name,
+                        self.lab_acquisition_timeout,
+                    )
 
                     resp = self._make_request(
                         "POST",
@@ -163,7 +192,7 @@ class RemoteLabClient:
                         timeout=self.lab_acquisition_timeout,
                     )
 
-                    if resp.status_code == 423:  # HTTP 423 Locked
+                    if resp.status_code == HTTPStatus.LOCKED:
                         _log.debug("Lab busy, retrying in 5s...")
                         time.sleep(5)
                         continue
@@ -196,7 +225,10 @@ class RemoteLabClient:
         _log.info("Destroying lab for session %s (force=%s)", self.session_id[:8], force)
         try:
             resp = self._make_request(
-                "DELETE", self._url("/lab"), params={"force": str(force).lower()}, timeout=self.request_timeout
+                "DELETE",
+                self._url("/lab"),
+                params={"force": str(force).lower()},
+                timeout=self.request_timeout,
             )
             # Note: destroy may return various codes depending on lab state
             if resp.status_code not in (202, 204):
@@ -211,13 +243,19 @@ class RemoteLabClient:
             _log.info("Closing session %s", self.session_id[:8])
             try:
                 resp = self._make_request(
-                    "DELETE", self._url(f"/session/{self.session_id}"), timeout=self.request_timeout
+                    "DELETE",
+                    self._url(f"/session/{self.session_id}"),
+                    timeout=self.request_timeout,
                 )
                 if resp.status_code not in (204, 404):
                     resp.raise_for_status()
                 _log.info("Closed session %s successfully", self.session_id[:8])
             except requests.exceptions.RequestException as e:
-                _log.warning("Failed to close session %s (server may be down): %s", self.session_id[:8], e)
+                _log.warning(
+                    "Failed to close session %s (server may be down): %s",
+                    self.session_id[:8],
+                    e,
+                )
             finally:
                 self.session_id = ""
         else:

@@ -6,7 +6,7 @@ across multiple pytest worker processes via :pydata:`GLOBAL_LOCK`.
 Key features
 ============
 1. Exactly one active lab at any time per host.
-2. Reference counting – optional *reuse* of the same topology (equality check by comparing hash of content) for faster tests.
+2. Reference counting - optional *reuse* of the same topology (equality check by comparing hash of content) for faster tests.
 3. Non-blocking :pyfunc:`try_acquire` used by the remote server to implement an
    HTTP 423 response while keeping the original blocking :pyfunc:`acquire` for
    local tests.
@@ -23,16 +23,16 @@ import shutil
 import tempfile
 import time
 from pathlib import Path
-from typing import List, Optional
 
 from filelock import FileLock
 
+from neops_remote_lab.models import DeviceInfoDto
+from neops_remote_lab.models import LabStatusDto as ApiLabStatus
 from neops_remote_lab.netlab.connector import inspect_node, list_nodes, run_netlab
-from neops_remote_lab.models import DeviceInfoDto, LabStatusDto as ApiLabStatus
 
 __all__ = [
-    "LabManager",
     "GLOBAL_LOCK",
+    "LabManager",
 ]
 
 WAIT_INTERVAL = 2  # seconds between acquire retries
@@ -95,25 +95,25 @@ def prepare_workdir(src: Path) -> Path:
 # • A global `FileLock` serialises access across *multiple* pytest worker
 #   processes.
 #
-# The implementation keeps a *single* handle instead of a dict – making the
+# The implementation keeps a *single* handle instead of a dict - making the
 # one-lab rule explicit in the code structure.
 
 
 class LabManager:
     _current_topo: Path | None = None  # full resolved path of running lab (source file)
     _current_topo_hash: str | None = None  # SHA-256 fingerprint of topology content
-    _handle: _Handle | None = None  # metadata + devices for the running lab
+    _handle: LabManager._Handle | None = None  # metadata + devices for the running lab
 
     class _Handle:
         """Internal record describing the currently running lab."""
 
-        def __init__(self, workdir: Path, devices: List[DeviceInfoDto]) -> None:
+        def __init__(self, workdir: Path, devices: list[DeviceInfoDto]) -> None:
             self.workdir = workdir
             self.devices = devices
             self.ref = 1  # how many tests are using this lab
 
     @classmethod
-    def _start(cls, topo: Path) -> List[DeviceInfoDto]:
+    def _start(cls, topo: Path) -> list[DeviceInfoDto]:
         """Start a new Netlab lab for *topo* and remember it as the current one."""
         # Ensure no stale 'default' instance from previous runs is still active. While the GLOBAL_LOCK
         # prevents concurrent *pytest* workers from stepping on each other, our CI runners are long-living and
@@ -144,7 +144,7 @@ class LabManager:
     # Public API
     # ------------------------------------------------------------------
     @classmethod
-    def acquire(cls, topo: Path, *, reuse: bool = True) -> List[DeviceInfoDto]:
+    def acquire(cls, topo: Path, *, reuse: bool = True) -> list[DeviceInfoDto]:
         """Return a list of `DeviceInfoDto` objects for *topo*.
 
         Parameters
@@ -165,11 +165,11 @@ class LabManager:
             if devices is not None:
                 return devices
 
-            _log.debug("Lab busy – waiting %.1fs", WAIT_INTERVAL)
+            _log.debug("Lab busy - waiting %.1fs", WAIT_INTERVAL)
             time.sleep(WAIT_INTERVAL)
 
     @classmethod
-    def try_acquire(cls, topo: Path, *, reuse: bool = True) -> List[DeviceInfoDto] | None:
+    def try_acquire(cls, topo: Path, *, reuse: bool = True) -> list[DeviceInfoDto] | None:
         """Non-blocking variant of acquire.
 
         Returns devices if the lab is available (reused or freshly started) or
@@ -181,7 +181,7 @@ class LabManager:
         with GLOBAL_LOCK:
             # 1. No lab → start
             if cls._handle is None:
-                _log.info("No active lab – starting %s", topo.name)
+                _log.info("No active lab - starting %s", topo.name)
                 return cls._start(topo)
 
             # 2. Same topology content --------------------------------------------------
@@ -192,7 +192,7 @@ class LabManager:
                     return cls._handle.devices
 
                 if cls._handle.ref == 0:
-                    _log.info("Exclusive request – restarting idle lab %s", (cls._current_topo or topo).name)
+                    _log.info("Exclusive request - restarting idle lab %s", (cls._current_topo or topo).name)
                     cls._terminate_current(reason="exclusive-request")
                     return cls._start(topo)
 
@@ -212,7 +212,7 @@ class LabManager:
         """Return status information about the current lab."""
 
         running = cls._handle is not None
-        devices: List[DeviceInfoDto] = cls._handle.devices if (include_devices and cls._handle) else []
+        devices: list[DeviceInfoDto] = cls._handle.devices if (include_devices and cls._handle) else []
 
         return ApiLabStatus(
             running=running,
@@ -237,7 +237,9 @@ class LabManager:
                 _log.error("Release called for non-current topo %s (current %s)", topo, cls._current_topo)
                 return
 
-            assert cls._handle is not None
+            if cls._handle is None:
+                _log.error("Release called but no current lab handle exists for topo %s", topo.name)
+                return
             cls._handle.ref -= 1
 
             if cls._handle.ref < 0:
@@ -247,7 +249,7 @@ class LabManager:
             # When ref hits 0 the lab becomes idle. It remains running until a
             # different topology is requested or the interpreter exits.
             if cls._handle.ref == 0:
-                _log.info("Lab %s became idle – awaiting next user or teardown (refcount=0)", topo.name)
+                _log.info("Lab %s became idle - awaiting next user or teardown (refcount=0)", topo.name)
 
     # ------------------------------------------------------------------ internal helpers
     @classmethod
@@ -296,12 +298,12 @@ class LabManager:
 
     # ------------------------------------------------------------------ extras
     @classmethod
-    def current_topology(cls) -> Optional[Path]:
+    def current_topology(cls) -> Path | None:
         """Return the path of the currently running topology (or None)."""
         return cls._current_topo
 
     @classmethod
-    def current_devices(cls) -> List[DeviceInfoDto]:
+    def current_devices(cls) -> list[DeviceInfoDto]:
         """Return a copy of the current device list (empty if no lab)."""
         return list(cls._handle.devices) if cls._handle else []
 
