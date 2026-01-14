@@ -1,4 +1,4 @@
-name: Release (Docker + PyPI)
+name: Release (PyPI)
 
 on:
   push:
@@ -52,6 +52,9 @@ jobs:
             echo "PYPI_TOKEN secret token is not set. Exiting."
             exit 1
           fi
-          uv publish --token "$PYPI_TOKEN" --skip-existing
+          # uv does not support `--skip-existing`; use the Simple API to pre-check existing distributions.
+          uv publish --token "$PYPI_TOKEN" --check-url https://pypi.org/simple/
 
       
+      - name: Create release on GitHub
+        uses: zebbra/actions/github-release@github-release/latest
