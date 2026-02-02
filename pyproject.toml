@@ -136,11 +136,18 @@ source = "vcs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["neops_remote_lab"]
-
-[tool.hatch.build]
-include = [
+artifacts = [
   "neops_remote_lab/logging_config.yaml",
   "neops_remote_lab/py.typed",
+]
+
+[tool.hatch.build.targets.sdist]
+# Using only-include to avoid issues with docs/ symlinks confusing hatch-vcs
+# The symlinks (docs/neops_remote_lab, docs/tests, docs/headscale) are needed for documentation builds
+only-include = [
+  "neops_remote_lab",
+  "README.md",
+  "pyproject.toml",
 ]
 
 [build-system]
