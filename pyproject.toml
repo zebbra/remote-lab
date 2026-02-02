@@ -25,7 +25,7 @@ dependencies = [
   "urllib3>=2.6.0",
   "pyyaml>=6.0,<7",
   "colorlog>=6.8.2,<7",
-  "python-multipart>=0.0.20,<0.0.21",
+  "python-multipart>=0.0.22,<0.0.23",
   "pydantic>=2.7,<3",
   "requests>=2.32.5,<3",
 ]
