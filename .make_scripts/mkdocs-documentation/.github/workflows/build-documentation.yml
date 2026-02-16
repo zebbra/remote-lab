@@ -1,0 +1,33 @@
+name: build-documentation.yml
+on:
+  push:
+    branches:
+      - develop
+      - main
+    tags:
+      - '*'
+  pull_request:
+
+jobs:
+  build-documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image for documentation
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .make_scripts/mkdocs-documentation/Dockerfile
+          build-contexts: git=.git
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
