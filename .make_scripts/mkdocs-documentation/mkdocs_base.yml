@@ -21,6 +21,9 @@ theme:
   logo: assets/logo.svg
   favicon: assets/favicon.png
 
+hooks:
+  - .make_scripts/mkdocs-documentation/hooks/fix_symlinks.py
+
 # --8<-- [start:markdown_extensions]
 markdown_extensions:
   - pymdownx.highlight:
@@ -43,14 +46,14 @@ markdown_extensions:
       # https://github.com/mkdocs/mkdocs/issues/3453
       base_path:
         - !relative
-#        - "submodules/zebbra-mkdocs-dummyproject"
-#        - "submodules/zebbra-mkdocs-dummyproject/docs"
-  # https://github.com/mkdocs/mkdocs/pull/3258
-  #  - !relative  # Obtains the directory of the currently rendered Markdown file
-  #  - !relative $config_dir  # Obtains the directory of mkdocs.yml
-  #  - !relative $docs_dir  # Obtains the docs_dir
-  #  - !relative $docs_dir/some/child/dir
-  # Emojy/Symbol/Fontawesome support in markdown
+          #        - "submodules/zebbra-mkdocs-dummyproject"
+          #        - "submodules/zebbra-mkdocs-dummyproject/docs"
+          # https://github.com/mkdocs/mkdocs/pull/3258
+          #  - !relative  # Obtains the directory of the currently rendered Markdown file
+          #  - !relative $config_dir  # Obtains the directory of mkdocs.yml
+          #  - !relative $docs_dir  # Obtains the docs_dir
+          #  - !relative $docs_dir/some/child/dir
+        # Emojy/Symbol/Fontawesome support in markdown
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg

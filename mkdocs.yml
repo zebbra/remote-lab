@@ -14,6 +14,8 @@ extra:
   - icon: fontawesome/solid/house
     link: https://zebbra.ch
     name: Zebbra
+hooks:
+- .make_scripts/mkdocs-documentation/hooks/fix_symlinks.py
 markdown_extensions:
 - pymdownx.highlight:
     anchor_linenums: true

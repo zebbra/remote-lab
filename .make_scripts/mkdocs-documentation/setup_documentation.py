@@ -159,12 +159,16 @@ def create_symlinks():
         if dir.endswith(docs_dir.name):
             print(f"-- Skipping {dir} (docs directory)")
             continue
-        if symlinks not in symlinks:
+        else:
             dest = f"{docs_dir}/{dir}"
-            print(f"-- Skipping {dir} (already exists)")
-            if Path(dest).exists():
-                continue
+            if os.path.lexists(dest):
+                if not os.path.islink(dest):
+                    print(f"-- Skipping {dir} (already exists)")
+                    continue
+                else:
+                    os.remove(dest)
             rel_dir = os.path.relpath(dir, docs_dir)
+            rel_dir = f"{rel_dir}/"
             os.symlink(rel_dir, dest, target_is_directory=True)
             print(f"++ Created symlink for {dir}")
 
