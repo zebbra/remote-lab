@@ -80,7 +80,7 @@ def merge_mkdocs_yml():
             + yaml.dump(yaml_res)
             .replace("tag:yaml.org,2002:", "!!")
             .replace("'!relative'", "!relative"),
-        )
+            )
     else:
         raise Exception(f"{MKDOCS_RES} is dirty, stage or commit first")
 
