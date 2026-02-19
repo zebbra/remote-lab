@@ -5,6 +5,9 @@ WORKDIR /app
 RUN pip install uv && apt-get update && apt-get install -y --no-install-recommends make git
 
 COPY . .
+COPY --from=git . .git
+
+RUN git config --global --add safe.directory /app
 
 RUN make doc-build
 
