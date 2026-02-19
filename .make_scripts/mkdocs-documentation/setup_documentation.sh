@@ -2,7 +2,7 @@
 
 DEPENDENCY_MISSING=0
 
-which poetry  > /dev/null      || (echo "poetry is not installed on your system  - please install" && DEPENDENCY_MISSING=1)
+which uv  > /dev/null          || (echo "uv is not installed on your system      - please install" && DEPENDENCY_MISSING=1)
 which gh  > /dev/null          || (echo "gh is not installed on your system      - please install" && DEPENDENCY_MISSING=1)
 which mktemp  > /dev/null      || (echo "mktemp is not installed on your system  - please install" && DEPENDENCY_MISSING=1)
 
@@ -43,5 +43,5 @@ fi
   find . -type f -iname "*.sh" -exec chmod +x {} \;
 )
 
-poetry install --project .make_scripts/mkdocs-documentation/
-poetry run --project .make_scripts/mkdocs-documentation/ python .make_scripts/mkdocs-documentation/setup_documentation.py
+uv sync --project .make_scripts/mkdocs-documentation/
+uv run --project .make_scripts/mkdocs-documentation/ python .make_scripts/mkdocs-documentation/setup_documentation.py

@@ -80,7 +80,7 @@ def merge_mkdocs_yml():
             + yaml.dump(yaml_res)
             .replace("tag:yaml.org,2002:", "!!")
             .replace("'!relative'", "!relative"),
-        )
+            )
     else:
         raise Exception(f"{MKDOCS_RES} is dirty, stage or commit first")
 
@@ -159,12 +159,16 @@ def create_symlinks():
         if dir.endswith(docs_dir.name):
             print(f"-- Skipping {dir} (docs directory)")
             continue
-        if symlinks not in symlinks:
+        else:
             dest = f"{docs_dir}/{dir}"
-            print(f"-- Skipping {dir} (already exists)")
-            if Path(dest).exists():
-                continue
+            if os.path.lexists(dest):
+                if not os.path.islink(dest):
+                    print(f"-- Skipping {dir} (already exists)")
+                    continue
+                else:
+                    os.remove(dest)
             rel_dir = os.path.relpath(dir, docs_dir)
+            rel_dir = f"{rel_dir}/"
             os.symlink(rel_dir, dest, target_is_directory=True)
             print(f"++ Created symlink for {dir}")
 
