@@ -34,3 +34,10 @@ doc-create-mkdocs-build-workflow:
 	touch .github
 	touch .github/workflows
 	cp .make_scripts/mkdocs-documentation/.github/workflows/build-documentation.yml .github/workflows
+
+# -r: recursive (look in subfolders)
+# -c: change absolute links to relative
+# -v: verbose (show what is happening)
+doc-fix-symlinks:
+	which symlinks || { echo "symlinks command not found. Please install it to fix symlinks in the documentation."; exit 1; }
+	symlinks -rcv .

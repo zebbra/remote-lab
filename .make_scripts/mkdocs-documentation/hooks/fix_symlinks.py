@@ -11,8 +11,9 @@ def on_files(files: Files, config):
     project_root = Path(config['config_file_path']).parent.resolve()
     original_docs_dir = project_root / "docs"
 
-    print(f"[Symlink Hook] Project Root: {project_root}")
-    print(f"[Symlink Hook] Original Docs Dir: {original_docs_dir}")
+    if os.environ.get('DEBUG') == 'true':
+        print(f"[Symlink Hook] Project Root: {project_root}")
+        print(f"[Symlink Hook] Original Docs Dir: {original_docs_dir}")
 
     # 2. Inject search paths for the Snippets extension
     _add_to_snippets_config(config, str(project_root))
@@ -33,7 +34,8 @@ def on_files(files: Files, config):
             if resolved_target.is_file():
                 # Fix individual file symlinks
                 file.abs_src_path = str(resolved_target)
-                print(f"[Symlink Hook] Resolved File: {file.src_path} -> {file.abs_src_path}")
+                if os.environ.get('DEBUG') == 'true':
+                    print(f"[Symlink Hook] Resolved File: {file.src_path} -> {file.abs_src_path}")
 
             elif resolved_target.is_dir():
                 # For directory symlinks (like doc_assets), we keep them in
@@ -44,7 +46,8 @@ def on_files(files: Files, config):
 
                 # Add the specific resolved target as well
                 _add_to_snippets_config(config, str(resolved_target))
-                print(f"[Symlink Hook] Mapped Directory Prefix: {file.src_path} -> {resolved_target}")
+                if os.environ.get('DEBUG') == 'true':
+                    print(f"[Symlink Hook] Mapped Directory Prefix: {file.src_path} -> {resolved_target}")
 
     return files
 

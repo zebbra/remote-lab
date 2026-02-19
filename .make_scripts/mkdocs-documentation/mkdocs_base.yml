@@ -23,7 +23,6 @@ theme:
 
 hooks:
   - .make_scripts/mkdocs-documentation/hooks/inline_nav_include.py
-  - .make_scripts/mkdocs-documentation/hooks/fix_symlinks.py
 
 # --8<-- [start:markdown_extensions]
 markdown_extensions:

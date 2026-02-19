@@ -2,12 +2,11 @@ FROM python:3.11 AS builder
 
 WORKDIR /app
 
-RUN pip install uv
+RUN pip install uv && apt-get update && apt-get install -y --no-install-recommends make git
 
 COPY . .
 
-RUN uv sync --project .make_scripts/mkdocs-documentation/
-RUN uv run --project .make_scripts/mkdocs-documentation/ mkdocs build
+RUN make doc-build
 
 FROM nginxinc/nginx-unprivileged:1.19
 

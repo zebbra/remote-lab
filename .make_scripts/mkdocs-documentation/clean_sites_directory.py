@@ -18,5 +18,6 @@ if __name__ == '__main__':
         for file in files:
             file_path = os.path.relpath(os.path.join(root, file), directory_to_clean)
             if spec.match_file(file_path):  # Check if the file matches any ignore pattern
-                print(f"Deleting {file_path}")
+                if os.environ.get('DEBUG') == 'true':
+                    print(f"Deleting {file_path}")
                 os.remove(os.path.join(root, file))
