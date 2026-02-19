@@ -37,6 +37,7 @@ class SafeLoaderIgnoreUnknown(yaml.SafeLoader):
 def is_file_dirty(filename):
     """
     Checks if a specific file is dirty (modified but not staged) in the Git index.
+    Returns False if the file doesn't exist or is not in a Git repository.
 
     Args:
         filename: The path to the file to check.
@@ -44,16 +45,27 @@ def is_file_dirty(filename):
     Returns:
         True if the file is dirty, False otherwise.
     """
-    # Check if file exists first
+    # 1. Check if file exists first
     if not os.path.exists(filename):
         return False
-    # Run git diff-index to compare the working tree with the index for the file
+
+    # 2. Check if we are inside a Git repository
+    # rev-parse returns 0 if inside a repo, non-zero otherwise
+    is_git = subprocess.run(
+        ["git", "rev-parse", "--is-inside-work-tree"],
+        capture_output=True,
+        text=True
+    )
+    if is_git.returncode != 0:
+        return False
+
+    # 3. Run git diff-index to compare the working tree with the index
+    # We redirect stderr to DEVNULL to suppress "not a git repo" or other Git errors
     command = ["git", "diff-index", "--quiet", "--cached", "HEAD", filename]
-    # Use subprocess.run with capture_output to capture the command's output
-    result = subprocess.run(command, capture_output=True)
+    result = subprocess.run(command, stderr=subprocess.DEVNULL)
+
     # Check the returncode. Non-zero indicates a difference (dirty file)
     return result.returncode != 0
-
 
 def read_file(file_name):
     with open(file_name) as f:
