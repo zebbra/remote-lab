@@ -60,3 +60,6 @@ Thumbs.db
 
 # Documentation output (MkDocs)
 site/
+**/__pycache__/
+
+site
