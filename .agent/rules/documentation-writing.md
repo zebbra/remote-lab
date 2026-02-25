@@ -14,7 +14,7 @@ and free up your time for strategic initiatives.
 
 ## Writing documentation
 
-- The main task in this repository is to write and manage documentation.
+- This instruction file is only relevant when writing documentation.
 - Documentation is always in the 'docs' folder.
 
 ### Framework
@@ -28,7 +28,8 @@ and free up your time for strategic initiatives.
 ### Documenting with code examples
 
 - Code snippets longer than 5 lines should always be referenced from real code, ideally placed in an 'examples', 'snippets', 'use-cases' or 'getting-started' folder outside the docs folder.
-- Code snippets s horter than 5 lines can be inline if necessary
+- Code snippets shorter than 5 lines can be inline if necessary
+- Make sure paths to snippets are always relative to the file they are included in, but do not reference outside the docs directory (use the symlinks in docs/ to reference files outside of the docs folder).
 - Before you create a new file for the snippet, search the whole repository for similar code, maybe it is already in a source file that can be referenced.
 - Prefer referencing code from source files over creating new files for snippets.
 - Simple commands are allowed and do not count as a code snippet. 
