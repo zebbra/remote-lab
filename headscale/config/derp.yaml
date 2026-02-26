@@ -1,18 +1,48 @@
-# Minimal local DERP map to satisfy Headscale's requirement for at least one DERP entry.
-# Note: This is a placeholder. For real relaying, run a proper DERP server (embedded with TLS)
-# or point to a valid DERP host. See docs: https://tailscale.com/kb/1118/custom-derp-servers/
-# Schema: map[int]DERPRegion. Keys are numeric region IDs.
 regions:
-  999:
-    regionid: 999
-    regioncode: local
-    regionname: Local Placeholder DERP
+  4:
+    regionid: 4
+    regioncode: fra
+    regionname: Frankfurt
     nodes:
-      - name: local-placeholder
-        regionid: 999
-        # Hostname/IP of DERP. Placeholder uses loopback; clients will ignore if unreachable.
-        host: 127.0.0.1
-        ipv4: 127.0.0.1
-        # Disable STUN here; this is just to satisfy non-empty map.
-        stunport: 0
+      - name: 4f
+        regionid: 4
+        hostname: derp4f.tailscale.com
+        ipv4: 185.40.234.219
+        ipv6: "2a00:dd80:20::a25"
+        stunport: 3478
         stunonly: false
+        derpport: 443
+      - name: 4g
+        regionid: 4
+        hostname: derp4g.tailscale.com
+        ipv4: 185.40.234.113
+        ipv6: "2a00:dd80:20::8f"
+        stunport: 3478
+        stunonly: false
+        derpport: 443
+  14:
+    regionid: 14
+    regioncode: ams
+    regionname: Amsterdam
+    nodes:
+      - name: 14b
+        regionid: 14
+        hostname: derp14b.tailscale.com
+        ipv4: 176.58.93.248
+        ipv6: "2a00:dd80:3c::807"
+        stunport: 3478
+        stunonly: false
+        derpport: 443
+  18:
+    regionid: 18
+    regioncode: par
+    regionname: Paris
+    nodes:
+      - name: 18b
+        regionid: 18
+        hostname: derp18b.tailscale.com
+        ipv4: 176.58.90.147
+        ipv6: "2a00:dd80:3e::363"
+        stunport: 3478
+        stunonly: false
+        derpport: 443
