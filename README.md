@@ -7,7 +7,55 @@ infrastructure safely.
 
 ---
 
-## 📦 Installation
+## Architecture
+
+### Session Queue & Lab Lifecycle
+
+```
+  Client A          Client B          Server
+     |                  |                |
+     |  POST /session   |                |
+     |----------------->|                |
+     |  session=ACTIVE  |                |
+     |<-----------------|                |
+     |                  | POST /session  |
+     |                  |--------------->|
+     |                  | session=WAITING|
+     |                  |<---------------|
+     |  POST /lab       |                |
+     |  (topology.yml)  |                |
+     |----------------->|                |
+     |  lab acquired    |                |
+     |                  |  heartbeat...  |
+     | DELETE /session  |                |
+     |----------------->|                |
+     |  promote B       |                |
+     |                  | session=ACTIVE |
+     |                  |<---------------|
+```
+
+### Component Layout
+
+```
+neops_remote_lab/
+  server.py              FastAPI app (12 endpoints, session queue, lab lifecycle)
+  client.py              RemoteLabClient (HTTP client with retry + session mgmt)
+  __main__.py            CLI entry point (argparse + uvicorn + single-instance guard)
+  models/
+    session.py           SessionState enum, session DTOs
+    lab.py               LabStatusDto, AcquireResponseDto, DeviceInfoDto
+  netlab/
+    connector.py         Low-level netlab CLI wrapper (subprocess)
+    lab_manager.py       One-lab-at-a-time manager with content-hash reuse
+  testing/
+    fixture.py           remote_lab_fixture() factory + remote_lab_client fixture
+    pytest_order_plugin.py  Test reordering by fixture rank
+  pytest_plugins.py      pytest11 plugin registration entry point
+```
+
+---
+
+## Installation
 
 Remote Lab Manager is available on PyPI as [`neops_remote_lab`](https://pypi.org/project/neops_remote_lab). You can install it using pip:
 
@@ -22,7 +70,7 @@ uv add neops-remote-lab
 
 
 
-## ✨ Key Points
+## Key Points
 
 * **One-lab rule** – only one Netlab topology may run per host; the manager
   enforces this with a queue and automatic reference counting.
@@ -33,7 +81,7 @@ uv add neops-remote-lab
 * **Python client available** – import  RemoteLabClient` for programmatic use.
 ---
 
-## 🔧 Prerequisites
+## Prerequisites
 The Remote Lab Manager requires two main components to function properly:
 
 1. **Netlab** – for orchestrating network topologies on the remote host
@@ -55,7 +103,7 @@ Use **Headscale (control plane) with Tailscale clients** to route traffic betwee
 See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) for deployment, access, and client enrollment.
 
 
-## 🚀 Quick-Start
+## Quick Start
 
 ### On your Remote Lab VM
 #### 1. Configure Headscale and Tailscale OR your own VPN solution (e.g. WireGuard)
@@ -146,7 +194,7 @@ If `REMOTE_LAB_URL` is set, the fixtures will connect to the configured Remote L
 
 ---
 
-## 🔌 REST API
+## REST API
 
 | Method & Path | Purpose | Notes |
 |--------------|---------|-------|
@@ -162,15 +210,15 @@ If `REMOTE_LAB_URL` is set, the fixtures will connect to the configured Remote L
 | **DELETE** `/lab?force=true` | Destroy lab | `202` accepted; `force=false` fails if busy |
 | **GET** `/healthz` | Liveness check | `204 No Content` |
 
-> ⚠️ All `/lab*` endpoints require the `X-Session-ID` header of an
+> **Note:** All `/lab*` endpoints require the `X-Session-ID` header of an
 > **active** session. Non-active sessions receive `423 Locked`.
 
-> ℹ️ A debug-only endpoint `GET /debug/health` returns rich server stats
+> A debug-only endpoint `GET /debug/health` returns rich server stats
 > (uptime, queue length, etc.) and is useful during development.
 
 ---
 
-## 🛠️  Example cURL Session
+## Example cURL Session
 
 ```bash
 # 1) Create session
@@ -200,7 +248,7 @@ curl -X DELETE http://localhost:8000/session/$SESSION
 
 ---
 
-## ⚙️  Environment Variables
+## Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
@@ -211,7 +259,7 @@ curl -X DELETE http://localhost:8000/session/$SESSION
 
 ---
 
-## 🧹 House-Keeping & Timeouts
+## House-Keeping & Timeouts
 
 * **Waiting sessions** – dropped after **600 s** without a heartbeat.
 * **Active sessions** – deemed stale after **300 s** of silence; the lab is
@@ -223,7 +271,7 @@ Constants are defined in `neops_worker_sdk/testing/remote_lab/server.py`.
 
 ---
 
-## 🪵 Logging
+## Logging
 
 The server emits structured logs:
 ```
@@ -236,7 +284,7 @@ Netlab command output. The `--debug` flag also enables streaming of Netlab outpu
 
 ---
 
-## 🧪 Tests
+## Tests
 
 - Remote lab API: `tests/testing/remote_lab/test_server.py`
   - Covers queueing/promotion, heartbeats, active-session, acquire/release/destroy, status codes (400/409/423/202/204), device listing, and `extra_files` directory preservation. Uses a stubbed `LabManager`; no Netlab required.
@@ -253,7 +301,7 @@ pytest -m testing # Run all tests with "testing" marker
 
 ---
 
-## ❓ Troubleshooting
+## Troubleshooting
 
 | Symptom | Checklist |
 |---------|-----------|
@@ -264,7 +312,7 @@ pytest -m testing # Run all tests with "testing" marker
 
 ---
 
-## 📚 Interactive Docs
+## Interactive Docs
 
 Browse `http://<host>:8000/docs` for an auto-generated, interactive OpenAPI UI
 and experiment with the endpoints directly. 
