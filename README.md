@@ -38,7 +38,7 @@ infrastructure safely.
 
 ```
 neops_remote_lab/
-  server.py              FastAPI app (12 endpoints, session queue, lab lifecycle)
+  server.py              FastAPI app (session queue, lab lifecycle)
   client.py              RemoteLabClient (HTTP client with retry + session mgmt)
   __main__.py            CLI entry point (argparse + uvicorn + single-instance guard)
   models/
@@ -78,7 +78,7 @@ uv add neops-remote-lab
   fixtures will transparently switch to remote mode.
 * **Stateless HTTP API** – every request is authenticated via an `X-Session-ID`
   header issued when the session is created.
-* **Python client available** – import  RemoteLabClient` for programmatic use.
+* **Python client available** – `import RemoteLabClient` for programmatic use.
 ---
 
 ## Prerequisites
@@ -114,7 +114,6 @@ See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) f
 #### 2. Start the Remote Lab Server
 
 For local development, you can use the following commands to start the Remote Lab Server:
-****
 ```bash
 # Install deps (inside a uv-managed .venv)
 uv sync --group dev
@@ -267,7 +266,7 @@ curl -X DELETE http://localhost:8000/session/$SESSION
 * **Cleanup cadence** – adaptive background task: ~5 s when busy, ~15 s with a
   single active session, ~30 s when idle.
 
-Constants are defined in `neops_worker_sdk/testing/remote_lab/server.py`.
+Constants are defined in `neops_remote_lab/server.py`.
 
 ---
 
@@ -280,7 +279,7 @@ The server emits structured logs:
 Use `--log-level debug` or the `--debug` flag when starting the service to see queue promotions and
 Netlab command output. The `--debug` flag also enables streaming of Netlab output via
 `NEOPS_NETLAB_STREAM_OUTPUT=1`. You can override logging with `--log-config <yaml>`; see
-`neops_worker_sdk/testing/remote_lab/logging_config.yaml` for the default.
+`neops_remote_lab/logging_config.yaml` for the default.
 
 ---
 
