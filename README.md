@@ -315,4 +315,12 @@ pytest -m testing # Run all tests with "testing" marker
 ## Interactive Docs
 
 Browse `http://<host>:8000/docs` for an auto-generated, interactive OpenAPI UI
-and experiment with the endpoints directly. 
+and experiment with the endpoints directly.
+
+## See Also
+
+See [AGENTS.md](AGENTS.md) for AI agent context, conventions, and gotchas.
+
+## Contributing
+
+Default branch: `develop`. Branch from `develop` for all changes. Run verification: `make check`

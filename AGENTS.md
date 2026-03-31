@@ -69,6 +69,10 @@ The `LabManager` identifies topologies by SHA-256 hash of file content:
 - **Consumed by**: neops-worker-sdk-py (pytest fixtures via `remote_lab_fixture()` factory, auto-registered as pytest11 plugin)
 - **External tool**: Netlab CLI must be installed and in PATH (verified at server startup)
 
+## Verification
+
+`make check`
+
 ## Key Configuration
 
 | Variable | Default | Purpose |
