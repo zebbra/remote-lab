@@ -26,7 +26,7 @@ uv run neops-remote-lab --debug --port 8000
 ## Conventions
 
 - Default branch is `develop`. Branch from `develop` for all changes.
-- Linter: ruff with 18 rule sets, line length 120, Google-style docstrings
+- Linter: ruff with multiple rule sets, line length 120, Google-style docstrings
 - Type checker: pyrefly (strict mode, unannotated return/parameter errors enabled)
 - Build: hatchling + hatch-vcs (version derived from git tags)
 - All env vars use `REMOTE_LAB_` or `NEOPS_NETLAB_` prefix
