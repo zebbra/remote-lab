@@ -7,7 +7,45 @@ infrastructure safely.
 
 ---
 
-## 📦 Installation
+## Architecture
+
+### Session Queue & Lab Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant ClientA as Client A
+    participant ClientB as Client B
+    participant Server
+
+    ClientA->>Server: POST /session
+    Server-->>ClientA: 201 session_id (ACTIVE)
+
+    ClientB->>Server: POST /session
+    Server-->>ClientB: 201 session_id (WAITING, position=1)
+
+    ClientA->>Server: POST /lab (topology.yml)
+    Note over Server: acquire lab (netlab up)
+    Server-->>ClientA: 200 lab acquired
+
+    loop keep-alive (until release)
+        ClientA->>Server: POST /session/heartbeat
+        Server-->>ClientA: 204
+    end
+
+    ClientB->>Server: GET /session/{id}
+    Server-->>ClientB: status=WAITING, position=1
+
+    ClientA->>Server: DELETE /session/{id}
+    Note over Server: tear down lab, promote next in queue
+    Server-->>ClientA: 204
+
+    ClientB->>Server: GET /session/{id}
+    Server-->>ClientB: status=ACTIVE, position=0
+```
+
+---
+
+## Installation
 
 Remote Lab Manager is available on PyPI as [`neops_remote_lab`](https://pypi.org/project/neops_remote_lab). You can install it using pip:
 
@@ -22,7 +60,7 @@ uv add neops-remote-lab
 
 
 
-## ✨ Key Points
+## Key Points
 
 * **One-lab rule** – only one Netlab topology may run per host; the manager
   enforces this with a queue and automatic reference counting.
@@ -30,10 +68,11 @@ uv add neops-remote-lab
   fixtures will transparently switch to remote mode.
 * **Stateless HTTP API** – every request is authenticated via an `X-Session-ID`
   header issued when the session is created.
-* **Python client available** – import  RemoteLabClient` for programmatic use.
+* **Python client available** – `import RemoteLabClient` for programmatic use.
+
 ---
 
-## 🔧 Prerequisites
+## Prerequisites
 The Remote Lab Manager requires two main components to function properly:
 
 1. **Netlab** – for orchestrating network topologies on the remote host
@@ -55,7 +94,7 @@ Use **Headscale (control plane) with Tailscale clients** to route traffic betwee
 See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) for deployment, access, and client enrollment.
 
 
-## 🚀 Quick-Start
+## Quick Start
 
 ### On your Remote Lab VM
 #### 1. Configure Headscale and Tailscale OR your own VPN solution (e.g. WireGuard)
@@ -66,7 +105,6 @@ See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) f
 #### 2. Start the Remote Lab Server
 
 For local development, you can use the following commands to start the Remote Lab Server:
-****
 ```bash
 # Install deps (inside a uv-managed .venv)
 uv sync --group dev
@@ -103,14 +141,7 @@ export REMOTE_LAB_URL=http://91.99.184.46:8000
 # Optional: put this into a .env file and load it using python-dotenv or your preferred method
 ```
 
-Additionally, you can also set the following environment variables to override the default timeouts:
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `REMOTE_LAB_REQUEST_TIMEOUT` | Per-request timeout in seconds | 30 |
-| `REMOTE_LAB_SESSION_TIMEOUT` | Session heartbeat timeout in seconds | 300 |
-| `REMOTE_LAB_ACQUISITION_TIMEOUT` | Max seconds to wait for lab acquisition | 600 |
-
+Additional timeouts (`REMOTE_LAB_REQUEST_TIMEOUT`, `REMOTE_LAB_SESSION_TIMEOUT`, `REMOTE_LAB_ACQUISITION_TIMEOUT`) are documented in [Environment Variables](#environment-variables) below.
 
 After setting **at least** the `REMOTE_LAB_URL` environment variable, you can then use the fixtures provided by `neops-remote-lab`.
 
@@ -146,7 +177,7 @@ If `REMOTE_LAB_URL` is set, the fixtures will connect to the configured Remote L
 
 ---
 
-## 🔌 REST API
+## REST API
 
 | Method & Path | Purpose | Notes |
 |--------------|---------|-------|
@@ -154,23 +185,23 @@ If `REMOTE_LAB_URL` is set, the fixtures will connect to the configured Remote L
 | **GET** `/session/{id}` | Poll session state | `status: waiting/active`, queue `position` |
 | **GET** `/active-session` | Get active session details | Returns `200` with `session_id`, `status` and `position` |
 | **DELETE** `/session/{id}` | End a session prematurely | Frees lab if active, returns `204` |
-| **POST** `/session/heartbeat` | Keep-alive | Must include `X-Session-ID` header, returns `204` |
+| **POST** `/session/heartbeat` | Keep-alive | `X-Session-ID` header required, returns `204` |
 | **POST** `/lab` | Upload topology & acquire lab | `multipart/form-data`; `reuse=true|false`; supports repeated `extra_files=@path` |
 | **GET** `/lab` | Lab status & device list | Only valid for *active* sessions |
 | **GET** `/lab/devices` | Shortcut to device list | – |
 | **POST** `/lab/release` | Decrement ref-count | If it drops to zero the lab becomes *idle* |
-| **DELETE** `/lab?force=true` | Destroy lab | `202` accepted; `force=false` fails if busy |
+| **DELETE** `/lab?force=true` | Destroy lab | `202` accepted when cleanup starts; `204` if no lab is running; `force=false` fails if busy |
 | **GET** `/healthz` | Liveness check | `204 No Content` |
 
-> ⚠️ All `/lab*` endpoints require the `X-Session-ID` header of an
+> **Note:** All `/lab*` endpoints and `/session/heartbeat` require the `X-Session-ID` header of an
 > **active** session. Non-active sessions receive `423 Locked`.
 
-> ℹ️ A debug-only endpoint `GET /debug/health` returns rich server stats
+> A debug-only endpoint `GET /debug/health` returns rich server stats
 > (uptime, queue length, etc.) and is useful during development.
 
 ---
 
-## 🛠️  Example cURL Session
+## Example cURL Session
 
 ```bash
 # 1) Create session
@@ -200,30 +231,30 @@ curl -X DELETE http://localhost:8000/session/$SESSION
 
 ---
 
-## ⚙️  Environment Variables
+## Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `REMOTE_LAB_URL` | Base URL used by client and fixtures | – |
-| `REMOTE_LAB_REQUEST_TIMEOUT` | Per-request timeout in seconds | 30 |
-| `REMOTE_LAB_SESSION_TIMEOUT` | Session heartbeat timeout in seconds | 300 |
+| `REMOTE_LAB_REQUEST_TIMEOUT` | Per-HTTP-request timeout in seconds | 30 |
+| `REMOTE_LAB_SESSION_TIMEOUT` | Client-side session queue wait limit in seconds | 600 |
 | `REMOTE_LAB_ACQUISITION_TIMEOUT` | Max seconds to wait for lab acquisition | 600 |
 
 ---
 
-## 🧹 House-Keeping & Timeouts
+## House-Keeping & Timeouts
 
-* **Waiting sessions** – dropped after **600 s** without a heartbeat.
-* **Active sessions** – deemed stale after **300 s** of silence; the lab is
+* **Waiting sessions** – dropped after **600 s** of no movement (netlab `up` can take minutes, so this is deliberately long).
+* **Active sessions** – deemed stale after **300 s** without a heartbeat; the lab is
   cleaned up and the next session in queue is promoted.
 * **Cleanup cadence** – adaptive background task: ~5 s when busy, ~15 s with a
   single active session, ~30 s when idle.
 
-Constants are defined in `neops_worker_sdk/testing/remote_lab/server.py`.
+Constants are defined in `neops_remote_lab/server.py`.
 
 ---
 
-## 🪵 Logging
+## Logging
 
 The server emits structured logs:
 ```
@@ -232,39 +263,44 @@ The server emits structured logs:
 Use `--log-level debug` or the `--debug` flag when starting the service to see queue promotions and
 Netlab command output. The `--debug` flag also enables streaming of Netlab output via
 `NEOPS_NETLAB_STREAM_OUTPUT=1`. You can override logging with `--log-config <yaml>`; see
-`neops_worker_sdk/testing/remote_lab/logging_config.yaml` for the default.
+`neops_remote_lab/logging_config.yaml` for the default.
 
 ---
 
-## 🧪 Tests
+## Tests
 
-- Remote lab API: `tests/testing/remote_lab/test_server.py`
-  - Covers queueing/promotion, heartbeats, active-session, acquire/release/destroy, status codes (400/409/423/202/204), device listing, and `extra_files` directory preservation. Uses a stubbed `LabManager`; no Netlab required.
-- Fixture selection: `tests/testing/netlab/test_netlab_fixture_logic.py`
-  - Verifies `create_netlab_fixture` local vs remote behavior, `REMOTE_LAB_URL` auto-selection, and conversion to `NetlabDevice`.
-- Harness: `tests/conftest.py`
-  - Loads `.env`, defines example fixtures, and adds handy pytest markers.
+- Server API: `tests/test_server.py` — covers queueing/promotion, heartbeats, active-session, acquire/release/destroy, status codes (`400/409/423/202/204`), device listing, and `extra_files` directory preservation. Uses a stubbed `LabManager`, so no Netlab install is required.
 
 ```bash
-pytest tests/testing/remote_lab/test_server.py
-pytest tests/testing/netlab/test_netlab_fixture_logic.py
-pytest -m testing # Run all tests with "testing" marker
+make test                         # full suite via pytest
+pytest tests/test_server.py       # just the server tests
 ```
 
 ---
 
-## ❓ Troubleshooting
+## Troubleshooting
 
 | Symptom | Checklist |
 |---------|-----------|
-| Server won’t start | `netlab --version`, correct module path |
+| Server won’t start | `netlab --version`; `netlab test clab`; confirm correct module path |
+| `filelock` error / "another instance is running" | Crashed prior process left a stale lock — check no live `neops-remote-lab` process, then remove the lockfile under the system temp dir (see AGENTS.md → Invariants) |
+| `Address already in use` on port 8000 | Another process (often a previous server) still bound — `lsof -i :8000` and kill, or start with a different `--port` |
+| Netlab refuses to start a fresh topology | A stale `default` netlab instance from a crashed prior run — the server clears this at startup; if you’re running netlab by hand, `netlab down --cleanup` first |
 | Tests hang in queue | Port 8000 reachable? Heartbeats sent? Check server logs |
-| Containers unreachable | Using `network_mode: host`? Firewall rules? |
-| Lab stuck busy | Someone forgot to release? Use `DELETE /lab?force=true` |
+| Containers unreachable | Using `network_mode: host`? Firewall rules? VPN/Headscale up? |
+| Lab stuck busy | Someone forgot to release — `DELETE /lab?force=true` with an active `X-Session-ID` |
 
 ---
 
-## 📚 Interactive Docs
+## Interactive Docs
 
 Browse `http://<host>:8000/docs` for an auto-generated, interactive OpenAPI UI
-and experiment with the endpoints directly. 
+and experiment with the endpoints directly.
+
+## See Also
+
+See [AGENTS.md](AGENTS.md) for AI agent context, conventions, and gotchas.
+
+## Contributing
+
+Default branch: `develop`. Branch from `develop` for all changes. Run verification: `make check`
