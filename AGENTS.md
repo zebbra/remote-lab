@@ -23,5 +23,3 @@ Load-bearing and usually not obvious from the code:
 - **Authentication is not implemented.** `REMOTE_LAB_TOKEN` / Bearer auth is commented out in `client.py`; the only access boundary on `/lab/*` endpoints is the `X-Session-ID` header of an active session (non-active sessions receive `423 Locked`). Treat the service as internal-trust.
 - **CVE-pinned dependencies.** Several `pyproject.toml` pins carry `# CVE-*` comments. Preserve them on dep upgrades and re-run `make audit`.
 - **`pytest_order_plugin` rejects any test that requests more than one `remote_lab_fixture`** — tests with two lab fixtures fail at collection, not at runtime.
-
-README.md is authoritative for the full REST API, cURL walkthrough, and end-user environment variables.

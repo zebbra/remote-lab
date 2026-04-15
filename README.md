@@ -43,26 +43,6 @@ sequenceDiagram
     Server-->>ClientB: status=ACTIVE, position=0
 ```
 
-### Component Layout
-
-```mermaid
-graph TD
-    root["neops_remote_lab/"]
-    root --> server["server.py<br/>FastAPI app, session queue, lab lifecycle"]
-    root --> client["client.py<br/>RemoteLabClient (retry + session mgmt)"]
-    root --> main["__main__.py<br/>CLI + uvicorn + single-instance guard"]
-    root --> plugins["pytest_plugins.py<br/>pytest11 plugin registration"]
-    root --> models["models/"]
-    models --> mod_session["session.py<br/>SessionState enum, session DTOs"]
-    models --> mod_lab["lab.py<br/>LabStatusDto, AcquireResponseDto, DeviceInfoDto"]
-    root --> netlab["netlab/"]
-    netlab --> connector["connector.py<br/>Low-level netlab CLI wrapper"]
-    netlab --> mgr["lab_manager.py<br/>One-lab manager, content-hash reuse"]
-    root --> testing["testing/"]
-    testing --> fixture["fixture.py<br/>remote_lab_fixture() factory + remote_lab_client"]
-    testing --> order["pytest_order_plugin.py<br/>Reorders tests by fixture rank"]
-```
-
 ---
 
 ## Installation
