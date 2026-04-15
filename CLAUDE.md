@@ -7,8 +7,7 @@ Read AGENTS.md for full project context.
 ## Corrections
 
 When asked to update this file with a correction or rule:
-- Project convention or gotcha → update AGENTS.md
-- Path-specific rule → create/update `.claude/rules/` file
-- Claude Code-specific only → add below
+- Project convention, gotcha, or invariant → update AGENTS.md (single source of truth)
+- Claude Code-specific guidance only (hooks, skills, memory pointers) → add below
 
 <!-- Claude-specific corrections only -->

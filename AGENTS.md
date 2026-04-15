@@ -1,85 +1,27 @@
 # neops-remote-lab
 
-FastAPI service that manages exclusive access to virtual network lab environments for integration testing. Provides a session-based FIFO queue where consumers (typically pytest suites in neops-worker-sdk-py) acquire exclusive access to Netlab-managed network topologies. Also ships as a pytest plugin for automatic topology provisioning in test suites.
+FastAPI service + pytest11 plugin providing exclusive session-based access to Netlab topologies via a FIFO queue. **Consumed by neops-worker-sdk-py**, which imports `remote_lab_fixture` directly — treat that call signature as a stable public API.
 
-Tech: Python 3.12+, FastAPI, Pydantic 2, uvicorn, Netlab CLI, filelock, requests, hatchling + hatch-vcs
-
-## Development
-
-```bash
-uv sync
-
-# Run all checks (lint + type check + audit + test)
-make check
-
-# Individual targets
-make lint        # ruff format --check + ruff check
-make format      # ruff format + ruff check --fix
-make typeCheck   # pyrefly check
-make test        # pytest
-make audit       # pip-audit --strict
-
-# Start the server locally (requires netlab CLI in PATH)
-uv run neops-remote-lab --debug --port 8000
-```
+Branch from `develop`. CI (`.github/workflows/ci.yml`) runs `make check`. **CI does not install the Netlab CLI**, so server tests use a stubbed `LabManager`; any test that needs real Netlab must be gated accordingly.
 
 ## Conventions
 
-- Default branch is `develop`. Branch from `develop` for all changes.
-- Linter: ruff with multiple rule sets, line length 120, Google-style docstrings
-- Type checker: pyrefly (strict mode, unannotated return/parameter errors enabled)
-- Build: hatchling + hatch-vcs (version derived from git tags)
-- All env vars use `REMOTE_LAB_` or `NEOPS_NETLAB_` prefix
-- Session identity propagated via `X-Session-ID` HTTP header on all lab endpoints
-- Topology identity is content-hash (SHA-256), never filename
+- Pydantic 2 request/response models are suffixed `*Dto`; errors are raised as `HTTPException(status.HTTP_*, detail=...)` — no custom exception hierarchy.
+- Blocking I/O (subprocess, file ops) called from async handlers must go through `_run_blocking()` in `server.py` so it lands on the thread-pool executor, not the event loop.
+- Netlab is only invoked via `neops_remote_lab.netlab.connector.run_netlab()` — never shell out to `netlab` directly.
+- `X-Session-ID` propagates session identity on every `/lab/*` request and on `/session/heartbeat`, and is the only access boundary (see Invariants).
 
-## Gotchas & Boundaries
+## Invariants & Constraints
 
-- NEVER run more than one server instance per host -- a `filelock` guard prevents it and logs the conflicting PID
-- NEVER assume topology identity from filename -- `LabManager` compares SHA-256 of file content, not paths
-- ALWAYS use `.yml` extension for topology files -- the server accepts `.yml` and `.yaml` but `LabManager` enforces `.yml`
-- ALWAYS handle `atexit` cleanup -- `LabManager` registers an `atexit` handler that silently tears down running labs (logging disabled to avoid closed-stream errors)
-- One lab at a time per host -- this is a Netlab limitation enforced at both process and cross-process (filelock) levels
-- Startup cleanup tears down any stale "default" Netlab instance as a safety net for CI runners
-- `REMOTE_LAB_TOKEN` / Bearer auth is commented out in `client.py` -- planned but not active
+Load-bearing and usually not obvious from the code:
 
-## Session Queue Model
+- **One server instance per host.** A `filelock` guard in `__main__.py` enforces this and logs the conflicting PID/user/host.
+- **One lab per host.** Netlab limitation, enforced both process-wide (`LabManager` singleton) and cross-process (`FileLock`). `LabManager.try_acquire()` is non-blocking and returns `None` when busy (used by the server); `LabManager.acquire()` polls and blocks (used by local test fixtures). Using the wrong one from the wrong context will deadlock or busy-spin.
+- **Topology identity is the SHA-256 of file content**, never the filename. Two files with different names but identical content are the same topology; `reuse=True` + reference counting lets multiple tests share one lab, which is torn down when refcount drops to zero.
+- **`.yml` extension is required.** The HTTP surface accepts `.yaml` too, but `LabManager` enforces `.yml` internally.
+- **`atexit` is a real teardown path.** `LabManager` registers a silent cleanup with logging disabled (closed-stream errors). Do **not** add async code to the cleanup path — it will deadlock at process exit.
+- **Authentication is not implemented.** `REMOTE_LAB_TOKEN` / Bearer auth is commented out in `client.py`; the only access boundary on `/lab/*` endpoints is the `X-Session-ID` header of an active session (non-active sessions receive `423 Locked`). Treat the service as internal-trust.
+- **CVE-pinned dependencies.** Several `pyproject.toml` pins carry `# CVE-*` comments. Preserve them on dep upgrades and re-run `make audit`.
+- **`pytest_order_plugin` rejects any test that requests more than one `remote_lab_fixture`** — tests with two lab fixtures fail at collection, not at runtime.
 
-```
-POST /session      -> Create session (WAITING or promoted to ACTIVE if queue empty)
-GET /session/:id   -> Poll status + position in queue
-DELETE /session/:id -> End session, promote next in queue, cleanup lab
-POST /session/heartbeat -> Keep-alive (X-Session-ID header required)
-```
-
-- First session in queue is ACTIVE; all others are WAITING
-- Waiting sessions timeout after 600s; active sessions without heartbeat timeout after 300s
-- Background cleanup runs at adaptive intervals: 30s idle, 15s one session, 5s multiple sessions
-
-## Content-Hash Reuse
-
-The `LabManager` identifies topologies by SHA-256 hash of file content:
-- Two different file paths with identical content are treated as the same topology
-- Reference counting allows multiple tests to share one topology via `reuse=True`
-- `try_acquire()` is non-blocking (returns None when busy) -- used by the server
-- `acquire()` polls with 2s intervals -- used by local test fixtures
-
-## Ecosystem Context
-
-- **Depends on**: neops-workflow-engine (shares `neops-workflow-engine-client` dependency)
-- **Consumed by**: neops-worker-sdk-py (pytest fixtures via `remote_lab_fixture()` factory, auto-registered as pytest11 plugin)
-- **External tool**: Netlab CLI must be installed and in PATH (verified at server startup)
-
-## Verification
-
-`make check`
-
-## Key Configuration
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `REMOTE_LAB_URL` | (unset = local mode) | Base URL of remote lab server |
-| `REMOTE_LAB_REQUEST_TIMEOUT` | 30 | HTTP request timeout in seconds |
-| `REMOTE_LAB_SESSION_TIMEOUT` | 600 | Session queue wait timeout in seconds |
-| `REMOTE_LAB_ACQUISITION_TIMEOUT` | 600 | Lab acquisition timeout in seconds |
-| `NEOPS_NETLAB_STREAM_OUTPUT` | (unset) | Set to "1" to stream netlab output to console |
+README.md is authoritative for the full REST API, cURL walkthrough, and end-user environment variables.
