@@ -1,3 +1,11 @@
+---
+page_purpose: how-to
+personas_served:
+  - devops-engineer
+  - senior-network-architect
+difficulty_level: intermediate
+---
+
 # 🧪 Rootless Netlab + Containerlab on Ubuntu
 
 *A concise, CI-ready installation and configuration guide*
@@ -51,7 +59,7 @@ All systems (Ansible, Docker, libvirt, etc.) must pass.
 
 ---
 
-If you're integrating with the testing framework, continue with the Testing Framework guide: [/development/testing-framework/](./testing-framework.md)
+If you're integrating with the testing framework, continue with the [Testing Setup guide](../40-testing/10-setup.md).
 
 ## 2. – Configure Rootless Containerlab
 
@@ -191,7 +199,7 @@ First Clone vrnetlab.
 
 ```bash
 # 1. Clone the vrnetlab repository
-git clone ssh://github.com/hellt/vrnetlab.git
+git clone https://github.com/hellt/vrnetlab.git
 
 # 2. Place Cisco IOL binary in build directory
 cp x86_64_crb_linux-adventerprisek9-ms.iol \
@@ -226,10 +234,18 @@ vrnetlab/cisco_iol:L2-17.15.01
 
 ### 🧩 Set image defaults in Netlab
 
+!!! warning "This overwrites `~/.netlab.yml`"
+    The `cat >` command below **replaces** anything already in `~/.netlab.yml`,
+    including the rootless Containerlab providers set in Section 2.2. The block
+    below already includes those provider overrides so nothing is lost, but if
+    you added other custom defaults you must merge them in manually.
+
 ```bash
 cat > ~/.netlab.yml << 'EOF'
 ---
 device: iol
+providers.clab.start: 'containerlab deploy --reconfigure -t clab.yml'
+providers.clab.stop: 'containerlab destroy --cleanup -t clab.yml'
 devices.iol:
   clab.image: "vrnetlab/cisco_iol:17.15.01"
 devices.ioll2:

@@ -1,0 +1,70 @@
+{
+  "project": "neops-remote-lab",
+  "toolkit_version": "0.2.0",
+  "skill": "docs-improve",
+  "started_at": "2026-04-15T16:35:00Z",
+  "completed_at": "2026-04-16T10:00:00Z",
+  "branch": "docs/experiment-remote-lab-2026-04-15",
+  "flags": ["--effort", "full", "--excellence", "--interactive", "--force"],
+  "triage": {
+    "coverage_ratio": 0.583,
+    "depth_ratio": 0.357,
+    "state": "partial",
+    "confidence": "HIGH",
+    "total_features": 24,
+    "documented_features": 14
+  },
+  "stages": {
+    "0": { "name": "triage", "status": "complete" },
+    "1": { "name": "baseline_review", "status": "complete" },
+    "2": { "name": "gap_analysis", "status": "complete" },
+    "3": { "name": "gap_fill_writing", "status": "complete" },
+    "4": { "name": "gap_fill_verification", "status": "complete" },
+    "5": { "name": "improvement_planning", "status": "complete" },
+    "7": { "name": "improvement_loop", "status": "complete", "batches_executed": 1 },
+    "8": { "name": "final_review", "status": "complete", "note": "Proper 6-persona review ran after initial shortcut assessment" },
+    "9": { "name": "report", "status": "pending" }
+  },
+  "baseline_deficiencies": {
+    "must_fix": 8,
+    "should_fix": 12,
+    "consider": 5
+  },
+  "final_deficiencies": {
+    "must_fix": 7,
+    "should_fix": 14,
+    "consider": 33,
+    "notes": "All 8 baseline MUST FIX items RESOLVED. 7 NEW MUST FIX surfaced by full review that spot-check missed. See review-synthesis-final.md."
+  },
+  "derived_scores_baseline": {
+    "clarity_layering": 4.5,
+    "completeness": 3.0,
+    "accuracy": 5.0,
+    "navigability": 5.5,
+    "actionability": 4.0,
+    "maintainability": 5.0,
+    "writing_quality_engagement": 5.5,
+    "ecosystem_integration": 3.0
+  },
+  "final_derived_scores": {
+    "clarity_layering": 7.5,
+    "completeness": 6.5,
+    "accuracy": 6.0,
+    "navigability": 8.5,
+    "actionability": 7.0,
+    "maintainability": 6.5,
+    "writing_quality_engagement": 7.0,
+    "ecosystem_integration": 6.5,
+    "composite_average": 6.94
+  },
+  "gap_fill": {
+    "pages_written_count": 33,
+    "stubs_remaining": 0,
+    "fixes_applied": 8,
+    "coverage_after": 0.92
+  },
+  "convergence_status": "NOT_CONVERGED",
+  "convergence_note": "Spot-check reported CONVERGED but full review surfaced 7 MUST FIX. See FINDING-014, FINDING-015, FINDING-016 in experiment-log.md for toolkit gap analysis.",
+  "agent_invocations": 29,
+  "circuit_breaker_limit": 90
+}

@@ -1,3 +1,11 @@
+---
+page_purpose: how-to
+personas_served:
+  - devops-engineer
+  - senior-network-architect
+difficulty_level: intermediate
+---
+
 ## Headscale + Headplane with Docker Compose (for Remote Lab networking)
 
 This guide shows how to deploy a self‑hosted [Headscale](https://headscale.net/) control plane (compatible with Tailscale clients) with a [Headplane](https://github.com/tale/headplane) web UI using Docker Compose, and how to connect your Remote Lab VM and peers. For client behavior and concepts, see the [Tailscale docs](https://tailscale.com/kb/). If you need low‑level server details, see the [Headscale repo](https://github.com/juanfont/headscale).
@@ -53,7 +61,7 @@ DNS/MagicDNS and DERP settings are present and can be adjusted later.
 
 - `headplane`: exposes `3000`, persists `/var/lib/headplane`, mounts the Headscale config for UI introspection.
 
-You typically do not need to edit these files to get started beyond optionally changing `server_url` in `config/config.yaml` and even
+You typically do not need to edit these files to get started beyond optionally changing `server_url` in `config/config.yaml`, and even that is optional if running locally.
 
 ---
 
@@ -62,7 +70,7 @@ You typically do not need to edit these files to get started beyond optionally c
 From the repository root, change into the Headscale directory and start services:
 
 ```bash
-cd neops_worker_sdk/testing/remote_lab/headscale
+cd headscale
 docker compose up -d
 
 # Verify containers
@@ -78,7 +86,7 @@ Expected ports (host):
 
 ## 4) Accessing the services
 
-###
+### Direct Access
 You should be able to reach all your services via: `http://<VM_PUBLIC_IP>:<SERVICE_PORT>`.
 
 To open the Headplane UI on our neops-labs VM you should be able to use: 
@@ -218,7 +226,7 @@ sudo systemctl restart docker || true
 
 # Enable IPv4 forwarding
 sudo sysctl -w net.ipv4.ip_forward=1
-sudo sed -i '' 's/^#\?net.ipv4.ip_forward.*/net.ipv4.ip_forward = 1/' /etc/sysctl.conf
+sudo sed -i 's/^#\?net.ipv4.ip_forward.*/net.ipv4.ip_forward = 1/' /etc/sysctl.conf
 sudo sysctl -p || true
 ```
 
@@ -244,7 +252,7 @@ Bold headings, single commands – easy to scan and copy.
 
 **Start services**
 ```bash
-cd neops_worker_sdk/testing/remote_lab/headscale
+cd headscale
 docker compose up -d
 ```
 

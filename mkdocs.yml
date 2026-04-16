@@ -41,9 +41,47 @@ markdown_extensions:
 - attr_list
 - md_in_html
 nav:
-- Start: index.md
-- Connectivity: headscale_headplane.md
-- Netlab: netlab_configuration.md
+- Home: index.md
+- Getting Started:
+  - getting-started/index.md
+  - Setup: getting-started/10-setup.md
+  - Your First Lab Session: getting-started/20-first-lab.md
+  - Using Pytest Fixtures: getting-started/30-pytest-fixtures.md
+- Concepts:
+  - 10-concepts/index.md
+  - Architecture: 10-concepts/10-architecture.md
+  - Session Queue: 10-concepts/20-session-queue.md
+  - Lab Lifecycle: 10-concepts/30-lab-lifecycle.md
+- Server:
+  - 20-server/index.md
+  - REST API: 20-server/10-rest-api.md
+  - Configuration: 20-server/20-configuration.md
+  - Administration: 20-server/30-administration.md
+- Client:
+  - 30-client/index.md
+  - RemoteLabClient API: 30-client/10-remote-lab-client.md
+  - Pytest Fixtures: 30-client/20-pytest-fixtures.md
+- Testing:
+  - 40-testing/index.md
+  - Test Environment Setup: 40-testing/10-setup.md
+  - Local Lab Testing: 40-testing/20-local-testing.md
+  - Remote Lab Testing: 40-testing/30-remote-testing.md
+  - Debugging: 40-testing/40-debugging.md
+- Deployment:
+  - 50-deployment/index.md
+  - Netlab Configuration: 50-deployment/10-netlab-configuration.md
+  - Headscale VPN: 50-deployment/20-headscale-vpn.md
+  - Production: 50-deployment/30-production.md
+- Development:
+  - 60-development/index.md
+  - Internal Architecture: 60-development/10-architecture.md
+  - Data Models: 60-development/20-data-models.md
+  - Contributing: 60-development/30-contributing.md
+- Appendix:
+  - 99-appendix/index.md
+  - Glossary: 99-appendix/glossary.md
+  - Examples: 99-appendix/examples.md
+  - Resources: 99-appendix/resources.md
 plugins:
 - search
 - include_dir_to_nav
