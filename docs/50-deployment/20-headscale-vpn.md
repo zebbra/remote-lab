@@ -6,66 +6,74 @@ personas_served:
 difficulty_level: intermediate
 ---
 
-## Headscale + Headplane with Docker Compose (for Remote Lab networking)
+# Headscale VPN
 
-This guide shows how to deploy a self‑hosted [Headscale](https://headscale.net/) control plane (compatible with Tailscale clients) with a [Headplane](https://github.com/tale/headplane) web UI using Docker Compose, and how to connect your Remote Lab VM and peers. For client behavior and concepts, see the [Tailscale docs](https://tailscale.com/kb/). If you need low‑level server details, see the [Headscale repo](https://github.com/juanfont/headscale).
+This page deploys a self-hosted [Headscale](https://headscale.net/) control plane (a Tailscale-compatible coordination server) plus a [Headplane](https://github.com/tale/headplane) web UI with Docker Compose, then connects the Remote Lab VM and peer machines (laptops, CI runners) to the resulting tailnet. The result is a VPN that lets test runners reach lab container subnets without exposing the lab host to the public internet. For client behavior and concepts, see the [Tailscale docs](https://tailscale.com/kb/); for low-level server details, see the [Headscale repo](https://github.com/juanfont/headscale).
 
----
+## Placeholders used on this page
 
-### What you will deploy
+Throughout this page, `<HEADSCALE_HOST>` refers to your Headscale server's reachable IP or DNS name. The internal example lab uses `91.99.184.46`; substitute your own value everywhere `<HEADSCALE_HOST>` appears.
+
+## What you will deploy
 
 - A Headscale server listening on `:8080` (HTTP API) and `:9090` (metrics)
 - A Headplane UI on `:3000`, configured to talk to Headscale
-- Persistent volumes for Headscale state and Headplane data
+- Persistent bind-mount directories for Headscale state and Headplane data (no Docker named volumes)
 
 The Compose files and configuration in this repo are located at:
 
 ```
 neops-remote-lab/headscale/
-  ├─ docker-compose.yml
-  ├─ headplane.config.yaml
-  └─ config/
-     ├─ config.yaml
-     └─ derp.yaml
+  docker-compose.yml
+  headplane.config.yaml
+  config/
+    config.yaml
+    derp.yaml
 ```
 
-> **Important**: The services can run on the Remote Lab VM or on any reachable host. They do not have to run on the same VM as the Remote Lab server.
+!!! note "Where to run it"
+    The services can run on the Remote Lab VM or on any reachable host. They do not have to share a host with the Remote Lab server.
 
----
+## Prerequisites
 
-## 1) Prerequisites
+- Docker and Docker Compose installed on the host that will run Headscale/Headplane.
+- Network egress to reach client devices (Remote Lab subnet and peers).
+- Optional but recommended for production: a reverse proxy or SSH access for port forwarding (see Access section below).
 
-- Docker and Docker Compose installed
-- Network egress to reach client devices (Remote Lab subnet and peers)
-- Optional but recommended: reverse proxy or SSH access for port forwarding (see Access section)
-
----
-
-## 2) Configure Headscale and Headplane (already provided)
+## Configure Headscale and Headplane (already provided)
 
 This repository includes working templates:
 
-
 ### `config/config.yaml` — Headscale configuration
-`server_url` is set to `http://127.0.0.1:8080` by default. If clients will reach your server at a public IP or DNS name, update this value accordingly (e.g., `http://91.99.184.46:8080`).
-  
-**Critical**: In our example `http://91.99.184.46` is the URL that clients are told to use for control‑plane calls. It must be reachable from every client. 
+
+`server_url` is set to `http://127.0.0.1:8080` by default. If clients will reach your server at a public IP or DNS name, update this value (e.g., `http://<HEADSCALE_HOST>:8080`).
+
+!!! warning "`server_url` must be reachable from every client"
+    The URL in `server_url` is what Headscale tells clients to use for control-plane calls. Every Tailscale peer that joins the tailnet must be able to resolve and reach it. Get this wrong and registration silently times out.
 
 DNS/MagicDNS and DERP settings are present and can be adjusted later.
 
 ### `headplane.config.yaml` — Headplane configuration
-  - Points to Headscale at `http://headscale:8080` (the Compose service name) and mounts Headscale’s `config.yaml` as read‑only for visibility in the UI.
 
-### `docker-compose.yml` — brings up both containers and mounts volumes:
-- `headscale`: exposes `8080` and `9090`, persists `/var/lib/headscale`, mounts `./config` at `/etc/headscale`.
+Points to Headscale at `http://headscale:8080` (the Compose service name) and mounts Headscale's `config.yaml` as read-only for visibility in the UI.
 
-- `headplane`: exposes `3000`, persists `/var/lib/headplane`, mounts the Headscale config for UI introspection.
+!!! warning "Rotate the bundled `cookie_secret` before exposing Headplane"
+    The committed `headplane.config.yaml` ships a placeholder `cookie_secret` so the UI starts on first run. Anyone with access to the public repo could forge Headplane sessions if you deploy with the bundled value. Generate a fresh secret per deployment:
+
+    ```bash
+    # In headscale/headplane.config.yaml: replace cookie_secret value with the output of:
+    openssl rand -hex 32
+    # And set cookie_secure: true once you front Headplane with TLS.
+    ```
+
+### `docker-compose.yml` — services and bind-mounts
+
+- `headscale`: exposes `8080` and `9090`, persists `/var/lib/headscale` to `./lib`, mounts `./config` at `/etc/headscale`.
+- `headplane`: exposes `3000`, persists `/var/lib/headplane` to `./headplane-data`, mounts the Headscale config for UI introspection.
 
 You typically do not need to edit these files to get started beyond optionally changing `server_url` in `config/config.yaml`, and even that is optional if running locally.
 
----
-
-## 3) Start Headscale and Headplane
+## Start Headscale and Headplane
 
 From the repository root, change into the Headscale directory and start services:
 
@@ -78,38 +86,39 @@ docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}'
 ```
 
 Expected ports (host):
+
 - Headscale API: `8080`
 - Headscale metrics: `9090`
 - Headplane UI: `3000`
 
----
+## Accessing the services
 
-## 4) Accessing the services
+### Direct access
 
-### Direct Access
-You should be able to reach all your services via: `http://<VM_PUBLIC_IP>:<SERVICE_PORT>`.
+You should be able to reach all services at `http://<VM_PUBLIC_IP>:<SERVICE_PORT>`. To open the Headplane UI on the example lab VM:
 
-To open the Headplane UI on our neops-labs VM you should be able to use: 
-http://91.99.184.46:3000/admin
+```
+http://<HEADSCALE_HOST>:3000/admin
+```
 
-> **Important**: When you are running Headscale/Headplane without HTTPS this only works when `server.cookie_secure` in the Headplane config is set to `false`.
+!!! warning "HTTP-only requires `cookie_secure: false`"
+    When running Headscale/Headplane without HTTPS, the Headplane UI only works when `server.cookie_secure` in `headplane.config.yaml` is set to `false`. Flip it back to `true` when you put TLS in front (see Reverse-proxy section below).
 
 ### SSH port forwarding
-If for some reason the services are not reachable through the VMs IP, you can use SSH port forwarding to reach it via `localhost`.
+
+If for some reason the services are not reachable through the VM's IP, use SSH port forwarding to reach Headplane via `localhost`:
 
 ```bash
 ssh -L 3000:localhost:3000 root@<server_ip>
 ```
 
-Then you can open Headplane at http://127.0.0.1:3000/admin
+Then open Headplane at `http://127.0.0.1:3000/admin`.
 
-### Reverse proxy + HTTPS + DNS (recommended, to be added)
+### Reverse proxy + HTTPS + DNS (recommended for production)
 
-Use a proper reverse proxy (e.g., Nginx/Caddy/Traefik) with HTTPS and a DNS name so `server_url` is a stable, secure URL like `https://headscale.example.com`. This is the recommended production setup and will probably be added here later on.
+Use a proper reverse proxy (Nginx/Caddy/Traefik) with HTTPS and a DNS name so `server_url` is a stable, secure URL like `https://headscale.example.com`. This is the recommended production setup; concrete recipes are not yet included in this repository and will be added later.
 
----
-
-## 5) Authenticate Headplane (no OIDC)
+## Authenticate Headplane (no OIDC)
 
 If you do not configure OIDC, generate a Headscale API key and use it to sign into Headplane:
 
@@ -117,27 +126,26 @@ If you do not configure OIDC, generate a Headscale API key and use it to sign in
 docker exec headscale headscale apikeys create --expiration 999d
 ```
 
-Copy the key and open `Headplane` via http://91.99.184.46:3000/admin or via `localhost` with **SSH Port forwarding** . Sign in using the API key.
+Copy the key and open Headplane at `http://<HEADSCALE_HOST>:3000/admin` (or via `localhost` with SSH port forwarding). Sign in using the API key.
 
-> You can add OIDC later; see examples in `headplane.config.yaml` and Headplane docs.
+!!! note
+    You can add OIDC later; see examples in `headplane.config.yaml` and the Headplane docs.
 
----
+## Manage users and auth keys
 
-## 6) Manage users and auth keys
-
-You can manage users and pre‑auth keys via the Headscale CLI or Headplane UI.
+You can manage users and pre-auth keys via the Headscale CLI or the Headplane UI.
 
 ### Headplane UI (preferred to start)
 
-Open the UI, add users, and generate/inspect pre‑auth keys from the Users and Keys sections. If OIDC is configured, user management may be backed by your identity provider.
+Open the UI, add users, and generate/inspect pre-auth keys from the Users and Keys sections. If OIDC is configured, user management may be backed by your identity provider.
 
 ### Headscale CLI (concise equivalent)
 
 ```bash
-# Create a user (owning machines and pre‑auth keys)
+# Create a user (owns machines and pre-auth keys)
 docker exec headscale headscale users create <user>
 
-# Create a pre‑auth key for that user (valid 24h)
+# Create a pre-auth key for that user (valid 24h)
 docker exec headscale headscale preauthkeys create -u <user> -e 24h
 
 # Optional flags:
@@ -145,76 +153,121 @@ docker exec headscale headscale preauthkeys create -u <user> -e 24h
 #   -r            reusable key (can be used multiple times)
 ```
 
-You can use such a key with the Tailscale client: `tailscale up --login-server <url> --auth-key <key>` to skip interactive approval.
- 
+You can use such a key with the Tailscale client:
 
----
+```bash
+tailscale up --login-server <url> --auth-key <key>
+```
 
-## 7) Connect clients (Tailscale)
+…to skip interactive approval.
+
+## Install Tailscale
+
+Before any `tailscale` command in the next sections, the `tailscale` client must be present on the machine. Install it from the official source for your platform:
+
+- **Ubuntu / Debian:** follow the signed-repo one-liner at <https://tailscale.com/download/linux>. Reproduced here for convenience:
+
+    ```bash
+    curl -fsSL https://tailscale.com/install.sh | sh
+    ```
+
+- **macOS:** install via the App Store, or `brew install --cask tailscale`.
+- **Windows:** download the MSI installer from <https://tailscale.com/download/windows>.
+
+Other platforms (NixOS, openSUSE, ChromeOS, container images) are documented at <https://tailscale.com/download>.
+
+### Verify
+
+```bash
+tailscale version
+```
+
+Should print a `1.x.x` version number. If the binary is missing or you see a permission error, fix the install before proceeding.
+
+## Connect clients (Tailscale)
 
 You will connect two types of clients:
-- The **Remote Lab host** (acts as a subnet router to your lab network)
-- Other **peer devices** (laptops/CI/servers) that need to reach the lab network
 
+- The **Remote Lab host** (acts as a subnet router into the lab network).
+- Other **peer devices** (laptops, CI, servers) that need to reach the lab subnet.
 
-#### Why `TS_ALLOW_INSECURE=1` ?
+### Why `TS_ALLOW_INSECURE=1`?
 
-*What it does:* allows the Tailscale client to talk to a Headscale `--login-server` over plain HTTP (no TLS) and to skip certificate validation.
+This environment variable lets the Tailscale client talk to a Headscale `--login-server` over plain HTTP (no TLS) and skip certificate validation. Use it only while running without TLS — drop it once you put a reverse proxy with HTTPS in front.
 
+### Remote Lab host (subnet router)
 
-### 7.1 Remote Lab host (subnet router)
-
-On the Remote Lab VM, install Tailscale and advertise the lab subnet. Example for the `192.168.121.0/24` lab:
+On the Remote Lab VM, run Tailscale and advertise the lab subnet. The default Containerlab management subnet is `192.168.121.0/24` (see [Topology Format](../10-concepts/40-topology-format.md)):
 
 ```bash
 TS_ALLOW_INSECURE=1 tailscale up \
-  --login-server http://91.99.184.46:8080 \
+  --login-server http://<HEADSCALE_HOST>:8080 \
   --accept-routes \
   --reset \
   --advertise-routes=192.168.121.0/24
 ```
+
+!!! warning "`--reset` wipes existing Tailscale settings"
+    The `--reset` flag clears any prior Tailscale configuration on this peer. Use it only on fresh machines or when you intend to rejoin from scratch. Drop the flag if you are reconnecting an already-configured node.
 
 This prints an authentication URL such as:
 
 ```
 To authenticate, visit:
 
-    http://91.99.184.46:8080/register/8otva4j_QEUEmG1ZNjlShdgC
+    http://<HEADSCALE_HOST>:8080/register/8otva4j_QEUEmG1ZNjlShdgC
 
 Success.
 ```
 
-Approve the node using one of the following methods:
+Approve the node using one of the following methods.
 
+#### Headplane UI
 
-#### Headplane UI:
-Open Headplane → Machines → locate the pending registration → approve using the token `8otva4j_QEUEmG1ZNjlShdgC`.
+Open Headplane → Machines → locate the pending registration → approve using the token shown above (e.g. `8otva4j_QEUEmG1ZNjlShdgC`).
 
-#### Headscale CLI (from the host running Headscale):
+#### Headscale CLI (from the host running Headscale)
 
-  ```bash
-  docker exec headscale headscale nodes register --user <user> --key 8otva4j_QEUEmG1ZNjlShdgC
-  ```
+```bash
+docker exec headscale headscale nodes register --user <user> --key 8otva4j_QEUEmG1ZNjlShdgC
+```
 
+#### Approve the advertised subnet route
 
-> After approval, the Remote Lab host will appear in your tailnet. In Headplane, you can enable/approve the advertised subnet routes if required. See the TS_ALLOW_INSECURE note above for when plain HTTP is acceptable during testing.
+Node approval (above) is **not enough**. Headscale also needs to approve the advertised subnet route before traffic to `192.168.121.0/24` flows over the tailnet. After the node is registered:
 
-### 7.2 Peer devices
+```bash
+# List the node and its advertised routes (look for the Remote Lab VM)
+docker exec headscale headscale nodes list-routes
+
+# Approve the lab subnet route (replace <node-id> with the node ID from `nodes list-routes`)
+docker exec headscale headscale nodes approve-routes --identifier <node-id> --routes 192.168.121.0/24
+```
+
+Or via Headplane: Machines → select the Remote Lab VM → Routes → Approve.
+
+!!! info "Headscale 0.26 CLI changes"
+    Earlier headscale versions used `headscale routes list` and `headscale routes enable --route <id>`. Those subcommands were removed in headscale 0.26. Route management now lives under `headscale nodes`.
+
+!!! warning "Symptom if you skip route approval"
+    `tailscale status` shows the Remote Lab VM as green and `tailscale ping <remote-lab-host>` succeeds, but `ping <lab-container-IP>` from a peer just hangs. That means the node is reachable on the tailnet but the lab subnet route is not active — go back and approve the route.
+
+### Peer devices
 
 Run on each peer that needs access to the lab network:
 
 ```bash
 TS_ALLOW_INSECURE=1 tailscale up \
-  --login-server http://91.99.184.46:8080 \
+  --login-server http://<HEADSCALE_HOST>:8080 \
   --accept-routes \
   --reset
 ```
 
-Approve each device with the same process as above (Headplane or CLI). Once approved, peers learn the lab subnet route from the Remote Lab host (after you approve routes).
+(See the same `--reset` warning above — drop the flag if you are reconnecting an already-configured peer.)
 
----
+Approve each device with the same process as the subnet router (Headplane or CLI). Once approved, peers learn the lab subnet route from the Remote Lab host (after you approve routes).
 
-## 8) Remote Lab host: system settings
+## Remote Lab host: system settings
 
 Ensure the Remote Lab VM is prepared for subnet routing:
 
@@ -224,63 +277,112 @@ sudo mkdir -p /etc/docker
 echo '{"iptables": false}' | sudo tee /etc/docker/daemon.json
 sudo systemctl restart docker || true
 
-# Enable IPv4 forwarding
+# Enable IPv4 forwarding (now)
 sudo sysctl -w net.ipv4.ip_forward=1
-sudo sed -i 's/^#\?net.ipv4.ip_forward.*/net.ipv4.ip_forward = 1/' /etc/sysctl.conf
-sudo sysctl -p || true
+
+# Persist across reboots via a sysctl drop-in (more reliable than editing /etc/sysctl.conf)
+echo 'net.ipv4.ip_forward = 1' | sudo tee /etc/sysctl.d/99-tailscale.conf
+sudo sysctl --system | grep ip_forward
 ```
 
----
+!!! info "Why a drop-in file?"
+    Editing `/etc/sysctl.conf` with `sed` is fragile — the line you target may be commented with leading whitespace, repeated, or absent entirely depending on the distribution. A drop-in under `/etc/sysctl.d/` always wins on reload and is unambiguous to audit (`ls /etc/sysctl.d/`).
 
-## 9) Notes, tips, and next steps
+## Verify end-to-end
 
-- **Where to run**: Headscale/Headplane can run on the Remote Lab VM or elsewhere; only requirement is that clients can reach `server_url`.
-- **TLS**: If you enable TLS or use a reverse proxy with HTTPS, update `server_url` to `https://…` and configure certs accordingly.
-- **DERP**: For constrained NATs, consider enabling embedded DERP (requires TLS) or referencing external DERP maps; see comments in `config/config.yaml`.
-- **Pre‑auth keys**: Instead of interactive approval, you may create reusable or ephemeral pre‑auth keys via the Headscale CLI and pass them to clients with `tailscale up --auth-key=<key>`.
+Run these checks after the subnet router and at least one peer are connected and the route is approved:
+
+1. **Tailnet membership.** On the peer:
+
+    ```bash
+    tailscale status
+    ```
+
+    Expected: a list of nodes including your peer (green) and the Remote Lab VM (green, with the advertised subnet listed under `subnets`).
+
+2. **Tailnet reachability.** On the peer:
+
+    ```bash
+    tailscale ping <remote-lab-host>
+    ```
+
+    Expected: latency in tens of ms over `direct` or `derp` — pure tailnet round-trip, no lab traffic involved.
+
+3. **Lab subnet reachability.** Spin up a topology on the Remote Lab VM (so a container has an address in `192.168.121.0/24`), find its IP via `docker inspect` or your topology, then on the peer:
+
+    ```bash
+    ping 192.168.121.<n>
+    ```
+
+    Expected: ICMP replies. If this hangs:
+
+    - Re-check that the route is approved (`docker exec headscale headscale nodes list-routes` — the route for the Remote Lab VM should show as approved).
+    - Re-check IPv4 forwarding is on the Remote Lab VM (`sysctl net.ipv4.ip_forward` → `1`).
+    - Confirm `iptables` is set to `false` in `/etc/docker/daemon.json` and Docker has been restarted since.
+
+## Notes, tips, and next steps
+
+- **Where to run:** Headscale/Headplane can run on the Remote Lab VM or elsewhere; the only requirement is that clients can reach `server_url`.
+- **TLS:** If you enable TLS or use a reverse proxy with HTTPS, update `server_url` to `https://…`, configure certs accordingly, and remove `TS_ALLOW_INSECURE=1` from the `tailscale up` invocations.
+- **DERP:** For constrained NATs, consider enabling embedded DERP (requires TLS) or referencing external DERP maps; see comments in `config/config.yaml`.
+- **Pre-auth keys:** Instead of interactive approval, you may create reusable or ephemeral pre-auth keys via the Headscale CLI and pass them to clients with `tailscale up --auth-key=<key>`.
 
 Troubleshooting pointers:
-- Check container logs: `docker logs headscale`, `docker logs headplane`
-- Verify Headscale health: open `http://127.0.0.1:9090/metrics` (or via SSH tunnel)
-- Confirm routes on peers: `ip route | grep 192.168.121.0/24`
 
----
+- Check container logs: `docker logs headscale`, `docker logs headplane`.
+- Verify Headscale health: open `http://127.0.0.1:9090/metrics` (or via SSH tunnel).
+- Confirm routes on peers: `ip route | grep 192.168.121.0/24`.
 
 ## Quick command summary
 
-Bold headings, single commands – easy to scan and copy.
+A copy-and-paste-friendly recap. See the linked sections above for context and warnings.
 
-**Start services**
+**Start services** ([§ Start Headscale and Headplane](#start-headscale-and-headplane))
+
 ```bash
 cd headscale
 docker compose up -d
 ```
 
-**Headplane login (no OIDC)**
+**Headplane login (no OIDC)** ([§ Authenticate Headplane (no OIDC)](#authenticate-headplane-no-oidc))
+
 ```bash
 docker exec headscale headscale apikeys create --expiration 999d
 ```
 
-**Create user and pre‑auth key**
+**Create user and pre-auth key** ([§ Manage users and auth keys](#manage-users-and-auth-keys))
+
 ```bash
 docker exec headscale headscale users create <user>
 docker exec headscale headscale preauthkeys create -u <user> -e 24h
 ```
 
-**Remote Lab VM (subnet router)**
+**Remote Lab VM (subnet router)** ([§ Remote Lab host (subnet router)](#remote-lab-host-subnet-router))
+
 ```bash
-TS_ALLOW_INSECURE=1 tailscale up --login-server http://91.99.184.46:8080 --accept-routes --advertise-routes=192.168.121.0/24
+TS_ALLOW_INSECURE=1 tailscale up \
+  --login-server http://<HEADSCALE_HOST>:8080 \
+  --accept-routes \
+  --advertise-routes=192.168.121.0/24
 ```
 
-**Approve interactive registration (example token)**
+**Approve interactive registration** ([§ Headscale CLI](#headscale-cli-from-the-host-running-headscale))
+
 ```bash
-docker exec headscale headscale nodes register --user <user> --key 8otva4j_QEUEmG1ZNjlShdgC
+docker exec headscale headscale nodes register --user <user> --key <token>
 ```
 
-**Peers (accept routes)**
+**Approve subnet route** ([§ Approve the advertised subnet route](#approve-the-advertised-subnet-route))
+
 ```bash
-TS_ALLOW_INSECURE=1 tailscale up --login-server http://91.99.184.46:8080 --accept-routes
+docker exec headscale headscale nodes list-routes
+docker exec headscale headscale nodes approve-routes --identifier <node-id> --routes 192.168.121.0/24
 ```
 
+**Peers (accept routes)** ([§ Peer devices](#peer-devices))
 
-
+```bash
+TS_ALLOW_INSECURE=1 tailscale up \
+  --login-server http://<HEADSCALE_HOST>:8080 \
+  --accept-routes
+```

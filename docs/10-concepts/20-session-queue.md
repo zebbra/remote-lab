@@ -6,7 +6,7 @@ difficulty_level: intermediate
 
 # Session Queue
 
-The session queue is the mechanism that serializes access to the lab. Because only one Netlab topology can run per host, the queue ensures that clients take turns in a predictable, first-come-first-served order.
+The session queue is the mechanism that serializes access to the lab. Because only one Netlab topology can run per host, the queue ensures that clients take turns in a predictable, first-come-first-served order. For what a "topology" actually is on the wire (file format, supported providers, `extra_files`), see [Topology Format](40-topology-format.md).
 
 ## Session States
 

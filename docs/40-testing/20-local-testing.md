@@ -6,7 +6,10 @@ difficulty_level: intermediate
 
 # Local Lab Testing
 
-Local mode runs Netlab directly on your machine -- no Remote Lab server required. This is the default behavior when `REMOTE_LAB_URL` is **not set**. The `LabManager` handles topology lifecycle, enforces the one-lab-per-host rule, and serializes access across processes.
+`remote_lab_fixture` is a **remote-only** fixture — it always talks to a Remote Lab Manager service reachable at `REMOTE_LAB_URL`, and raises `RuntimeError` at session startup if the variable is unset (see `neops_remote_lab/testing/fixture.py:32-34`). If you want to run Netlab topologies directly on your workstation **without** a Remote Lab server in between, call the `LabManager` class directly from your own pytest fixture or test code. This page shows that pattern.
+
+!!! info "Why isn't there a fixture for this?"
+    The pytest fixture is intentionally one-track: it always uses HTTP. This keeps the public API stable for shared CI runs and forces a conscious choice when you want to bypass the server. Local-mode tests live in their own `conftest.py` so the boundary stays explicit.
 
 ## Prerequisites
 
@@ -17,47 +20,69 @@ Local mode runs Netlab directly on your machine -- no Remote Lab server required
     netlab test clab
     ```
 
-- **Container runtime** -- Containerlab (Docker/Podman) or libvirt, depending on your topology's virtualization provider.
-- **No `REMOTE_LAB_URL`** in the environment. Unset it if needed:
+- **Container runtime** — Containerlab (Docker/Podman) or libvirt, depending on your topology's virtualization provider.
+- **No `REMOTE_LAB_URL` requirement** — `LabManager.acquire()` reads the topology file directly from disk; it does not consult any environment variable.
 
-    ```bash
-    unset REMOTE_LAB_URL
-    ```
+## Direct `LabManager` use (local mode)
 
-## How Local Acquisition Works
-
-When a test requests a `remote_lab_fixture`, the fixture factory detects that `REMOTE_LAB_URL` is not set and calls `LabManager.acquire()` instead of going through the HTTP client. The acquisition flow:
-
-1. `acquire()` calls `try_acquire()` in a loop, sleeping 2 seconds between retries if the lab is busy
-2. `try_acquire()` grabs the `GLOBAL_LOCK` (a file-based lock), then:
-    - If no lab is running, copies the topology to a temp directory and runs `netlab up`
-    - If the same topology is already running and `reuse_lab=True`, increments the reference count and returns the existing device list
-    - If a different topology is needed, waits for the current lab's reference count to drop to zero, tears it down, then starts the new one
-3. On test teardown, `release()` decrements the reference count. When it reaches zero, the lab becomes idle (still running) until a different topology is requested or the process exits
-
-For a deeper look at state transitions and reference counting, see [Lab Lifecycle](../10-concepts/30-lab-lifecycle.md).
-
-## Cross-Process Safety with GLOBAL_LOCK
-
-Netlab supports only one active topology per host. If you run multiple pytest processes (e.g., `pytest-xdist` workers or separate terminal sessions), they would collide without coordination. `LabManager` prevents this with a `FileLock`:
+Import `LabManager` and call `acquire()` / `release()` yourself. The simplest pattern wraps the calls in a function-scoped pytest fixture inside a project-local `conftest.py`:
 
 ```python
+# tests/conftest.py
+from pathlib import Path
+from collections.abc import Iterator
+
+import pytest
+
+from neops_remote_lab.netlab.lab_manager import LabManager
+from neops_remote_lab.models import DeviceInfoDto
+
+
+@pytest.fixture(scope="function")
+def local_frr_lab() -> Iterator[list[DeviceInfoDto]]:
+    """Function-scoped local lab using LabManager directly (no Remote Lab server)."""
+    topology = Path("tests/topologies/simple_frr.yml").resolve()
+    devices = LabManager.acquire(topology, reuse=False)
+    try:
+        yield devices
+    finally:
+        LabManager.release(topology)
+```
+
+A test consumes the fixture exactly like the remote variant:
+
+```python
+# tests/test_local.py
+def test_two_devices(local_frr_lab):
+    assert len(local_frr_lab) == 2
+    # device.raw carries the inspected node payload (management IP, container info, etc.)
+    for device in local_frr_lab:
+        assert device.name
+```
+
+The authoritative API is `neops_remote_lab/netlab/lab_manager.py` — see `LabManager.acquire()` for the full signature and the `reuse` semantics.
+
+!!! note "`reuse` defaults differ from the fixture"
+    `LabManager.acquire(topo)` defaults `reuse=True`. The pytest factory `remote_lab_fixture(...)` defaults `reuse_lab=False`. Pass `reuse=False` to `acquire()` if you want fresh-state semantics matching the fixture.
+
+## Cross-process safety with `GLOBAL_LOCK`
+
+`LabManager` enforces the one-lab-per-host rule across processes with a system-wide file lock. When two pytest workers (or two terminal sessions) both call `LabManager.acquire()`, only one proceeds; the other blocks in a 2-second retry loop until the lock is released.
+
+```python
+# Defined in neops_remote_lab/netlab/lab_manager.py
 GLOBAL_LOCK = FileLock(str(Path(tempfile.gettempdir()) / "netlab_pytest.lock"))
 ```
 
-All critical operations -- acquisition, release, teardown -- hold this lock. The effect:
+All lifecycle operations on `LabManager` (acquire, release, teardown) hold this lock. The lock file lives in the system temp directory (e.g., `/tmp/netlab_pytest.lock`).
 
-- Only one process can start or stop a lab at any time
-- A second process calling `acquire()` blocks in its retry loop until the lock is released
-- The lock file lives in the system temp directory (e.g., `/tmp/netlab_pytest.lock`)
-
-**Stale lock recovery:** If a process crashes while holding the lock, the file remains on disk. `filelock` uses OS-level advisory locks, so the lock is automatically released when the process exits -- even on a crash. You should not normally need to delete the lock file manually. However, if you see `filelock` errors after a hard kill (e.g., `kill -9`), remove the lock file:
+**Stale lock recovery:** `filelock` uses OS-level advisory locks, so the lock is automatically released when the holding process exits — even on crash. You should not normally need to delete the lock file manually. However, if you see `filelock` errors after a hard kill (`kill -9`), remove the lock file:
 
 ```bash
 rm /tmp/netlab_pytest.lock
 ```
 
-## Running Tests
+## Running tests
 
 ```bash
 # Run the full suite
@@ -67,26 +92,27 @@ pytest -q
 pytest -s --log-cli-level=INFO
 ```
 
-The first test to request a lab fixture triggers `netlab up`, which can take several minutes for complex topologies. Subsequent tests reusing the same topology skip this step entirely.
+The first test to acquire a lab triggers `netlab up`, which can take several minutes for complex topologies. Subsequent tests reusing the same topology (with `reuse=True`) skip this step entirely.
 
-## Topology Reuse
+## Topology reuse
 
-When `reuse_lab=True`, `LabManager` matches topologies by **content hash** (SHA-256), not filename. Two files with identical content are treated as the same topology, even if their names differ. Any change to the file -- including whitespace -- produces a different hash and forces a fresh lab.
+When `reuse=True`, `LabManager` matches topologies by **content hash** (SHA-256), not filename. Two files with identical content are treated as the same topology, even if their names differ. Any change to the file — including whitespace — produces a different hash and forces a fresh lab.
 
-This means you can safely rename topology files without triggering unnecessary rebuilds, but editing a topology mid-session will cause the next test group to tear down and rebuild.
+This means you can safely rename topology files without triggering unnecessary rebuilds, but editing a topology mid-session will cause the next test group to tear down and rebuild. See [Topology Format](../10-concepts/40-topology-format.md) for the full topology contract and [Lab Lifecycle](../10-concepts/30-lab-lifecycle.md) for state-transition details.
 
-## Limitations vs. Remote Mode
+## When to use local mode vs. remote mode
 
-| Aspect | Local mode | Remote mode |
-|--------|-----------|-------------|
+| Aspect | Local mode (`LabManager` direct) | Remote mode (`remote_lab_fixture`) |
+|--------|---------------------------------|-----------------------------------|
 | Netlab required on test machine | Yes | No |
 | Lab sharing across machines | Not possible | Built-in via session queue |
-| CI without Netlab installed | Not possible | Works -- only the server needs Netlab |
+| CI without Netlab installed | Not possible | Works — only the server needs Netlab |
 | Concurrent test suites | Serialized via `GLOBAL_LOCK` | Queued via server sessions |
 | Heartbeat / stale detection | Not applicable | Automatic |
 | Topology upload | N/A (local filesystem) | Multipart upload to server |
+| Public API stability | `LabManager` is internal — no semver guarantee | `remote_lab_fixture` is the stable public API |
 
-Local mode is best for development and single-machine testing. For CI pipelines and shared infrastructure, use [Remote Lab Testing](30-remote-testing.md).
+Local mode is best for laptop development and one-machine experiments. For CI pipelines and shared infrastructure, use [Remote Lab Testing](30-remote-testing.md) — the `remote_lab_fixture` cannot be used in local mode and will not transparently fall back.
 
 ## Cleanup
 
@@ -100,4 +126,4 @@ netlab status
 netlab down --cleanup
 ```
 
-See [Lab Lifecycle -- Cleanup](../10-concepts/30-lab-lifecycle.md#cleanup) for all cleanup paths.
+See [Lab Lifecycle — Cleanup](../10-concepts/30-lab-lifecycle.md#cleanup) for all cleanup paths.

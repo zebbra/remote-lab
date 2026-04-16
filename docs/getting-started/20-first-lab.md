@@ -13,7 +13,7 @@ This walkthrough takes you through the entire Remote Lab lifecycle using nothing
 
 ## Create a topology file
 
-Remote Lab uses Netlab topology files to describe the network you want to spin up. Create a minimal FRR topology to use throughout this tutorial:
+Remote Lab uses Netlab topology files to describe the network you want to spin up. (For the full contract — supported providers, modules, device kinds, and the `extra_files` mechanism — see [Topology Format](../10-concepts/40-topology-format.md).) Create a minimal FRR topology to use throughout this tutorial:
 
 ```yaml title="simple_frr.yml"
 provider: clab

@@ -18,6 +18,8 @@ These pages explain the core ideas you need before working with the server or wr
 
 - **[Lab Lifecycle](30-lab-lifecycle.md)** -- How labs are acquired, reused, and torn down; topology identity via SHA-256 content hashing; reference counting; and the cross-process `FileLock` that enforces the one-lab rule.
 
+- **[Topology Format](40-topology-format.md)** -- The contract for topology files Remote Lab accepts: Netlab YAML envelope, supported providers and modules, device kinds, the `extra_files` upload mechanism, and Netlab features explicitly out of scope.
+
 ## Who Should Read This
 
-If you are writing tests that use `remote_lab_fixture`, the [Architecture](10-architecture.md) page gives you enough context to understand what happens when your tests run. The [Session Queue](20-session-queue.md) and [Lab Lifecycle](30-lab-lifecycle.md) pages matter more if you are operating the server, debugging queue stalls, or contributing to the codebase.
+If you are writing tests that use `remote_lab_fixture`, the [Architecture](10-architecture.md) page gives you enough context to understand what happens when your tests run. The [Session Queue](20-session-queue.md) and [Lab Lifecycle](30-lab-lifecycle.md) pages matter more if you are operating the server, debugging queue stalls, or contributing to the codebase. The [Topology Format](40-topology-format.md) reference is the place to start when planning what you can (and cannot) build on top of Remote Lab.

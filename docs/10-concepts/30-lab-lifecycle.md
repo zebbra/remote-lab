@@ -52,7 +52,7 @@ This means:
 - Renaming a file does not force a lab restart
 - Any change to file content (even whitespace) produces a different hash and triggers a fresh lab
 
-The topology file must have a `.yml` extension. The HTTP surface accepts `.yaml` uploads, but `LabManager` internally enforces `.yml` via `prepare_workdir()`.
+The topology file must have a `.yml` extension. The HTTP surface accepts `.yaml` uploads, but `LabManager` internally enforces `.yml` via `prepare_workdir()`. For the full envelope — supported providers, modules, device kinds, and the `extra_files` mechanism — see [Topology Format](40-topology-format.md).
 
 ## Reference Counting
 

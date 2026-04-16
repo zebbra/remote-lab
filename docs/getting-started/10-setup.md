@@ -11,6 +11,9 @@ Before you can run tests against a remote lab, you need the `neops-remote-lab` P
 !!! info "Server already running?"
     This guide assumes your team already has a Remote Lab server running on a shared VM. If that is not the case, see [Deployment](../50-deployment/index.md) first.
 
+!!! info "Going local instead?"
+    If you don't have a Remote Lab server available and don't want to set one up, skip this page and go straight to [Local Lab Testing](../40-testing/20-local-testing.md). Local mode runs Netlab directly on your machine via `LabManager` — no server, no VPN. Come back here when you're ready to use a shared server.
+
 ## Prerequisites
 
 - **Python 3.12 or later** -- check with `python3 --version`

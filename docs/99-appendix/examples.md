@@ -36,6 +36,8 @@ This page indexes the runnable code examples that appear throughout the document
 
 ## Topology File Examples
 
+The examples below conform to the [Topology Format](../10-concepts/40-topology-format.md) contract — see that page for the supported provider/module/device-kind matrix.
+
 | Example | Description | Location |
 |---------|-------------|----------|
 | Minimal FRR topology | Two-router OSPF topology using `provider: clab` | [Your First Lab Session](../getting-started/20-first-lab.md) |

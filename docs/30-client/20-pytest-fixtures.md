@@ -199,7 +199,7 @@ Stores metadata for each registered fixture:
 | `rank` | `int` | Same as `REMOTE_LAB_ORDER[name]` |
 | `reuse` | `bool` | The `reuse_lab` value passed to `remote_lab_fixture()` |
 | `topology` | `str` | Topology path, relative to `cwd` when possible |
-| `remote` | `bool` | `True` if `REMOTE_LAB_URL` was set at fixture creation time |
+| `remote` | `bool` | `True` if `REMOTE_LAB_URL` was set at fixture creation time. **Observational only** — `remote_lab_fixture` always runs in remote mode regardless of this flag. The fixture itself raises `RuntimeError` at test setup if `REMOTE_LAB_URL` is unset. |
 
 The ordering plugin reads both registries during `pytest_collection_modifyitems`. The execution order log includes `topology`, `reuse`, and `rank` from `REMOTE_LAB_FIXTURE_META`.
 

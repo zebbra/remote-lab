@@ -37,12 +37,12 @@ Set these in your shell, a `.env` file, or your CI pipeline:
 
 | Variable | Required | Purpose | Default |
 |----------|----------|---------|---------|
-| `REMOTE_LAB_URL` | For remote mode | Base URL of the Remote Lab server (e.g., `http://192.168.1.10:8000`) | *(unset -- local mode)* |
+| `REMOTE_LAB_URL` | **Yes** for `remote_lab_fixture` | Base URL of the Remote Lab server (e.g., `http://192.168.1.10:8000`). The session-scoped `remote_lab_client` fixture raises `RuntimeError` at startup if this is unset. | *(unset)* |
 | `REMOTE_LAB_REQUEST_TIMEOUT` | No | Per-HTTP-request timeout (seconds) | `30` |
 | `REMOTE_LAB_SESSION_TIMEOUT` | No | Max seconds to wait in the session queue | `600` |
 | `REMOTE_LAB_ACQUISITION_TIMEOUT` | No | Max seconds to wait for lab spin-up | `600` |
 
-When `REMOTE_LAB_URL` is **not set**, fixtures use `LabManager` to run Netlab locally. When it **is set**, fixtures use `RemoteLabClient` to talk to the server. See [Configuration](../20-server/20-configuration.md) for a full variable reference including server-side settings.
+`remote_lab_fixture` always uses `RemoteLabClient` to talk to the server — there is no automatic fallback to local execution. To run Netlab directly on your workstation without a server in between, call `LabManager` yourself in a project-local fixture; see [Local Lab Testing](20-local-testing.md). For the full variable reference including server-side settings, see [Configuration](../20-server/20-configuration.md).
 
 ## conftest.py Patterns
 
@@ -108,7 +108,7 @@ Keep topology files in a dedicated `tests/topologies/` directory. Paths in `remo
 Beyond `neops-remote-lab` itself, you need:
 
 - **pytest** -- the fixture factory produces standard pytest fixtures
-- **Netlab** -- required only if you run tests in [local mode](20-local-testing.md) (i.e., without `REMOTE_LAB_URL`). Remote mode delegates all Netlab operations to the server.
+- **Netlab** -- required only if you run tests in [local mode](20-local-testing.md) (i.e., calling `LabManager` directly from your own fixtures). Remote mode delegates all Netlab operations to the server.
 
 If your project uses `uv`, a minimal dev group looks like:
 

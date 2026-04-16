@@ -171,7 +171,7 @@ All lab endpoints require the `X-Session-ID` header with an `ACTIVE` session. No
 
 ### POST /lab
 
-Upload a topology file and acquire the lab. This is a `multipart/form-data` request.
+Upload a topology file and acquire the lab. This is a `multipart/form-data` request. For the full contract that `topology` and `extra_files` must satisfy (Netlab YAML envelope, supported providers/modules, subdirectory preservation in `extra_files`), see [Topology Format](../10-concepts/40-topology-format.md).
 
 **Headers:**
 

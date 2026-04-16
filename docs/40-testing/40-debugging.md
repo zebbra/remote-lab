@@ -10,14 +10,14 @@ difficulty_level: intermediate
 
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
-| Server won't start | Netlab not installed or not in `PATH` | Run `netlab --version` and `netlab test clab`. Install Netlab if missing. |
+| Server won't start | Netlab not installed or not in `PATH` | Run `netlab version` and `netlab test clab`. Install Netlab if missing. |
 | `filelock` error / "another instance is running" | Crashed process left a stale lock or another server is running | Check for live `neops-remote-lab` processes. If none exist, remove the lock file in the system temp directory (e.g., `/tmp/neops_remote_lab_server.lock`). |
 | `Address already in use` on port 8000 | Another process is bound to the port | `lsof -i :8000` to find it. Kill or use a different `--port`. |
 | Netlab refuses to start a fresh topology | Stale `default` netlab instance from a crashed prior run | The server clears this at startup automatically. If running netlab by hand, run `netlab down --cleanup` first. |
 | Tests hang in queue | Server unreachable, or another session holds the lock | Verify port 8000 is reachable. Check server logs for the active session. |
 | Containers unreachable from tests | Network routing issue | Confirm VPN/Headscale is up. Check `network_mode: host` in the topology. Review firewall rules. |
 | Lab stuck busy (423 on every request) | Previous session did not release | Force-destroy with `DELETE /lab?force=true` using an active `X-Session-ID`, or restart the server. |
-| `RuntimeError: REMOTE_LAB_URL not set` | Remote mode expected but env var missing | Export `REMOTE_LAB_URL` or unset it to fall back to local mode. |
+| `RuntimeError: REMOTE_LAB_URL not set` | `remote_lab_fixture` always requires a Remote Lab Manager server | Export `REMOTE_LAB_URL` to point at your server. The fixture does not fall back to local execution; if you have no server, see [Local Lab Testing](20-local-testing.md) for the direct `LabManager` pattern. |
 
 ## Debug Logging
 
