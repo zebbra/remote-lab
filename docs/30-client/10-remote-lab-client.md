@@ -55,6 +55,9 @@ acquire(topology: pathlib.Path, reuse: bool) -> list[DeviceInfoDto]
 | `topology` | `pathlib.Path` | Path to a Netlab topology `.yml` file. The file is uploaded as a multipart form field. |
 | `reuse` | `bool` | Whether to reuse an existing lab running the same topology. See [Lab Lifecycle -- Reuse vs. Exclusive Access](../10-concepts/30-lab-lifecycle.md#reuse-vs-exclusive-access). |
 
+!!! note "Default differs by layer"
+    `reuse` has no default here -- the caller must pass it explicitly. The defaults flip across API layers; see [Reuse defaults across layers](../10-concepts/30-lab-lifecycle.md#reuse-defaults-across-layers).
+
 **Returns:** `list[DeviceInfoDto]` -- one entry per device in the lab. Each `DeviceInfoDto` has:
 
 - `name: str` -- node name as reported by Netlab
@@ -158,10 +161,12 @@ The `release()`, `destroy()`, and `close()` methods log errors but do not raise,
 
 ## Environment Variables
 
-These environment variables affect `RemoteLabClient` behavior:
+`RemoteLabClient` itself only consults one environment variable directly:
 
 | Variable | Used By | Purpose |
 |----------|---------|---------|
 | `REMOTE_LAB_URL` | Constructor | Fallback for `base_url` when the parameter is falsy |
 
-Additional environment variables (`REMOTE_LAB_REQUEST_TIMEOUT`, `REMOTE_LAB_SESSION_TIMEOUT`, `REMOTE_LAB_ACQUISITION_TIMEOUT`) are read by the [`remote_lab_client` fixture](20-pytest-fixtures.md), not by the client class itself. The client accepts these values as constructor parameters.
+The timeout-related variables (`REMOTE_LAB_REQUEST_TIMEOUT`, `REMOTE_LAB_SESSION_TIMEOUT`, `REMOTE_LAB_ACQUISITION_TIMEOUT`) are read by the [`remote_lab_client` fixture](20-pytest-fixtures.md), not by this class. The client accepts the corresponding values as constructor parameters; defaults match the env-var defaults so the two layers stay aligned.
+
+For the full env-var reference -- including defaults and server-side variables -- see [Configuration -- Environment Variables](../20-server/20-configuration.md#environment-variables).

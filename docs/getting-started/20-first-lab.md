@@ -13,7 +13,7 @@ This walkthrough takes you through the entire Remote Lab lifecycle using nothing
 
 ## Create a topology file
 
-Remote Lab uses Netlab topology files to describe the network you want to spin up. (For the full contract — supported providers, modules, device kinds, and the `extra_files` mechanism — see [Topology Format](../10-concepts/40-topology-format.md).) Create a minimal FRR topology to use throughout this tutorial:
+Remote Lab uses [Netlab](../99-appendix/glossary.md#netlab) [topology](../99-appendix/glossary.md#topology) files to describe the network you want to spin up. (For the full contract — supported providers, modules, device kinds, and the `extra_files` mechanism — see [Topology Format](../10-concepts/40-topology-format.md).) Create a minimal FRR topology to use throughout this tutorial:
 
 ```yaml title="simple_frr.yml"
 provider: clab
@@ -25,7 +25,7 @@ nodes: [ r1, r2 ]
 links: [ r1-r2 ]
 ```
 
-This declares two FRR (Free Range Routing) routers connected by a point-to-point link with OSPF enabled. Netlab handles the details -- container images, wiring, and Ansible configuration.
+This declares two FRR (Free Range Routing) routers connected by a point-to-point link with OSPF enabled. Under the hood, Netlab transforms this into a Containerlab `clab.yml` and Containerlab brings up the containers; see [Architecture -- Components](../10-concepts/10-architecture.md#components) for the full layering.
 
 Save this file somewhere convenient -- you will reference it by path in the cURL commands below.
 

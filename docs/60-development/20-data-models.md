@@ -92,7 +92,7 @@ Server-side lab status. Response body for `GET /lab`.
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `running` | `bool` | *(required)* | Whether a lab is currently running. |
-| `topology` | `str | None` | `None` | File path of the running topology, or `None` if no lab is active. |
+| `topology` | `str | None` | `None` | **Server-side temporary path** of the uploaded topology file (inside the server's working directory). Clients pass a local filesystem path to `RemoteLabClient.acquire()`; the client uploads the file and the server assigns this path. `None` if no lab is active. |
 | `ref_count` | `int` | `0` | How many clients currently hold a reference to the lab. `0` means idle but still running. |
 | `devices` | `list[DeviceInfoDto]` | `[]` | Device list. Only populated when `include_devices=True` is passed to `LabManager.status()`. |
 | `netlab_status` | `str | None` | `None` | Raw output of `netlab status`, if available. Currently always `None` (reserved for future use). |

@@ -75,10 +75,23 @@ The reference count prevents premature teardown. If two tests share a topology, 
 
 The `reuse` parameter on `try_acquire()` controls whether a test is willing to share a running lab:
 
-- **`reuse=True`** (default): If the same topology is already running, increment the ref count and return the existing devices. This is fast -- no Netlab commands run.
+- **`reuse=True`** (default at the `LabManager` layer): If the same topology is already running, increment the ref count and return the existing devices. This is fast -- no Netlab commands run.
 - **`reuse=False`**: The caller wants an exclusive lab. If a lab is running for the same topology, `try_acquire()` returns `None` (busy) until the current lab's ref count drops to zero. Then the manager tears down and starts fresh.
 
 In the server context, `try_acquire()` returning `None` causes the endpoint to respond with `423 Locked`, and the client retries.
+
+### Reuse defaults across layers
+
+The `reuse` flag has a different default depending on which public API layer you call. The single source of truth:
+
+| Layer | Default | Why |
+|-------|---------|-----|
+| `POST /lab` (HTTP form field) | `True` | Mirrors the `LabManager` default; same-topology reacquire is the common path. |
+| `LabManager.try_acquire(reuse=...)` / `LabManager.acquire(reuse=...)` | `True` | Library API for in-process callers; same-topology reacquire is the common path. |
+| `RemoteLabClient.acquire(topology, reuse)` | required (positional) | Forces SDK callers to state intent at the call site, avoiding accidental reuse drift across tests. |
+| `remote_lab_fixture(reuse_lab=...)` | `False` | Pytest tests are usually isolated; opt in to sharing. |
+
+`LabManager` and the HTTP wrapper share the same default (`True`); only the pytest fixture flips it to `False` because per-test isolation is a stronger expectation in test code than in either the library or the wire format. When in doubt, set the parameter explicitly rather than relying on the default.
 
 ## Cross-Process Locking
 

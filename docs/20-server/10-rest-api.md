@@ -263,7 +263,7 @@ Get the full status of the current lab, including device list.
 | Field | Type | Description |
 |-------|------|-------------|
 | `running` | `boolean` | Whether a lab is currently running |
-| `topology` | `string \| null` | Path of the running topology file |
+| `topology` | `string \| null` | **Server-side temporary path** of the uploaded topology file (inside the server's working directory). This is not the local filename the client uploaded. |
 | `ref_count` | `int` | How many clients currently hold the lab |
 | `devices` | `DeviceInfoDto[]` | List of devices (included because `include_devices=True`) |
 | `netlab_status` | `string \| null` | Raw output of `netlab status` if available |
@@ -387,7 +387,7 @@ Liveness probe. Returns an empty response if the server is running. Suitable for
 
 **Response:** `204 No Content`
 
-No body is returned. Requests to this endpoint are not logged.
+No body is returned. The handler itself does not emit any application-level log message, but uvicorn's access log still records the request (the server starts uvicorn with `access_log=True` in `neops_remote_lab/__main__.py`). If the probe volume is a concern -- for example, Kubernetes liveness probes at 2 s intervals -- attach a `logging.Filter` to the `uvicorn.access` logger that drops entries whose path is `/healthz`.
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/healthz

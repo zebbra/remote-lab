@@ -8,6 +8,15 @@ difficulty_level: beginner
 
 The cURL walkthrough from the previous page involved six manual HTTP calls. The `remote_lab_fixture` factory collapses all of that into a single pytest fixture that acquires the lab before your test and releases it after.
 
+!!! info "New to pytest?"
+    A few terms used below:
+
+    - **[Fixture](../99-appendix/glossary.md#fixture)** -- a setup/teardown hook that pytest injects into your test by name. The function returns (or `yield`s) the value your test receives as a parameter.
+    - **[`conftest.py`](../99-appendix/glossary.md#conftestpy)** -- a magic file that pytest auto-discovers in test directories. Anything declared here is available to every test in that directory tree without an `import`.
+    - **[Fixture scope](../99-appendix/glossary.md#fixture-scope)** -- how long the fixture's value lives. Function-scoped fixtures (the default) are torn down after each test; session-scoped fixtures are reused for the whole pytest run.
+
+    For a deeper introduction, see the [pytest fixtures explanation](https://docs.pytest.org/en/stable/explanation/fixtures.html).
+
 ## Declare a fixture
 
 In your project's `conftest.py`, import the factory and declare a fixture for your topology file:
@@ -58,6 +67,29 @@ Each `DeviceInfoDto` has two fields:
 - **`name`** -- the node name from the topology (e.g. `r1`, `r2`)
 - **`raw`** -- the full `netlab inspect` dictionary for that node, containing management IPs, interfaces, and connection details
 
+### Concrete example: extract a management IP and SSH in
+
+`raw` mirrors Netlab's `netlab inspect <node>` output. The exact key path depends on the provider and modules, but for the `clab` provider the management IP is reachable at the top-level `ansible_host` field. A quick smoke test:
+
+```python title="tests/test_ssh.py"
+import subprocess
+
+def test_r1_is_reachable_via_ssh(frr_lab):
+    r1 = next(d for d in frr_lab if d.name == "r1")
+    r1_mgmt = r1.raw["ansible_host"]
+    assert r1_mgmt, "Netlab did not assign a management IP to r1"
+
+    # A real test would use netmiko/scrapli; here we just prove SSH responds.
+    result = subprocess.run(
+        ["ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=no",
+         f"admin@{r1_mgmt}", "show version"],
+        capture_output=True, text=True, timeout=10,
+    )
+    assert result.returncode == 0, result.stderr
+```
+
+The `raw` dict carries everything `netlab inspect` knows -- module configuration, interface assignments, peers -- so most network-tooling libraries (netmiko, scrapli, NAPALM) can be wired up by reading the relevant key. See [Data Models -- DeviceInfoDto](../60-development/20-data-models.md#deviceinfodto) for the on-the-wire contract.
+
 ## Run the tests
 
 Make sure `REMOTE_LAB_URL` is set, then run pytest:
@@ -83,6 +115,9 @@ The `reuse_lab` parameter controls whether the server tears down and rebuilds th
 - **`reuse_lab=True`** -- the server keeps the topology running and increments a reference count. When your test finishes, `release()` decrements the count. The lab is only torn down when the count reaches zero. Use this when your tests do not mutate device state, or when startup cost is high.
 
 - **`reuse_lab=False`** (default) -- each test gets a clean topology. The server tears down and rebuilds between tests. Use this when tests modify device configuration and need a fresh starting point.
+
+!!! note "Default differs by layer"
+    `reuse_lab` defaults to `False` for the fixture, but the underlying HTTP endpoint and `LabManager` API use different defaults. See [Reuse defaults across layers](../10-concepts/30-lab-lifecycle.md#reuse-defaults-across-layers).
 
 ## Multiple topologies
 

@@ -6,7 +6,7 @@ difficulty_level: advanced
 
 # Internal Architecture
 
-This page explains the internal design patterns in the Remote Lab codebase. For the high-level component overview (server, client, request flow, trust model), see [Concepts > Architecture](../10-concepts/10-architecture.md).
+This page explains the internal design patterns in the Remote Lab codebase. For the high-level component overview (server, client, request flow, trust model), see [Concepts > Architecture](../10-concepts/10-architecture.md), which links back here from its [Components](../10-concepts/10-architecture.md#components) discussion.
 
 ## Module dependency graph
 

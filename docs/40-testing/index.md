@@ -8,7 +8,7 @@ difficulty_level: intermediate
 
 Remote Lab can be exercised two ways. The **remote** path uses the `remote_lab_fixture` factory, which always talks to a Remote Lab Manager server over HTTP and is the supported pattern for shared CI. The **local** path imports `LabManager` directly and runs Netlab on your own machine, with no server involved — useful for laptop development when you don't have (or don't need) a server. The two paths use different APIs and are chosen explicitly per project, not automatically. This section covers setup, workflows for each mode, and debugging techniques.
 
-## Guides in This Section
+## In This Section
 
 | Page | When to read |
 |------|-------------|

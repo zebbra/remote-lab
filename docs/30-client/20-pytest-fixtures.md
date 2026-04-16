@@ -43,6 +43,9 @@ def remote_lab_fixture(
 | `name` | `str \| None` | `None` | Custom fixture name. Defaults to the topology file's stem (e.g., `frr_simple` for `frr_simple.yml`). Must be unique across all `remote_lab_fixture` calls in the test suite. |
 | `reuse_lab` | `bool` | `False` | When `True`, the fixture reuses an existing lab if one is already running with the same topology (matched by content hash). See [Lab Lifecycle -- Reuse vs. Exclusive Access](../10-concepts/30-lab-lifecycle.md#reuse-vs-exclusive-access). |
 
+!!! note "Default differs by layer"
+    `reuse_lab` defaults here to `False`. Defaults flip across API layers; see [Reuse defaults across layers](../10-concepts/30-lab-lifecycle.md#reuse-defaults-across-layers).
+
 ### Return Value
 
 Returns a **pytest fixture function** with `scope="function"`. When a test requests this fixture, the function:

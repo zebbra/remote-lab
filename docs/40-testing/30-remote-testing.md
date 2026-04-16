@@ -48,13 +48,13 @@ The plugin logs a structured table showing fixture groups, topology paths, and t
 
 ## Timeout Tuning
 
-The client has three independent timeouts. Override them via environment variables when defaults do not fit your situation:
+The client has three independent timeouts. Override them via environment variables when defaults do not fit your situation. Highlights below -- see [Configuration -- Environment Variables](../20-server/20-configuration.md#environment-variables) for the canonical defaults table:
 
-| Variable | Default | When to adjust |
-|----------|---------|---------------|
-| `REMOTE_LAB_REQUEST_TIMEOUT` | 30s | Increase if individual HTTP requests time out on slow networks |
-| `REMOTE_LAB_SESSION_TIMEOUT` | 600s | Increase if your queue wait regularly exceeds 10 minutes (multiple CI jobs sharing one server) |
-| `REMOTE_LAB_ACQUISITION_TIMEOUT` | 600s | Increase for large topologies where `netlab up` takes more than 10 minutes |
+| Variable | When to adjust |
+|----------|----------------|
+| `REMOTE_LAB_REQUEST_TIMEOUT` | Increase if individual HTTP requests time out on slow networks |
+| `REMOTE_LAB_SESSION_TIMEOUT` | Increase if your queue wait regularly exceeds 10 minutes (multiple CI jobs sharing one server) |
+| `REMOTE_LAB_ACQUISITION_TIMEOUT` | Increase for large topologies where `netlab up` takes more than 10 minutes |
 
 Example for a CI pipeline with large topologies and high queue contention:
 

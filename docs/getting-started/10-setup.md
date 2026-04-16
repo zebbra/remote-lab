@@ -18,7 +18,8 @@ Before you can run tests against a remote lab, you need the `neops-remote-lab` P
 
 - **Python 3.12 or later** -- check with `python3 --version`
 - **pip** or **uv** -- any recent version
-- **Network access** to the Remote Lab server (typically via a Tailscale/Headscale VPN or direct connectivity)
+- **`curl`** and **[`jq`](https://jqlang.org/)** -- used in the next tutorial's cURL walkthrough; install via `apt install jq` / `brew install jq` if missing
+- **Network access** to the Remote Lab server (typically via a [Tailscale/Headscale VPN](../99-appendix/glossary.md#headscale) or direct connectivity)
 
 ## Install the package
 
@@ -57,7 +58,23 @@ export REMOTE_LAB_URL=http://91.99.184.46:8000
 ```
 
 !!! tip "Make it permanent"
-    Add the export to your shell profile (`~/.bashrc`, `~/.zshrc`) or put it in a `.env` file and load it with [python-dotenv](https://pypi.org/project/python-dotenv/) or your preferred method.
+    Add the export to your shell profile (`~/.bashrc`, `~/.zshrc`) or keep settings in a project-local `.env` file. A minimal `.env` for this guide:
+
+    ```bash title=".env"
+    REMOTE_LAB_URL=http://91.99.184.46:8000
+    # REMOTE_LAB_SESSION_TIMEOUT=600       # uncomment to override defaults
+    # REMOTE_LAB_ACQUISITION_TIMEOUT=600
+    ```
+
+    Load it into the current shell:
+
+    ```bash
+    set -a && source .env && set +a
+    # or, equivalently:
+    export $(grep -v '^#' .env | xargs)
+    ```
+
+    For Python-only loading, pair the file with [python-dotenv](https://pypi.org/project/python-dotenv/); for shell-level auto-load on `cd`, use [direnv](https://direnv.net/).
 
 ### Optional timeout variables
 

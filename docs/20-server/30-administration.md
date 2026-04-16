@@ -100,7 +100,7 @@ On exit (clean shutdown or Ctrl+C), the server releases the lock and removes the
 
 ### Liveness probe: GET /healthz
 
-Returns `204 No Content` with no body if the server is up. Use this for load balancer health checks or container liveness probes. Requests to `/healthz` are not logged.
+Returns `204 No Content` with no body if the server is up. Use this for load balancer health checks or container liveness probes. The handler does not emit application-level logs; uvicorn's access log still records the request (`access_log=True` in `__main__.py`). To suppress access logs for `/healthz` specifically, see [Production -- Liveness probe](../50-deployment/30-production.md#liveness-probe-get-healthz).
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/healthz
@@ -158,7 +158,7 @@ During shutdown, session deletion requests from clients are handled gracefully -
 
 | Check | Resolution |
 |-------|------------|
-| `netlab --version` returns an error | Install Netlab: [netlab.tools/install/ubuntu](https://netlab.tools/install/ubuntu/) |
+| `netlab version` returns an error | Install Netlab: [netlab.tools/install/ubuntu](https://netlab.tools/install/ubuntu/) |
 | `netlab test clab` fails | Fix Netlab/Containerlab configuration before starting the server |
 | Module import errors | Verify installation: `pip show neops-remote-lab` or `uv pip show neops-remote-lab` |
 

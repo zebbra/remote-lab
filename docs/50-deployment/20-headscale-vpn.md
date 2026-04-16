@@ -320,6 +320,68 @@ Run these checks after the subnet router and at least one peer are connected and
     - Re-check IPv4 forwarding is on the Remote Lab VM (`sysctl net.ipv4.ip_forward` → `1`).
     - Confirm `iptables` is set to `false` in `/etc/docker/daemon.json` and Docker has been restarted since.
 
+## Data plane and ACLs
+
+The VPN reachability you just verified hops through several layers. Knowing the path makes it easier to localize a failure:
+
+```text
+[ test runner / peer device ]
+          |
+          | 1. WireGuard tunnel (UDP)
+          v
+[ Headscale-coordinated tailnet ]
+          |
+          | 2. Subnet-route lookup
+          v
+[ Remote Lab VM 'ts0' interface ]
+          |
+          | 3. Linux routing (net.ipv4.ip_forward=1)
+          v
+[ clab-mgmt Docker bridge (192.168.121.0/24) ]
+          |
+          | 4. veth pair into container netns
+          v
+[ Container management interface (e.g. r1 eth1) ]
+```
+
+Notes on each hop:
+
+1. The WireGuard tunnel is encrypted point-to-point; Headscale only coordinates the keys, it never carries data plane traffic.
+2. The subnet route was approved earlier (`headscale nodes approve-routes ... --routes 192.168.121.0/24`).
+3. IPv4 forwarding must be on. The `/etc/sysctl.d/99-tailscale.conf` drop-in earlier in this page configures it.
+4. The bridge name and subnet (`clab-mgmt`, `192.168.121.0/24`) are Containerlab defaults for the Netlab `clab` provider; if you change them, update `--advertise-routes=` to match.
+
+### Restricting peer access with ACLs
+
+By default, every approved tailnet peer can reach every other peer on the advertised subnet. For shared deployments where some users should only reach lab subnets and not, say, the Remote Lab VM's SSH port, define a Headscale ACL policy. Headscale 0.26 reads policies from a JSON or HuJSON file referenced by `policy.path` in `config/config.yaml`.
+
+Minimal sketch -- save as `headscale/config/acls.json`, set `policy.path: /etc/headscale/acls.json`, and restart Headscale (HuJSON is the more common Tailscale format; Headscale accepts either):
+
+```text
+{
+  "tagOwners": {
+    "tag:remote-lab-vm": ["lab-admin"],
+    "tag:test-runner":   ["lab-admin"]
+  },
+  "acls": [
+    {
+      "action": "accept",
+      "src":    ["tag:test-runner"],
+      "dst":    ["192.168.121.0/24:*"]
+    }
+  ]
+}
+```
+
+Validate before applying (the exact subcommand varies by Headscale version -- check `headscale policy --help` first):
+
+```bash
+docker exec headscale headscale policy check --policy-file /etc/headscale/acls.json
+docker compose restart headscale
+```
+
+Tag the relevant nodes via Headplane or `headscale nodes tag --identifier <id> --tags tag:test-runner` so the policy matches them. See the [Tailscale ACL reference](https://tailscale.com/kb/1018/acls) for full policy syntax (Headscale aims to track the same grammar).
+
 ## Notes, tips, and next steps
 
 - **Where to run:** Headscale/Headplane can run on the Remote Lab VM or elsewhere; the only requirement is that clients can reach `server_url`.

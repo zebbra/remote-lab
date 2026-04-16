@@ -15,7 +15,7 @@ The Remote Lab server is a FastAPI application that manages exclusive access to 
 - **Heartbeat and cleanup** -- Tracks client liveness via heartbeats and automatically reclaims stale sessions through a background cleanup loop.
 - **Single-instance guard** -- Prevents multiple server processes from running concurrently on the same host using a file lock.
 
-## Section Contents
+## In This Section
 
 | Page | Purpose |
 |------|---------|

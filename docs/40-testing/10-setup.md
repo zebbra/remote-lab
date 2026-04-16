@@ -33,16 +33,15 @@ pytest -p no:neops-remote-lab
 
 ## Environment Variables
 
-Set these in your shell, a `.env` file, or your CI pipeline:
+Set these in your shell, a `.env` file, or your CI pipeline. Highlights -- the canonical reference is [Configuration -- Environment Variables](../20-server/20-configuration.md#environment-variables):
 
 | Variable | Required | Purpose | Default |
 |----------|----------|---------|---------|
 | `REMOTE_LAB_URL` | **Yes** for `remote_lab_fixture` | Base URL of the Remote Lab server (e.g., `http://192.168.1.10:8000`). The session-scoped `remote_lab_client` fixture raises `RuntimeError` at startup if this is unset. | *(unset)* |
-| `REMOTE_LAB_REQUEST_TIMEOUT` | No | Per-HTTP-request timeout (seconds) | `30` |
 | `REMOTE_LAB_SESSION_TIMEOUT` | No | Max seconds to wait in the session queue | `600` |
 | `REMOTE_LAB_ACQUISITION_TIMEOUT` | No | Max seconds to wait for lab spin-up | `600` |
 
-`remote_lab_fixture` always uses `RemoteLabClient` to talk to the server — there is no automatic fallback to local execution. To run Netlab directly on your workstation without a server in between, call `LabManager` yourself in a project-local fixture; see [Local Lab Testing](20-local-testing.md). For the full variable reference including server-side settings, see [Configuration](../20-server/20-configuration.md).
+`remote_lab_fixture` always uses `RemoteLabClient` to talk to the server -- there is no automatic fallback to local execution. To run Netlab directly on your workstation without a server in between, call `LabManager` yourself in a project-local fixture; see [Local Lab Testing](20-local-testing.md).
 
 ## conftest.py Patterns
 

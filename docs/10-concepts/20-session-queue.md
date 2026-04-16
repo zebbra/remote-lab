@@ -82,6 +82,8 @@ A background task (`_cleanup_loop_async`) periodically scans all sessions and re
 | `WAITING` | 600 seconds | Netlab `up` can take minutes; waiting sessions need patience |
 | `ACTIVE` | 300 seconds | An active session that stops heartbeating is likely crashed |
 
+The constant names (`_WAITING_SESSION_TIMEOUT`, `_ACTIVE_SESSION_STALE`) and the procedure for changing them live in [Configuration -- Server Constants](../20-server/20-configuration.md#server-constants) -- this page restates the values inline because they are load-bearing for understanding the FIFO timing.
+
 When a stale active session is removed:
 
 1. The session is deleted from `_SESSIONS` and `_SESSION_QUEUE`
@@ -100,7 +102,7 @@ The cleanup task does not run on a fixed schedule. It adapts its sleep interval 
 | Single active session | ~15 seconds | `_SESSION_CLEANUP_INTERVAL * 3` |
 | Idle (no sessions) | ~30 seconds | `_SESSION_CLEANUP_INTERVAL * 6` |
 
-The base interval `_SESSION_CLEANUP_INTERVAL` is defined as `5` seconds in `server.py`.
+`_SESSION_CLEANUP_INTERVAL` defaults to 5 seconds; see [Configuration -- Server Constants](../20-server/20-configuration.md#server-constants) for the canonical declaration.
 
 ## Multi-User Scenario
 

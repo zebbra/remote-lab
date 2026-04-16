@@ -8,7 +8,7 @@ difficulty_level: intermediate
 
 Deploying a Remote Lab instance means preparing a VM with Netlab, networking it into your tailnet, and running the server as a long-lived process. This section covers all three concerns.
 
-## What goes where
+## In This Section
 
 The Remote Lab server runs on a dedicated Linux host (physical or virtual) alongside Netlab and Containerlab. Clients -- your pytest test suites and CI runners -- reach the server over HTTP, typically through a Headscale/Tailscale VPN mesh.
 

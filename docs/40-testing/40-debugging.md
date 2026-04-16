@@ -34,7 +34,7 @@ This surfaces:
 - Fixture mode detection (local vs. remote)
 - Session creation and queue position
 - Topology upload and acquisition timing
-- Reference count changes on release
+- HTTP status and response body of `POST /lab/release` (the client only sees the response; the server holds the actual reference counter)
 
 ### Server-side
 
@@ -93,10 +93,12 @@ When `RemoteLabClient` or your own code hits the REST API, these status codes in
 | Code | Endpoint(s) | Meaning | What to do |
 |------|-------------|---------|------------|
 | **400** | `POST /lab` | Bad request -- topology file missing a filename, or not a `.yml`/`.yaml` file | Check that the topology path exists and has the right extension |
-| **404** | `GET /session/{id}`, `POST /lab/release`, `DELETE /lab` | Resource not found -- session ID does not exist, or no lab is running | Verify your `session_id` is correct. If the session expired, create a new one. |
+| **404** | `GET /session/{id}`, `POST /lab/release`, `DELETE /session/{id}` | Resource not found -- session ID does not exist, or (for `/lab/release`) no lab is running | Verify your `session_id` is correct. If the session expired, create a new one. |
 | **409** | `DELETE /lab?force=false` | Conflict -- lab still has active references | Another test or session is using the lab. Use `force=true` or wait for release. |
 | **423** | `POST /lab`, `GET /lab`, `POST /lab/release` | Locked -- session is not `ACTIVE` (still waiting in queue), or lab is busy with another topology | Wait for your session to become active. If the lab is busy, the client retries automatically every 5 seconds. |
 | **502** | Any | Bad gateway -- the server is behind a reverse proxy that cannot reach the backend | Check that the server process is running and the proxy configuration is correct |
+
+`DELETE /lab` returns `204 No Content` (not `404`) when the session is `ACTIVE` but no lab is running -- there is nothing to destroy. See the [REST API reference](../20-server/10-rest-api.md#delete-lab) for the full status-code matrix.
 
 See [REST API](../20-server/10-rest-api.md) for complete endpoint documentation.
 
