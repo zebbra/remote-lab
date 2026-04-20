@@ -150,8 +150,16 @@ def release() -> None
 lab was already torn down by another path) is treated as success and
 logged at INFO without re-raising. <!-- trace: neops_remote_lab/client.py:218 -->
 
-Non-404/204 responses are still raised via `raise_for_status()`; check your
-logs for the specific status if a call fails.
+!!! warning "release() is best-effort — it never raises"
+    The request is wrapped in a `try: ... except Exception as e: _log.error(...)`
+    block, so any `HTTPError` that `raise_for_status()` would have raised
+    (5xx, unexpected 4xx, transport failure) is **swallowed and logged at
+    ERROR**, not propagated. If you need to detect a failed release,
+    grep the logs for `Failed to release lab:` — there is no exception
+    to catch. <!-- trace: neops_remote_lab/client.py:221 -->
+
+    `destroy()` follows the same swallow-and-log pattern, so do not design
+    retry or alerting logic around exceptions from it either. <!-- trace: neops_remote_lab/client.py:237 -->
 
 ### `destroy(force=True) -> None`
 

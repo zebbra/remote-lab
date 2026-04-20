@@ -41,14 +41,18 @@ signature is a downstream break.
 
 !!! danger "Internal-trust service — no HTTP authentication"
     `REMOTE_LAB_TOKEN` / Bearer auth is commented out in `client.py`. The
-    only access boundary on `/lab/*` endpoints and `/session/heartbeat` is
-    the `X-Session-ID` header of an active session; non-active sessions
-    receive `423 Locked`. **Deploy only on a Headscale tailnet or another
+    only access boundary on `/lab/*` endpoints is the `X-Session-ID` header
+    of an ACTIVE session; non-active sessions receive `423 Locked`. The
+    `/session/heartbeat` endpoint is gated less tightly — it only requires
+    the session to exist (404 if unknown) and accepts heartbeats from
+    WAITING sessions too, which is how a client keeps its queue slot alive
+    before promotion. **Deploy only on a Headscale tailnet or another
     private network.** See
     [Administration → Security posture](administration.md#security-posture)
     for the full threat model and
     [Headscale VPN](headscale_headplane.md) for the recommended enclosure.
     <!-- trace: neops_remote_lab/client.py:46 -->
+    <!-- trace: neops_remote_lab/server.py:488 -->
 
 ## Session-and-lab lifecycle
 

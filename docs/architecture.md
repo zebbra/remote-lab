@@ -58,13 +58,17 @@ sequenceDiagram
 ## Request flow: session, then lab
 
 Every `/lab/*` call is gated by two things: a valid `X-Session-ID` header and
-that session being the head of the FIFO queue. The same gate applies to
-`/session/heartbeat`.
+that session being the head of the FIFO queue.
 
 <!-- trace: neops_remote_lab/server.py:390 -->
 Non-active sessions receive `423 Locked`. The server never shortcuts the queue;
 the only way to skip ahead is to wait for the head to release or time out.
-See [session-queue.md](session-queue.md) for the promotion and timeout rules.
+
+`/session/heartbeat` is gated more loosely: it only requires the session to
+exist (404 if unknown) and accepts heartbeats from both WAITING and ACTIVE
+sessions, which lets a queued client reset its WAITING timeout before it is
+promoted. <!-- trace: neops_remote_lab/server.py:488 --> See
+[session-queue.md](session-queue.md) for the promotion and timeout rules.
 
 ## The one-server-per-host guard
 
@@ -162,11 +166,14 @@ and `RemoteLabClient` are lower-level and may evolve more freely, but in
 practice the fixture uses them both so any incompatible change ripples.
 
 !!! info "Authentication is not implemented"
-    The `X-Session-ID` header is the only access boundary on `/lab/*` and
-    `/session/heartbeat`. Bearer-token scaffolding exists in `client.py` but is
-    commented out. Deploy this service on an internal-trust network only — the
-    Headscale/Tailscale setup under [headscale_headplane.md](headscale_headplane.md)
-    is the expected enclosure.
+    The `X-Session-ID` header is the only access boundary on `/lab/*`
+    (ACTIVE sessions only; non-active sessions receive `423 Locked`).
+    `/session/heartbeat` accepts any session that exists — WAITING or
+    ACTIVE — and is not part of the ACTIVE gate. Bearer-token scaffolding
+    exists in `client.py` but is commented out. Deploy this service on an
+    internal-trust network only — the Headscale/Tailscale setup under
+    [headscale_headplane.md](headscale_headplane.md) is the expected
+    enclosure.
 
 ## Where to go next
 

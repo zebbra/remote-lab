@@ -15,9 +15,14 @@ use directly, together with its schema, error codes, and an example invocation.
 !!! danger "No authentication is wired"
     The service has **no bearer-token or OAuth authentication** — the
     `REMOTE_LAB_TOKEN` path is commented out in `client.py`. <!-- trace: neops_remote_lab/client.py:46 -->
-    The only access boundary on `/lab/*` and `/session/heartbeat` is the
-    `X-Session-ID` header of an **active** session. Treat the HTTP surface as
-    **internal-trust** and do not expose it to untrusted networks. See
+    The only access boundary on `/lab/*` is the `X-Session-ID` header of an
+    **ACTIVE** session; non-active sessions receive `423 Locked`. The
+    `/session/heartbeat` endpoint is gated less tightly: it only requires
+    the session to exist (404 if unknown) and accepts heartbeats from
+    WAITING sessions as well, which is how a client keeps its queue slot
+    alive before promotion. <!-- trace: neops_remote_lab/server.py:488 -->
+    Treat the HTTP surface as **internal-trust** and do not expose it to
+    untrusted networks. See
     [Administration → Security posture](administration.md#security-posture).
 
 ## Conventions used below
@@ -152,11 +157,16 @@ clients can clean up gracefully.
 
 ---
 
-### `POST /session/heartbeat` — keep ACTIVE session alive
+### `POST /session/heartbeat` — keep a session alive
 
-Refreshes `last_seen_at` for the session in the `X-Session-ID` header. Clients
-must call this within the active-session stale timeout (300 seconds) or the
-server will reap the session and free its lab. <!-- trace: neops_remote_lab/server.py:481 -->
+Refreshes `last_seen_at` for the session in the `X-Session-ID` header and
+returns 204 — or 404 if the session is unknown. The endpoint only checks
+that the session exists; it does **not** require the session to be ACTIVE,
+so both WAITING and ACTIVE sessions can heartbeat. <!-- trace: neops_remote_lab/server.py:488 -->
+
+An ACTIVE session must be heartbeated within the 300 s active-stale
+timeout; a WAITING session within the 600 s waiting-stale timeout — miss
+either and the server reaps the session, and (if ACTIVE) frees its lab. <!-- trace: neops_remote_lab/server.py:95 -->
 
 !!! info "The fixture does this for you"
     The session-scoped `remote_lab_client` fixture pings heartbeat in the

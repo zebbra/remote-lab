@@ -19,6 +19,105 @@ server on any network you do not fully control.
 
 ---
 
+## Installing the server
+
+!!! note "Netlab host setup comes first"
+    This section assumes the Netlab CLI is already installed and runnable
+    on the lab host. If you are starting from a fresh VM, complete
+    [Netlab host setup](netlab_configuration.md) first — the server
+    launcher will refuse to start without `netlab` on `PATH`. <!-- trace: neops_remote_lab/__main__.py:206 -->
+
+The server ships as the `neops-remote-lab` Python distribution. The
+recommended install is [pipx](https://pipx.pypa.io/) so the CLI lands on
+`PATH` in its own virtualenv without polluting the system Python:
+
+```bash
+# Requires Python 3.12+
+pipx install neops-remote-lab
+```
+
+The distribution declares a `neops-remote-lab` console script that points
+at `neops_remote_lab.__main__:main`, so `pipx install` puts the server
+CLI directly on `PATH`. <!-- trace: pyproject.toml:34 -->
+
+Verify the CLI is reachable and can print its help:
+
+```bash
+which neops-remote-lab
+neops-remote-lab --help
+```
+
+The help output lists the complete server CLI surface: `--debug`,
+`--host`, `--port`, `--log-level`, `--log-config`, and `--version`. <!-- trace: neops_remote_lab/__main__.py:149 -->
+If `neops-remote-lab --help` errors with `command not found`, run
+`pipx ensurepath` and re-login, or place `<INSTALL_PATH>/bin` on `PATH`
+manually (replace `<INSTALL_PATH>` with the pipx venv path —
+`pipx environment --value PIPX_LOCAL_VENVS` gives the default).
+
+Once the CLI is reachable, continue with [Starting the server](#starting-the-server)
+for a one-shot foreground run, or [Running as a system service](#running-as-a-system-service)
+to put the server under `systemd`.
+
+---
+
+## Running as a system service
+
+The server is a long-running process that needs to come back after a
+reboot. The recommended supervisor on Linux hosts is `systemd`. A minimal
+unit file looks like this — save it at
+`/etc/systemd/system/neops-remote-lab.service`:
+
+```ini title="/etc/systemd/system/neops-remote-lab.service"
+[Unit]
+Description=neops-remote-lab Manager
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=<SERVICE_USER>
+Group=<SERVICE_USER>
+# <INSTALL_PATH> is the pipx venv or virtualenv where neops-remote-lab was installed.
+# With the default pipx layout, that is typically /home/<SERVICE_USER>/.local/pipx/venvs/neops-remote-lab.
+ExecStart=<INSTALL_PATH>/bin/neops-remote-lab --host 0.0.0.0 --port 8000 --log-level INFO
+Restart=on-failure
+RestartSec=5
+# Logs land in the journal by default (stdout/stderr). Override with --log-config to redirect.
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Install, enable, and start it:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now neops-remote-lab
+```
+
+Verify the service is up and watch its logs:
+
+```bash
+systemctl status neops-remote-lab
+journalctl -u neops-remote-lab -f
+```
+
+`journalctl -u neops-remote-lab -f` follows the server's structured log
+stream in the journal; send it to `<LOG_PATH>` via `--log-config` if you
+need a file-based handler instead.
+
+!!! warning "One systemd unit per host only"
+    The server acquires a cross-process `FileLock` at startup and exits
+    with status 1 if another instance already holds it. <!-- trace: neops_remote_lab/__main__.py:104 -->
+    Do **not** define a second `neops-remote-lab@.service` template
+    instance on the same host — the second unit will crashloop on the
+    lock, fill the journal, and `systemctl status` will flap. The
+    one-server-per-host invariant is a hard constraint, not a tunable.
+
+---
+
 ## Starting the server
 
 The entry point is:

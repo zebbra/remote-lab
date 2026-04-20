@@ -68,11 +68,18 @@ affecting anyone else's position.
 ## The access boundary
 
 <!-- trace: neops_remote_lab/server.py:390 -->
-Every `/lab/*` endpoint and `/session/heartbeat` is gated by a dependency that
-looks up the `X-Session-ID` header, confirms the session exists, and checks
-that its status is `ACTIVE`. A missing header fails schema validation (422);
-an unknown session returns 404; a known but WAITING session returns
+Every `/lab/*` endpoint is gated by a dependency that looks up the
+`X-Session-ID` header, confirms the session exists, and checks that its
+status is `ACTIVE`. A missing header fails schema validation (422); an
+unknown session returns 404; a known but WAITING session returns
 `423 Locked`.
+
+<!-- trace: neops_remote_lab/server.py:482 -->
+`/session/heartbeat` does **not** share that dependency. It is declared
+with a plain `Header(...)` parameter and only checks that the session
+exists (404 if unknown), which is why a client can heartbeat while still
+WAITING in the queue. See [The heartbeat](#the-heartbeat) below for why
+that matters.
 
 !!! danger "423 Locked is the only auth"
     This is the sole access boundary on the lab surface. There is no Bearer
