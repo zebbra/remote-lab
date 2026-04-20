@@ -1,68 +1,60 @@
 {
   "project": "neops-remote-lab",
   "toolkit_version": "0.2.0",
+  "toolkit_sha": "09014ca512e85ac42e337e3031a7f83399a0ed57",
   "skill": "docs-improve",
-  "started_at": "2026-04-15T16:35:00Z",
-  "completed_at": "2026-04-16T13:00:00Z",
-  "branch": "docs/experiment-remote-lab-2026-04-15",
-  "flags": ["--from-stage", "5", "--effort", "full", "--excellence", "--interactive"],
+  "started_at": "2026-04-20T00:00:00Z",
+  "flags": ["--effort", "full", "--interactive"],
+  "project_commit_at_start": "7703b94a6dd5e4994a1c385f8f27475baf67bebd",
+  "project_branch_at_start": "experiment/v2-on-v1-output-2026-04-20",
+  "personas_resolved": [
+    "documentation-specialist",
+    "platform-engineer",
+    "devops-engineer",
+    "senior-network-architect",
+    "junior-network-engineer",
+    "quality-reviewer"
+  ],
+  "agent_invocations": 1,
+  "circuit_breaker_limit": 90,
   "triage": {
-    "coverage_ratio": 0.583,
-    "depth_ratio": 0.357,
-    "state": "partial",
-    "confidence": "HIGH"
+    "coverage_ratio": 1.0,
+    "depth_ratio": 1.0,
+    "state": "complete",
+    "confidence": "HIGH",
+    "total_features": 16,
+    "documented_features": 16,
+    "shallow_features": []
   },
-  "stages": {
-    "0": { "name": "triage", "status": "complete" },
-    "1": { "name": "baseline_review", "status": "complete" },
-    "2": { "name": "gap_analysis", "status": "complete" },
-    "3": { "name": "gap_fill_writing", "status": "complete" },
-    "4": { "name": "gap_fill_verification", "status": "complete" },
-    "5": { "name": "improvement_planning", "status": "complete", "plan_path": ".ai-toolkit/docs/improvement-plan.md" },
-    "7": { "name": "improvement_loop", "status": "complete", "batches_executed": 2, "batch_commits": ["bffc96a", "062a3ad"] },
-    "8": { "name": "final_review", "status": "complete", "synthesis_path": ".ai-toolkit/reviews/review-synthesis-stage8.md" },
-    "9": { "name": "report", "status": "complete" }
-  },
+  "gap_fill_required": false,
+  "branch": "docs/v2-improve-remote-lab-2026-04-20",
   "baseline_deficiencies": {
-    "must_fix": 8,
-    "should_fix": 12,
-    "consider": 5
-  },
-  "stage7_pre_iteration_deficiencies": {
-    "must_fix": 7,
-    "should_fix": 14,
-    "consider": 33,
-    "note": "From the proper Stage 8 full review run before --from-stage 5 iteration"
-  },
-  "final_deficiencies": {
-    "must_fix": 0,
-    "should_fix": 0,
-    "consider": 4
+    "must_fix": 10,
+    "should_fix": 36,
+    "consider": 11
   },
   "derived_scores_baseline": {
-    "clarity_layering": 4.5,
-    "completeness": 3.0,
-    "accuracy": 5.0,
-    "navigability": 5.5,
-    "actionability": 4.0,
-    "maintainability": 5.0,
-    "writing_quality_engagement": 5.5,
-    "ecosystem_integration": 3.0,
-    "composite": 4.44
+    "accuracy": 4.5,
+    "navigability": 8.0,
+    "note": "Accuracy dominates the finding set; all 10 MUST_FIX touch Accuracy directly or indirectly. Full per-dimension breakdown in review-synthesis.json."
   },
-  "final_derived_scores": {
-    "clarity_layering": 9.0,
-    "completeness": 8.5,
-    "accuracy": 8.5,
-    "navigability": 9.0,
-    "actionability": 8.5,
-    "maintainability": 8.0,
-    "writing_quality_engagement": 8.5,
-    "ecosystem_integration": 7.5,
-    "composite": 8.31
+  "baseline_root_causes": [
+    { "id": "RC1", "label": "Deployment doc-vs-repo drift", "must_fix_contribution": 4 },
+    { "id": "RC3", "label": "Re-shipped F023/T1 transparent-switch phantom (regression)", "must_fix_contribution": 1 },
+    { "id": "RC5", "label": "Missing worked examples (IOL fixture, TLS, monitoring, upgrade runbook)", "must_fix_contribution": 1 }
+  ],
+  "checkpoint_a": {
+    "scope": "all_findings",
+    "priority": "planner_decides"
   },
-  "convergence_status": "CONVERGED",
-  "convergence_note": "Zero MUST FIX, zero SHOULD FIX. 6/6 personas converged on primary dimensions. 4 CONSIDER items remain as post-publication backlog (non-blocking).",
-  "agent_invocations": 56,
-  "circuit_breaker_limit": 90
+  "agent_invocations": 24,
+  "stages": {
+    "0": { "name": "triage", "status": "complete", "output": ".ai-toolkit/explore/triage.json" },
+    "1": { "name": "baseline_review", "status": "complete", "output": ".ai-toolkit/reviews/review-synthesis.md" },
+    "2": { "name": "gap_analysis_and_branch", "status": "complete", "note": "Gap-fill sub-steps SKIPPED (coverage=1.00, depth=1.00); branch-creation sub-step executed." },
+    "3": { "name": "gap_fill_writing", "status": "skipped" },
+    "3.5": { "name": "crosslink_validation", "status": "skipped" },
+    "4": { "name": "gap_fill_verification", "status": "skipped" },
+    "5": { "name": "improvement_planning", "status": "in_progress" }
+  }
 }
