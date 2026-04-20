@@ -160,7 +160,7 @@ flowchart LR
 ```
 
 `remote_lab_fixture` is the **stable public API**. Consumer repositories —
-notably `neops-worker-sdk-py` — import it directly and treat its call signature
+notably [`neops-worker-sdk-py`](https://github.com/zebbra/neops-worker-sdk-py) — import it directly and treat its call signature
 as a contract. Changing its arguments is a breaking change. The REST surface
 and `RemoteLabClient` are lower-level and may evolve more freely, but in
 practice the fixture uses them both so any incompatible change ripples.

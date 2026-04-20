@@ -26,7 +26,7 @@ This repository ships two cooperating surfaces: a **FastAPI server**
 (`neops_remote_lab.server`) that runs on the lab host, and a **pytest11
 plugin** (`neops_remote_lab.testing.fixture`) that runs inside your test
 suite. The plugin's `remote_lab_fixture` factory is the stable public API —
-**neops-worker-sdk-py imports it directly** — so any change to that call
+**[neops-worker-sdk-py](https://github.com/zebbra/neops-worker-sdk-py) imports it directly** — so any change to that call
 signature is a downstream break.
 
 <!-- trace: AGENTS.md:3 -->
