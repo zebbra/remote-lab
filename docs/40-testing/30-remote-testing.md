@@ -102,6 +102,49 @@ The server also has its own stale-session timeouts (300s heartbeat, 600s waiting
 - **Cleanup on cancellation** -- if a CI job is killed mid-run, the `atexit` handler attempts to close the session. If the process is hard-killed (`SIGKILL`), the server's stale session cleanup reclaims the slot after the heartbeat timeout (default 300s).
 - **Log level** -- set `--log-cli-level=INFO` in CI to capture session creation, queue position, and lab acquisition events in build logs. This helps when diagnosing timeout issues after the fact.
 
+### Queue contention in shared CI
+
+When multiple CI runners point at the same Remote Lab server, each runner creates its own session and enters the FIFO queue. The server promotes exactly one session to `ACTIVE` at a time (see [Session Queue](../10-concepts/20-session-queue.md)); everyone else waits.
+
+**What each client does while waiting:**
+
+<!-- trace: neops_remote_lab/client.py:197 -->
+- On `POST /lab`, if the server returns `423 Locked` (another session already holds the lab), `RemoteLabClient.acquire()` sleeps 5 s and retries in a loop (`client.py:195-198`). <!-- trace: neops_remote_lab/client.py:192 --> The loop is bounded by `lab_acquisition_timeout` (default 600 s / `REMOTE_LAB_ACQUISITION_TIMEOUT`), after which the client raises.
+- While the session is still `WAITING` in the queue, `GET /session/{id}` polls every 5 s (`fixture.py` via `RemoteLabClient`) until the server promotes it. That poll itself refreshes `last_seen_at`, so waiting sessions do not go stale.
+
+**Choosing CI concurrency.** For `N` concurrent runners all expecting to run tests against one server, the back-of-envelope queue-depth worst case is:
+
+```
+queue_depth_wait ≈ N × (avg_lab_hold_time + teardown_cost)
+```
+
+If `avg_lab_hold_time + teardown_cost` is 5 min and you run 8 concurrent jobs, the 8th job waits up to ~40 min. Compare to `REMOTE_LAB_SESSION_TIMEOUT` (default 600 s) — if the tail wait exceeds the session timeout, the server drops the session and your client sees a timeout error. Tune either by lowering concurrency or by raising both client and server session timeouts together (they must agree; see [Configuration — Server Constants](../20-server/20-configuration.md#server-constants)).
+
+**Shared topologies collapse the queue.** If multiple CI jobs target the same topology with `reuse_lab=True`, they do *not* serialize on `netlab up` — the server reuses the running lab and acquire becomes a ref-count increment. This is the single biggest contention mitigation; see [Pytest Fixtures — End-to-end multi-test pattern](../30-client/20-pytest-fixtures.md#end-to-end-multi-test-pattern).
+
+**Per-request timeout only.** `REMOTE_LAB_ACQUISITION_TIMEOUT` is passed as the `timeout=` kwarg on each individual `POST /lab` call (`client.py:192`); it is **not** a wall-clock bound on the `while True:` 423-retry loop (`client.py:179-202`). A loaded server that returns `423 Locked` quickly will make the client spin forever at 5 s intervals. To fail fast, wrap the acquire in a pytest-level timeout or use CI-level job timeouts:
+
+```python
+# Pytest-level (per test, via pytest-timeout)
+# pyproject.toml:
+# [tool.pytest.ini_options]
+# timeout = 900   # total per-test, including lab acquire + teardown
+
+# Or inline per-test:
+@pytest.mark.timeout(900)
+def test_with_bounded_wait(simple_lab):
+    ...
+```
+
+```yaml
+# GitHub Actions job-level bound
+jobs:
+  test:
+    timeout-minutes: 20
+```
+
+Pair bounded waits with a retry-the-whole-job CI policy so transient contention does not cause false failures.
+
 ## Verifying Server Reachability
 
 Before running your full test suite, confirm connectivity:

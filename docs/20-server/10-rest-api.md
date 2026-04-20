@@ -231,6 +231,24 @@ curl -X POST http://localhost:8000/lab \
      -F "extra_files=@path/to/config.yml"
 ```
 
+#### Failure modes
+
+The handler delegates lab acquisition to `LabManager.try_acquire` (via the thread-pool executor, not the event loop). Three outcomes are observable to clients:
+
+<!-- trace: neops_remote_lab/server.py:424 -->
+**`423 Locked` — lab currently busy.** `LabManager.try_acquire` is non-blocking (see [Invariants](../10-concepts/10-architecture.md#one-lab-per-host-constraint)); when the process-wide singleton is already held, it returns `None` and the server responds `423 Locked` with the body `"Lab currently busy"` (`server.py:422-424`). The session remains `ACTIVE` — the client is expected to retry. `RemoteLabClient.acquire()` retries automatically every 5 s until `REMOTE_LAB_ACQUISITION_TIMEOUT` expires.
+
+<!-- trace: neops_remote_lab/server.py:422 -->
+**`500 Internal Server Error` — `netlab up` raised.** If `try_acquire` raises an unhandled exception while driving `netlab up` (missing image, invalid topology, Containerlab failure), FastAPI returns `500` with the exception text in the body. Important semantics:
+
+- The session is **not** deleted on 500. It remains `ACTIVE` and the client still holds it. If the client abandons the test run without calling `DELETE /session/{id}`, the server's stale-session cleanup reclaims the slot after `_ACTIVE_SESSION_STALE` (300 s default) from the last heartbeat.
+- The lab state on disk is whatever `netlab up` left behind — usually partial containers. Subsequent acquires may hit the partial state.
+
+<!-- trace: neops_remote_lab/server.py:458 -->
+**Recovery from a partial setup.** To force cleanup after a 500, call `DELETE /lab` from the same `ACTIVE` session. The handler runs `LabManager.cleanup(reason="api-destroy")` (`server.py:458`), which tears down any residual Netlab instance. `RemoteLabClient.destroy(force=True)` exposes this for Python clients; for cURL, use the `DELETE /lab` example in the [DELETE /lab](#delete-lab) section below.
+
+**`400 Bad Request` — bad topology filename.** Returned when `topology.filename` is missing or does not end in `.yml` / `.yaml` (`server.py:404-405`). The session is unaffected.
+
 ---
 
 ### GET /lab

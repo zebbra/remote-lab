@@ -53,7 +53,7 @@ What runs depends on the provider. For `clab` on the Remote Lab host:
 | Device kind | Image source | Notes |
 |------------|-------------|-------|
 | **FRR** (Free Range Routing) | Public, included with Containerlab/Netlab | The reference device used in the tutorial. No license required. |
-| **Cisco IOL / IOL-L2** | You build/pull yourself | Cisco does not freely distribute IOL binaries; see the IOL section in [Netlab Configuration](../50-deployment/10-netlab-configuration.md) for image build/pull steps. |
+| **Cisco IOL / IOL-L2** | You build/pull yourself | Cisco does not freely distribute IOL binaries; see the IOL section in [Netlab Configuration](../50-deployment/10-netlab-configuration.md) for image build/pull steps and the [Cisco IOL tutorial](../40-testing/20-local-testing.md#cisco-iol-tutorial) for an end-to-end topology + fixture + test example. |
 | **Arista cEOS** | Free download from Arista (registration required) | Import the tarball as a Docker image; reference it via Netlab's `defaults.devices.eos.clab.image`. |
 | **Nokia SR Linux** | Public on `ghcr.io/nokia/srlinux` | Free for lab use. |
 | **Other Containerlab kinds** (Juniper cRPD, Cumulus VX, etc.) | Vendor-dependent | Check vendor licensing. |
@@ -106,6 +106,8 @@ The Remote Lab server constrains a few Netlab patterns that depend on host-level
 - **Persistent state between acquisitions** — every acquire spawns a fresh temp directory and every release deletes it. There is no "scratch" directory for cross-lab artifacts.
 - **Nested `include:` of files outside the upload set** — Netlab `include:` directives must resolve to files present in the upload payload (topology + `extra_files`). Anything else fails with a file-not-found at `netlab up` time.
 - **Direct `clab.yml` upload** — the server requires a *Netlab* YAML, not a *Containerlab* one. The Containerlab YAML is generated; uploading one directly is not supported.
+
+For per-device-kind setup (images, licenses, provider flags), see [Netlab Configuration](../50-deployment/10-netlab-configuration.md); that page is the canonical home for device-kind-specific details that this topology contract deliberately leaves open.
 
 ## See also
 

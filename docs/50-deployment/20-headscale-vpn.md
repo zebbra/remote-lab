@@ -121,7 +121,7 @@ Then open Headplane at `http://127.0.0.1:3000/admin`.
 
 ### Reverse proxy + HTTPS + DNS (recommended for production)
 
-Use a proper reverse proxy (Nginx/Caddy/Traefik) with HTTPS and a DNS name so `server_url` is a stable, secure URL like `https://headscale.example.com`. This is the recommended production setup; concrete recipes are not yet included in this repository and will be added later.
+Use a proper reverse proxy (Nginx/Caddy/Traefik) with HTTPS and a DNS name so `server_url` is a stable, secure URL like `https://headscale.example.com`. For a concrete systemd + nginx recipe that works end-to-end, see [Production — End-to-end nginx TLS recipe](30-production.md#end-to-end-nginx-tls-recipe). The same pattern applies to Headscale (terminate at nginx, bind Headscale to localhost, open only 443 externally); substitute `proxy_pass http://127.0.0.1:8080;` for the Headscale container's published port.
 
 ## Authenticate Headplane (no OIDC)
 
@@ -378,12 +378,21 @@ Minimal sketch -- save as `headscale/config/acls.json`, set `policy.path: /etc/h
 }
 ```
 
-Validate before applying (the exact subcommand varies by Headscale version -- check `headscale policy --help` first):
+<!-- trace: headscale/docker-compose.yml:24 -->
+Headscale 0.26 (pinned in `headscale/docker-compose.yml:24` as `headscale/headscale:0.26`) exposes policy management under the `headscale policy` subcommand. To fetch the active policy, apply an updated one, and validate a file on disk:
 
 ```bash
-docker exec headscale headscale policy check --policy-file /etc/headscale/acls.json
+# Show the currently loaded policy
+docker exec headscale headscale policy get
+
+# Apply a new policy file from the mounted config directory
+docker exec headscale headscale policy set -f /etc/headscale/acls.json
+
+# Reload to pick up any dependent config changes
 docker compose restart headscale
 ```
+
+The `policy set` command rejects syntactically invalid files, so it doubles as validation. There is no separate `policy check` subcommand on 0.26 — rely on `policy set`'s rejection or Git review before applying.
 
 Tag the relevant nodes via Headplane or `headscale nodes tag --identifier <id> --tags tag:test-runner` so the policy matches them. See the [Tailscale ACL reference](https://tailscale.com/kb/1018/acls) for full policy syntax (Headscale aims to track the same grammar).
 

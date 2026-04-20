@@ -262,6 +262,35 @@ With `reuse_lab=True`, the server increments a reference count instead of starti
 
 See [Lab Lifecycle -- Reference Counting](../10-concepts/30-lab-lifecycle.md#reference-counting) for details on how reference counting works.
 
+#### End-to-end multi-test pattern
+
+The pattern becomes valuable when several tests share one topology. Declare the fixture once, consume it from multiple tests:
+
+```python title="tests/conftest.py"
+from neops_remote_lab.testing.fixture import remote_lab_fixture
+
+shared_lab = remote_lab_fixture(
+    "tests/topologies/frr_simple.yml",
+    reuse_lab=True,
+)
+```
+
+```python title="tests/test_ospf_convergence.py"
+def test_r1_has_expected_neighbors(shared_lab):
+    r1 = next(d for d in shared_lab if d.name == "r1")
+    # ... SSH in, check `show ip ospf neighbor` ...
+
+def test_r2_exports_expected_routes(shared_lab):
+    r2 = next(d for d in shared_lab if d.name == "r2")
+    # ... SSH in, check route table ...
+```
+
+<!-- trace: neops_remote_lab/testing/fixture.py:111 -->
+The first test through pays the `netlab up` cost (up to several minutes). The second test reuses the running lab — the server's `ref_count` goes `0 → 1` on the first acquire, `1 → 2` on the second, and each teardown decrements it. <!-- trace: neops_remote_lab/testing/fixture.py:124 --> When the last test's fixture finalizer calls `release()`, the count drops to zero and the lab becomes **idle** — it keeps running, but no one is holding it. It stays running (not torn down) until one of: a different topology is requested, an explicit `DELETE /lab` arrives, or the server process exits via `atexit`. There is no background sweeper that tears idle labs down on a timer.
+
+!!! note "Trade-off: reuse vs. isolation"
+    `reuse_lab=True` is *not* a free optimization — tests share live device state. If `test_r1_has_expected_neighbors` runs first and reconfigures `r1`, the second test sees that configuration, not a clean start. Use `reuse_lab=True` for read-only or idempotent tests; fall back to `reuse_lab=False` (default) when any test mutates device state in ways the next test cannot tolerate.
+
 ### Custom Fixture Names
 
 By default, the fixture name is the topology file stem. Override it when you need a more descriptive name or when two topologies share the same stem:

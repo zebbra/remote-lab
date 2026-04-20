@@ -142,6 +142,88 @@ curl -s http://localhost:8000/active-session | jq .
 
 See the [REST API reference](10-rest-api.md) for the full set of session and lab status endpoints.
 
+## Upgrade and rollback
+
+A versioned Remote Lab server is upgraded by pinning a new release tag, reinstalling, and restarting the systemd unit. The steps below assume the systemd unit from [Production — Running as a systemd service](../50-deployment/30-production.md#running-as-a-systemd-service).
+
+!!! warning "Startup cleanup drops in-flight work"
+    <!-- trace: neops_remote_lab/server.py:44 -->
+    On every restart, the server runs `LabManager.cleanup(default_instance=True)` (`server.py:44-47`), which tears down any running Netlab instance. Sessions live in memory and are **not** persisted — they do not survive restart. A restart during active CI jobs drops their `ACTIVE` session silently; the CI client will see its next request fail with `404 Not Found`. Schedule upgrades during a maintenance window, or verify `GET /active-session` returns `404` before restarting.
+
+### Upgrade procedure
+
+```bash
+# 1. Pick a target version (tag or PyPI release).
+#    Confirm the version bumps cleanly by reading CHANGELOG first.
+
+# 2. Drain — ensure no sessions are active.
+curl -sf http://localhost:8000/active-session >/dev/null && \
+    echo "Refusing to upgrade: active session present" && exit 1
+
+# 3. Install the new version.
+#    From PyPI:
+sudo -u labuser pipx install --force "neops-remote-lab==0.6.0"
+
+#    Or from source at a git tag:
+sudo -u labuser bash -c '
+    cd /home/labuser/neops-remote-lab &&
+    git fetch --tags &&
+    git checkout v0.6.0 &&
+    uv sync --group dev
+'
+
+# 4. Restart the service.
+sudo systemctl restart neops-remote-lab
+
+# 5. Smoke test.
+sleep 3
+curl -sf http://localhost:8000/debug/health | jq .
+# Expected: {"status":"ok", "uptime":<small_number>, ...}
+```
+
+<!-- trace: neops_remote_lab/server.py:116 -->
+The smoke test confirms the new binary came up, the lock file was acquired, and the API is responding. The `uptime` field comes from `/debug/health` at `server.py:116-128`; `/healthz` at `server.py:471-476` is the quieter sibling that returns `204 No Content` and can be used in load-balancer probes once you've confirmed the richer endpoint above.
+
+### Rollback procedure
+
+If the smoke test fails or production traffic surfaces a regression, roll back to the previous known-good tag:
+
+```bash
+# 1. Install the previous version.
+sudo -u labuser pipx install --force "neops-remote-lab==0.5.0"
+#    Or from source:
+sudo -u labuser bash -c '
+    cd /home/labuser/neops-remote-lab &&
+    git checkout v0.5.0 &&
+    uv sync --group dev
+'
+
+# 2. Restart.
+sudo systemctl restart neops-remote-lab
+
+# 3. Re-run the smoke test (same curl as above).
+```
+
+Rollback carries the same in-flight-session warning as upgrade.
+
+!!! warning "When rollback itself fails"
+    Two scenarios are common and each has a different exit:
+    (1) **Install of the previous version fails** (e.g., network error, yanked wheel, dependency resolution regression). Do NOT `systemctl restart` — the current binary is still running. Diagnose the install failure, fix it, or install a different known-good tag.
+    (2) **Install succeeds but the previous version won't start** (e.g., config file on disk has since been updated for the new schema). The service will flap on `Restart=on-failure`. Stop the service explicitly (`sudo systemctl stop neops-remote-lab`), clear the broken install (`pipx uninstall neops-remote-lab`), revert any config-file changes the upgrade made, and reinstall a tagged version manually rather than chasing the restart loop.
+
+If neither the new nor the previous version starts, treat it as an incident and fall back to the last known-good snapshot (see [Production — Backup considerations](../50-deployment/30-production.md#backup-considerations)).
+
+### Capture diagnostics before upgrade
+
+Useful to grab *before* restarting, so you can compare post-upgrade:
+
+```bash
+journalctl -u neops-remote-lab --since "1 hour ago" > /tmp/pre-upgrade.log
+curl -s http://localhost:8000/debug/health > /tmp/pre-upgrade-health.json
+```
+
+If the upgrade surfaces problems, these are the baseline you compare against the first few hours of logs after the new version starts.
+
 ## Graceful Shutdown
 
 The server handles `SIGTERM` and `SIGINT` for graceful shutdown. On receiving either signal:

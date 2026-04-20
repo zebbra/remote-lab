@@ -90,6 +90,20 @@ def test_r1_is_reachable_via_ssh(frr_lab):
 
 The `raw` dict carries everything `netlab inspect` knows -- module configuration, interface assignments, peers -- so most network-tooling libraries (netmiko, scrapli, NAPALM) can be wired up by reading the relevant key. See [Data Models -- DeviceInfoDto](../60-development/20-data-models.md#deviceinfodto) for the on-the-wire contract.
 
+!!! note "SSH username depends on device kind"
+    The example above hard-codes `admin` because FRR uses it. Netlab assigns different default usernames per device kind:
+
+    | Device kind | Default SSH user |
+    |-------------|------------------|
+    | FRR | `admin` |
+    | Arista cEOS | `admin` |
+    | Nokia SR Linux | `admin` |
+    | Cisco IOL / IOL-L2 | `cisco` |
+    | Juniper vMX / vSRX | `root` |
+    | Cumulus VX | `cumulus` |
+
+    Run `netlab show images` on the server to confirm the mapping for your host's Netlab defaults. The authoritative per-node username is also available in `device.raw` as `ansible_user` when Netlab populates it.
+
 ## Run the tests
 
 Make sure `REMOTE_LAB_URL` is set, then run pytest:
@@ -108,6 +122,21 @@ tests/test_topology.py::test_device_has_raw_data PASSED
 
 On the first test, you will see a pause while the lab acquires the topology (the same wait you experienced with cURL). Subsequent tests that share the same fixture with `reuse_lab=True` skip the acquisition entirely.
 
+??? note "Troubleshooting — what just happened?"
+    Four common failures when running pytest against a Remote Lab server, in the order you are likely to hit them:
+
+    **`RuntimeError: REMOTE_LAB_URL not set`.** <!-- trace: neops_remote_lab/testing/fixture.py:34 --> The session-scoped `remote_lab_client` fixture raises at session setup when the environment variable is missing (`fixture.py:32-34`). Remote mode is the only mode `remote_lab_fixture` supports. Export `REMOTE_LAB_URL` before invoking pytest and re-run.
+
+    **Collection error: `ValueError: Test test_X uses multiple Remote Lab fixtures`.** <!-- trace: neops_remote_lab/testing/pytest_order_plugin.py:1 --> The ordering plugin enforces one `remote_lab_fixture` per test at collection time. Split the test in two, or consolidate the two topologies into one file.
+
+    **`FileNotFoundError: Topology not found: .../simple_frr.yml` during collection.** <!-- trace: neops_remote_lab/testing/fixture.py:72 --> `remote_lab_fixture()` resolves the path at import time. A typo in the `conftest.py` path fails pytest collection, not at the first test. Check the path relative to your `conftest.py`.
+
+    **Test hangs for ~10 minutes then times out.** <!-- trace: neops_remote_lab/client.py:197 --> The client retries `POST /lab` every 5 s on `423 Locked` (another session holds the lab) up to `REMOTE_LAB_ACQUISITION_TIMEOUT` (default 600 s). If your server is heavily contended, raise the timeout or lower CI concurrency — see [Remote Lab Testing — Queue contention in shared CI](../40-testing/30-remote-testing.md#queue-contention-in-shared-ci).
+
+    **`400 Bad Request: Topology must be a .yml or .yaml file`.** The server rejects files without a `.yml`/`.yaml` suffix. Rename (`.yaml` → `.yml` is safest — `LabManager` enforces `.yml` internally).
+
+    Full log-pattern table and deeper troubleshooting: [Debugging and Troubleshooting](../40-testing/40-debugging.md).
+
 ## What `reuse_lab` does
 
 The `reuse_lab` parameter controls whether the server tears down and rebuilds the topology between tests:
@@ -117,7 +146,19 @@ The `reuse_lab` parameter controls whether the server tears down and rebuilds th
 - **`reuse_lab=False`** (default) -- each test gets a clean topology. The server tears down and rebuilds between tests. Use this when tests modify device configuration and need a fresh starting point.
 
 !!! note "Default differs by layer"
-    `reuse_lab` defaults to `False` for the fixture, but the underlying HTTP endpoint and `LabManager` API use different defaults. See [Reuse defaults across layers](../10-concepts/30-lab-lifecycle.md#reuse-defaults-across-layers).
+    `reuse_lab` defaults to `False` for the fixture.
+
+    ??? info "If you're comparing against the HTTP API or LabManager"
+        The three layers disagree on the default for `reuse`:
+
+        | Layer | Default |
+        |-------|---------|
+        | `remote_lab_fixture` (pytest) | `reuse_lab=False` |
+        | `RemoteLabClient.acquire()` | `reuse=True` |
+        | `LabManager.acquire()` | `reuse=True` |
+        | `POST /lab` form field | `reuse=true` |
+
+        The pytest fixture is the outlier — it defaults to isolation. See [Reuse defaults across layers](../10-concepts/30-lab-lifecycle.md#reuse-defaults-across-layers) for the reasoning.
 
 ## Multiple topologies
 

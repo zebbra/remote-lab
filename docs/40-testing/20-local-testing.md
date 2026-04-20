@@ -114,6 +114,87 @@ This means you can safely rename topology files without triggering unnecessary r
 
 Local mode is best for laptop development and one-machine experiments. For CI pipelines and shared infrastructure, use [Remote Lab Testing](30-remote-testing.md) — the `remote_lab_fixture` cannot be used in local mode and will not transparently fall back.
 
+## Cisco IOL tutorial
+
+Cisco IOL (IOS on Linux) and IOL-L2 run IOS as user-space processes inside a Containerlab container. There is no dedicated IOL fixture — the `remote_lab_fixture` factory is device-agnostic, and the IOL-specific choice lives entirely in the topology YAML. This section composes the pieces: image prerequisite, topology file, fixture registration, and a test that exercises an IOS command.
+
+### Prerequisites
+
+<!-- trace: docs/10-concepts/40-topology-format.md:56 -->
+IOL binaries are not redistributable — Cisco requires a CCO license and ships them as an archive. Before the topology will start, the Remote Lab host (or your workstation, for local mode) needs:
+
+1. **A valid IOL archive** extracted to a location Netlab expects. The image filename (for example `x86_64_crb_linux-adventerprisek9-ms.SPA.high_iron_20190423.bin`) is referenced from the topology's `defaults.devices.iol.clab.image`, or wired in via `netlab install iol`. See [Netlab configuration — IOL image setup](../50-deployment/10-netlab-configuration.md) for the image build/pull steps.
+2. **`netlab install iol`** run once on the host. This prepares the Netlab-side image metadata (license file placement, iourc.txt) so `netlab up` can schedule IOL nodes.
+3. **Containerlab** as the provider. IOL runs under the `clab` provider only in this project; libvirt/other providers are not exercised.
+
+Skip these steps and `netlab up` will fail with a "image not found" or "iourc.txt missing" error before any device comes online.
+
+### Minimal topology — `tests/topologies/simple_iol.yml`
+
+A two-node IOL topology using the `iol` device kind:
+
+```yaml title="tests/topologies/simple_iol.yml"
+provider: clab
+defaults:
+  device: iol
+
+nodes: [ r1, r2 ]
+links: [ r1-r2 ]
+
+module: [ ospf ]
+```
+
+This produces two IOL routers linked by a single Ethernet segment, with OSPF enabled. Adjust `defaults.device` to `iol-l2` if you need IOS-XE L2 switching instead of routing.
+
+### Fixture registration — `tests/conftest.py`
+
+<!-- trace: neops_remote_lab/testing/fixture.py:56 -->
+`remote_lab_fixture` accepts any `.yml` topology path and returns a function-scoped pytest fixture. The factory does not inspect device kinds — it passes the whole file to the server (remote mode) or to `LabManager.acquire()` (local mode, via the pattern shown earlier on this page). For local mode with IOL, wrap `LabManager` yourself exactly as in the FRR example above; the only substitution is the topology path:
+
+```python title="tests/conftest.py"
+# Remote mode (requires REMOTE_LAB_URL):
+from neops_remote_lab.testing.fixture import remote_lab_fixture
+
+iol_lab = remote_lab_fixture("tests/topologies/simple_iol.yml")
+```
+
+<!-- trace: neops_remote_lab/testing/fixture.py:72 -->
+The factory resolves the topology path at import time and raises `FileNotFoundError` if the file does not exist, so a missing `simple_iol.yml` fails pytest collection rather than the first test.
+
+### Test body — exercise an IOS command
+
+```python title="tests/test_iol.py"
+import subprocess
+
+
+def test_r1_runs_cisco_ios(iol_lab):
+    r1 = next(d for d in iol_lab if d.name == "r1")
+    mgmt_ip = r1.raw["ansible_host"]
+
+    result = subprocess.run(
+        ["ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=no",
+         f"cisco@{mgmt_ip}", "show version"],
+        capture_output=True, text=True, timeout=30,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Cisco IOS Software" in result.stdout
+```
+
+Two IOL-specific details worth pinning down:
+
+- **SSH username is `cisco`** for the IOL kind in Netlab's defaults — not `admin` (FRR, SR Linux) or `root` (Juniper vMX). Check `netlab show images` if you need to confirm the current mapping on your host.
+- **`show version` always prints `Cisco IOS Software`** on a healthy IOL node regardless of feature set; that substring is the most stable liveness marker. Richer tests should use netmiko or scrapli (`device_type="cisco_ios"`).
+
+### Running the test
+
+```bash
+export REMOTE_LAB_URL=http://<server-host>:8000   # remote mode
+pytest tests/test_iol.py -v
+```
+
+If the IOL image or license is missing, the failure surfaces during lab acquisition rather than at SSH time — look at the server-side `netlab up` logs (see [Debugging and Troubleshooting](40-debugging.md)). For image build and license wiring, the canonical reference is [Netlab configuration — IOL](../50-deployment/10-netlab-configuration.md).
+
 ## Cleanup
 
 `LabManager` registers an `atexit` handler that tears down the running lab when the Python process exits. This covers normal exits and most crash scenarios. For cases where cleanup did not happen (e.g., `kill -9`), you may have a stale Netlab instance:
