@@ -42,8 +42,22 @@ markdown_extensions:
 - md_in_html
 nav:
 - Start: index.md
-- Connectivity: headscale_headplane.md
-- Netlab: netlab_configuration.md
+- Quickstart: quickstart.md
+- Concepts:
+  - Architecture: architecture.md
+  - Session queue: session-queue.md
+  - Lab lifecycle: lab-lifecycle.md
+  - Topology format: topology-format.md
+- Server:
+  - REST API: rest-api.md
+  - Configuration: configuration.md
+  - Administration: administration.md
+- Client:
+  - Python client: remote-lab-client.md
+  - Pytest fixtures: pytest-fixtures.md
+- Deployment:
+  - Netlab host setup: netlab_configuration.md
+  - Headscale VPN: headscale_headplane.md
 plugins:
 - search
 - include_dir_to_nav

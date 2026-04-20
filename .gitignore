@@ -63,3 +63,6 @@ site/
 **/__pycache__/
 
 site
+
+# Documentation toolkit ephemeral artifacts
+.ai-toolkit/
