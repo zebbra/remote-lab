@@ -155,7 +155,7 @@ sequenceDiagram
     Server-->>Dev2: 200 devices
 ```
 
-Developer 2 waits transparently. The `RemoteLabClient._wait_for_active_session()` method handles this with a configurable timeout (default 600 seconds), polling every 5 seconds with exponential backoff on transient errors.
+Developer 2's client blocks inside `RemoteLabClient._wait_for_active_session()` (`client.py:106-170`): it polls `GET /session/{id}` every 5 seconds, checking `status`, until the session reaches `ACTIVE` or the `session_timeout` (default 600 s) elapses. There is no out-of-band notification — the wait is a client-side polling loop, and a test harness sees it as the `acquire()` call taking longer than usual.
 
 ## API Endpoints
 

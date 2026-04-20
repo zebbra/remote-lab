@@ -161,14 +161,18 @@ curl -sf http://localhost:8000/active-session >/dev/null && \
     echo "Refusing to upgrade: active session present" && exit 1
 
 # 3. Install the new version.
-#    From PyPI:
-sudo -u labuser pipx install --force "neops-remote-lab==0.6.0"
+#    neops-remote-lab is proprietary (see pyproject.toml:7). pipx-install from
+#    the PyPI-compatible index your organization publishes to — substitute the
+#    version literal and --index-url for your environment:
+sudo -u labuser pipx install --force \
+    --index-url https://<your-internal-index>/simple/ \
+    "neops-remote-lab==<your-version>"
 
 #    Or from source at a git tag:
 sudo -u labuser bash -c '
     cd /home/labuser/neops-remote-lab &&
     git fetch --tags &&
-    git checkout v0.6.0 &&
+    git checkout <your-version> &&
     uv sync --group dev
 '
 

@@ -25,7 +25,7 @@ This page indexes the runnable code examples that appear throughout the document
 |---------|-------------|----------|
 | Instantiate `RemoteLabClient` | Constructor with explicit timeouts | [RemoteLabClient API](../30-client/10-remote-lab-client.md) |
 | Acquire and release a lab | `client.acquire()` / `client.release()` round-trip | [RemoteLabClient API](../30-client/10-remote-lab-client.md) |
-| Context-manager cleanup | `with RemoteLabClient(...) as client:` auto-closes the session on exit | [RemoteLabClient API](../30-client/10-remote-lab-client.md) |
+| `try/finally` cleanup | Explicit `client.close()` in a `finally` block — `RemoteLabClient` does not implement the context-manager protocol. | [RemoteLabClient API](../30-client/10-remote-lab-client.md#close) |
 | `destroy(force=True)` teardown | Explicit lab destruction (server-assisted cleanup) | [RemoteLabClient API](../30-client/10-remote-lab-client.md#destroyforcetrue) |
 | SSH via `ansible_host` | Reach a node by the `ansible_host` field on `DeviceInfoDto.raw` | [Pytest Fixtures](../30-client/20-pytest-fixtures.md), [Getting Started — Using Pytest Fixtures](../getting-started/30-pytest-fixtures.md) |
 | Environment-based configuration | Setting `REMOTE_LAB_URL` and timeout env vars | [Configuration](../20-server/20-configuration.md) |

@@ -274,7 +274,7 @@ Get the full status of the current lab, including device list.
       "raw": { "...": "..." }
     }
   ],
-  "netlab_status": "..."
+  "netlab_status": null
 }
 ```
 
@@ -284,7 +284,7 @@ Get the full status of the current lab, including device list.
 | `topology` | `string \| null` | **Server-side temporary path** of the uploaded topology file (inside the server's working directory). This is not the local filename the client uploaded. |
 | `ref_count` | `int` | How many clients currently hold the lab |
 | `devices` | `DeviceInfoDto[]` | List of devices (included because `include_devices=True`) |
-| `netlab_status` | `string \| null` | Raw output of `netlab status` if available |
+| `netlab_status` | `string \| null` | Always `null` in the current implementation — the field is reserved for future use (see `lab_manager.py:222`, `LabState.netlab_status=None`). |
 
 **Error responses:**
 
