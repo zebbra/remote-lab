@@ -6,7 +6,7 @@ difficulty_level: intermediate
 
 # Client
 
-The client side of Remote Lab has two layers: a low-level HTTP client and a high-level pytest fixture factory. Most users interact exclusively with the fixture layer; the client class exists for programmatic access and serves as the transport underneath every fixture.
+Two layers, one transport. `remote_lab_fixture` is what pytest users touch; `RemoteLabClient` is what every fixture calls underneath. If you are writing tests, you will never need the client class directly; if you are building non-pytest tooling, the client class is the only public entry point.
 
 ## In This Section
 

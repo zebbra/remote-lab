@@ -25,7 +25,12 @@ nodes: [ r1, r2 ]
 links: [ r1-r2 ]
 ```
 
-This declares two FRR (Free Range Routing) routers connected by a point-to-point link with OSPF enabled. Under the hood, Netlab transforms this into a Containerlab `clab.yml` and Containerlab brings up the containers; see [Architecture -- Components](../10-concepts/10-architecture.md#components) for the full layering.
+This declares two FRR (Free Range Routing) routers connected by a point-to-point link with OSPF enabled. Two Netlab-specific fields are worth naming:
+
+- `defaults.device: frr` -- the **default device kind** applied to every node that does not override it. "Device kind" is Netlab's term for a vendor/image pairing (`frr`, `eos`, `srlinux`, `iol`, etc.); it drives which container image is used and which configuration templates are rendered. See [Topology Format -- Supported device kinds](../10-concepts/40-topology-format.md#supported-device-kinds) for the list.
+- `module: [ ospf ]` -- the **Netlab modules** to enable across the topology. A module is a protocol or feature layer (OSPF, BGP, ISIS, VRFs, etc.) that Netlab knows how to configure per device kind. See [Topology Format -- Supported Netlab modules](../10-concepts/40-topology-format.md#supported-netlab-modules).
+
+Under the hood, Netlab transforms this into a Containerlab `clab.yml` and Containerlab brings up the containers; see [Architecture -- Components](../10-concepts/10-architecture.md#components) for the full layering.
 
 Save this file somewhere convenient -- you will reference it by path in the cURL commands below.
 
@@ -110,7 +115,7 @@ curl -s -X POST $REMOTE_LAB_URL/lab \
      -F "reuse=true" | jq .
 ```
 
-This request may take a minute or more while Netlab brings up the topology. The response contains the list of devices that are now running:
+This request may take a minute or more while Netlab brings up the topology. You will know the command worked when the response contains a `devices:` array with one entry per node (`r1`, `r2`) and `reused: false`:
 
 ```json
 {

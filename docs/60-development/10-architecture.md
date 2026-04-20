@@ -6,7 +6,7 @@ difficulty_level: advanced
 
 # Internal Architecture
 
-This page explains the internal design patterns in the Remote Lab codebase. For the high-level component overview (server, client, request flow, trust model), see [Concepts > Architecture](../10-concepts/10-architecture.md), which links back here from its [Components](../10-concepts/10-architecture.md#components) discussion.
+Why the server holds one lab and only one lab, and what that costs you when the test suite grows -- the module layout on this page follows directly from that constraint. The class-level state, the dual `FileLock`, the `_run_blocking()` async/sync boundary, and the `atexit` teardown all exist so one callable host can be shared safely by several clients. For the high-level component overview (server, client, request flow, trust model), see [Concepts > Architecture](../10-concepts/10-architecture.md), which links back here from its [Components](../10-concepts/10-architecture.md#components) discussion.
 
 ## Module dependency graph
 

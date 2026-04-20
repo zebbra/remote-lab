@@ -6,7 +6,7 @@ difficulty_level: intermediate
 
 # Topology Format
 
-This page documents the topology contract that Remote Lab accepts and the surface area of Netlab features available through it. Use it to plan integrations, scope experiments, and understand which knobs are on the table.
+Netlab accepts more topology syntax than this service supports -- this page draws the line. Use it to plan integrations, scope experiments, and know which knobs are on the table before you start editing YAML.
 
 ## The topology envelope
 
@@ -96,6 +96,14 @@ The Python `RemoteLabClient.acquire()` wraps this for you — see [RemoteLabClie
 The hard limit is the **one-lab-per-host constraint**: at any instant the server runs at most one topology. Within that one lab, node count and resource intensity are bounded by the host VM's RAM and CPU, plus per-image memory footprint. There are no software-level node-count caps.
 
 For practical capacity planning (when to add a host, expected concurrency under the FIFO queue, etc.), see [Architecture — One-lab-per-host](10-architecture.md) and the production capacity guidance in [Production](../50-deployment/30-production.md).
+
+## Programmatic device access (no built-in protocol wrappers)
+
+Remote Lab does not wrap NETCONF, YANG, RESTCONF, or gNMI. There is no `ncclient`, `pygnmi`, or model-driven client inside the codebase; the server's job stops once `netlab up` succeeds and the devices are reachable on their Containerlab management subnet. A test that needs to drive a device programmatically uses whatever protocol library it prefers, called against the device IPs returned in `DeviceInfoDto.raw` -- most commonly over SSH via `ansible_host` (Netlab fills that field in the `clab` provider's node inventory, and the dict is passed through verbatim).
+
+The practical consequence: if your test plan assumes a model-driven interface (for example, "configure OSPF via NETCONF and verify via gNMI telemetry"), you bring the client library yourself. `remote_lab_fixture` yields the device list; what you do with those devices -- Scrapli, Netmiko, ncclient, pygnmi, plain `paramiko`, raw sockets -- is outside Remote Lab's concern. This keeps the service small and upgrade-safe at the cost of forcing the protocol choice into your test code.
+
+For the canonical SSH-based patterns used in the existing test suite, see [Pytest Fixtures](../30-client/20-pytest-fixtures.md) and the SSH example on [Using Pytest Fixtures](../getting-started/30-pytest-fixtures.md).
 
 ## Netlab features NOT available through Remote Lab
 

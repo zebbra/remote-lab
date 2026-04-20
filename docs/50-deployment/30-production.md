@@ -6,7 +6,7 @@ difficulty_level: advanced
 
 # Production Deployment
 
-This page covers running the Remote Lab server as a persistent, monitored service. For server CLI flags and environment variables, see the [Configuration](../20-server/20-configuration.md) reference. For day-to-day operations and troubleshooting, see [Administration](../20-server/30-administration.md).
+You run this in production when you can no longer afford pytest to block on a lab somebody else is using -- at that point the service stops being a convenience on a developer VM and becomes infrastructure other teams depend on. This page is the operational shape that belongs: systemd unit, TLS termination, monitoring, secret handling, backup and restore, and the capacity numbers you need to pick a VM size. For server CLI flags and environment variables, see the [Configuration](../20-server/20-configuration.md) reference. For day-to-day operations and troubleshooting, see [Administration](../20-server/30-administration.md).
 
 ## Running as a systemd service
 

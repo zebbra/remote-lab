@@ -13,8 +13,9 @@ This page indexes the runnable code examples that appear throughout the document
 | Example | Description | Location |
 |---------|-------------|----------|
 | Full session lifecycle | Create session, poll until active, upload topology, release, end session | [Your First Lab Session](../getting-started/20-first-lab.md) |
-| Upload with extra files | `POST /lab` with `-F "extra_files=@path"` for supporting configs | [REST API](../20-server/10-rest-api.md) |
-| Force-destroy a lab | `DELETE /lab?force=true` to tear down a stuck lab | [REST API](../20-server/10-rest-api.md) |
+| Upload with extra files | `POST /lab` with `-F "extra_files=@path"` for supporting configs | [REST API](../20-server/10-rest-api.md), [Topology Format — extra_files](../10-concepts/40-topology-format.md#extra_files-upload-mechanism) |
+| Subdirectory extra_files | `extra_files` with `filename=configs/r1.cfg` to land files under a nested path | [Topology Format — extra_files](../10-concepts/40-topology-format.md#extra_files-upload-mechanism) |
+| Force-destroy a lab | `DELETE /lab?force=true` to tear down a stuck lab | [REST API](../20-server/10-rest-api.md), [Administration — Lab stuck busy](../20-server/30-administration.md#lab-stuck-busy) |
 | Heartbeat keep-alive | `POST /session/heartbeat` with `X-Session-ID` header | [REST API](../20-server/10-rest-api.md) |
 | Health check | `GET /healthz` liveness probe | [REST API](../20-server/10-rest-api.md) |
 
@@ -24,6 +25,9 @@ This page indexes the runnable code examples that appear throughout the document
 |---------|-------------|----------|
 | Instantiate `RemoteLabClient` | Constructor with explicit timeouts | [RemoteLabClient API](../30-client/10-remote-lab-client.md) |
 | Acquire and release a lab | `client.acquire()` / `client.release()` round-trip | [RemoteLabClient API](../30-client/10-remote-lab-client.md) |
+| Context-manager cleanup | `with RemoteLabClient(...) as client:` auto-closes the session on exit | [RemoteLabClient API](../30-client/10-remote-lab-client.md) |
+| `destroy(force=True)` teardown | Explicit lab destruction (server-assisted cleanup) | [RemoteLabClient API](../30-client/10-remote-lab-client.md#destroyforcetrue) |
+| SSH via `ansible_host` | Reach a node by the `ansible_host` field on `DeviceInfoDto.raw` | [Pytest Fixtures](../30-client/20-pytest-fixtures.md), [Getting Started — Using Pytest Fixtures](../getting-started/30-pytest-fixtures.md) |
 | Environment-based configuration | Setting `REMOTE_LAB_URL` and timeout env vars | [Configuration](../20-server/20-configuration.md) |
 
 ## Pytest Fixture Examples
@@ -41,4 +45,11 @@ The examples below conform to the [Topology Format](../10-concepts/40-topology-f
 | Example | Description | Location |
 |---------|-------------|----------|
 | Minimal FRR topology | Two-router OSPF topology using `provider: clab` | [Your First Lab Session](../getting-started/20-first-lab.md) |
+| Two-node IOL topology | Cisco IOL topology with IOS-specific test assertions | [Cisco IOL tutorial](../40-testing/20-local-testing.md#cisco-iol-tutorial) |
+
+## Deployment Config Examples
+
+| Example | Description | Location |
+|---------|-------------|----------|
+| Headscale ACL JSON | Grouped node/tag policy for Remote Lab server + CI runners | [Headscale VPN — ACLs](../50-deployment/20-headscale-vpn.md) |
 

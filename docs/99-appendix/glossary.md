@@ -23,8 +23,9 @@ Active Session
 Waiting Session
 :   A session behind at least one other session in the queue. The client polls `GET /session/{id}` to watch its position. Waiting sessions are dropped automatically after a configurable inactivity timeout.
 
+<a id="heartbeat"></a>
 Heartbeat
-:   A `POST /session/heartbeat` call that resets the session's staleness timer. The server uses `last_seen_at` timestamps to detect idle sessions; an active session without a heartbeat within the staleness window is cleaned up and the next session is promoted. See [REST API](../20-server/10-rest-api.md).
+:   A `POST /session/heartbeat` call that resets the session's staleness timer. The server uses `last_seen_at` timestamps to detect idle sessions; an active session without a heartbeat within the staleness window is cleaned up and the next session is promoted. See [REST API](../20-server/10-rest-api.md). For how this term is used in the wider neops ecosystem, see [Heartbeat (peer-project contrast)](#heartbeat-ecosystem) below.
 
 X-Session-ID
 :   The HTTP header used to propagate session identity. Returned in the `POST /session` response, it must be included on all `/lab/*` endpoints and on `/session/heartbeat`. It is the only access boundary -- there is no separate authentication. See [REST API](../20-server/10-rest-api.md).
@@ -115,4 +116,48 @@ Headplane
 
 Subnet Router
 :   A Tailscale node configured to advertise lab subnet routes to the rest of the mesh, allowing remote clients to reach container management IPs without direct Layer 2 adjacency. The Remote Lab VM typically runs as a subnet router.
+
+## Peer-project terminology bridge
+
+Terms below are owned by other projects in the neops ecosystem. This glossary records Remote Lab's stance on each one -- whether the project *defines* the term, *consumes* the term from a peer, or treats the term as *not applicable*. Readers arriving from the worker SDK or workflow engine can use these entries to tell where their mental model transfers cleanly and where it does not.
+
+<a id="function-block"></a>
+Function Block
+:   Owned by [neops-worker-sdk-py](https://github.com/zebbra/neops-worker-sdk-py). A function block is a typed Python class that performs one unit of work (run, acquire, or rollback) against a device or entity inside the neops platform. **Remote Lab's stance: not applicable.** Remote Lab has no notion of function blocks -- it only provides the virtual topology that function block unit tests exercise. See the worker SDK for the canonical definition.
+
+<a id="workflow-engine"></a>
+Workflow Engine
+:   Owned by [neops-workflow-engine](https://github.com/zebbra/neops-workflow-engine). The NestJS service that validates, schedules, and orchestrates workflow execution across workers. **Remote Lab's stance: not applicable.** Remote Lab runs independently of the workflow engine; tests that happen to use both treat them as separate services.
+
+<a id="blackboard"></a>
+Blackboard
+:   Owned by [neops-workflow-engine](https://github.com/zebbra/neops-workflow-engine). The engine's job queue where workers poll for pending jobs and push results back. **Remote Lab's stance: not applicable.** The Remote Lab session queue is a different mechanism (FIFO, single-ACTIVE) and serves a different purpose (exclusive access to one lab host); do not confuse the two.
+
+<a id="heartbeat-ecosystem"></a>
+Heartbeat (peer-project contrast)
+:   In [neops-workflow-engine](https://github.com/zebbra/neops-workflow-engine), a heartbeat is the periodic ping a worker sends to prove liveness to the engine. **Remote Lab's stance: defines its own.** Remote Lab has its own `POST /session/heartbeat` endpoint with the same role but a different scope: it keeps a client's session alive against the lab server, not against the workflow engine. See [Heartbeat](#heartbeat) above for the in-scope definition.
+
+<a id="provider-ecosystem"></a>
+Provider
+:   In [neops-core](https://github.com/zebbra) (1.0), a `provider` is a Python class implementing network automation logic via Nornir. In Netlab (which Remote Lab wraps), `provider:` is a topology field selecting the virtualization backend (`clab`, `libvirt`, etc.). **Remote Lab's stance: consumer of Netlab's meaning; not applicable to neops-core's meaning.** Remote Lab's `provider:` field in a topology file is always Netlab's sense -- never the neops-core legacy automation-class sense.
+
+<a id="checks-ecosystem"></a>
+Checks
+:   Owned by [neops-core](https://github.com/zebbra). Versioned key-value records produced by CHECK providers or function blocks that compare device state to expected values. **Remote Lab's stance: not applicable.** Remote Lab does not produce, store, or interpret `checks`; a test that generates checks does so through the worker SDK or neops-core APIs, independent of the lab service.
+
+<a id="scope-ecosystem"></a>
+Scope
+:   Owned by [neops-core](https://github.com/zebbra). Defines entity visibility and allowed tasks per user role in the CMS. **Remote Lab's stance: not applicable.** Remote Lab has no tenancy model -- every caller reaches the same lab host; access control is the VPN/firewall boundary, not a scope.
+
+<a id="context-ecosystem"></a>
+Context
+:   In [neops-worker-sdk-py](https://github.com/zebbra/neops-worker-sdk-py), the `context` is the typed `WorkflowContext` holding entity data passed between function blocks. **Remote Lab's stance: not applicable.** Remote Lab exposes device information via `DeviceInfoDto` returned from `POST /lab` and `GET /lab/devices`; the shape is different and deliberately flat.
+
+<a id="worker-ecosystem"></a>
+Worker
+:   Owned by [neops-worker-sdk-py](https://github.com/zebbra/neops-worker-sdk-py). A Python process that registers with the engine, polls for jobs, and executes function blocks. **Remote Lab's stance: not applicable.** Remote Lab has no `worker` concept; the analogous roles are "client" (a `RemoteLabClient`, including the pytest fixture) and "server" (the FastAPI service owning the lab host).
+
+<a id="workflow-ecosystem"></a>
+Workflow
+:   Owned by [neops-workflow-engine](https://github.com/zebbra/neops-workflow-engine). A YAML document declaring an ordered sequence of function block steps. **Remote Lab's stance: not applicable.** Topology YAML files uploaded to Remote Lab are *Netlab* YAML -- they describe a network's shape, not a sequence of automation steps -- and are unrelated to neops workflow definitions.
 

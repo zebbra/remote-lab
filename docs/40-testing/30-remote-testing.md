@@ -85,14 +85,60 @@ The server also has its own stale-session timeouts (300s heartbeat, 600s waiting
 
 ### Basic Pipeline Step
 
-```yaml
-# GitHub Actions example
-- name: Run integration tests
-  env:
-    REMOTE_LAB_URL: http://lab-server:8000
-    REMOTE_LAB_SESSION_TIMEOUT: "1200"
-  run: pytest tests/ -q
-```
+Remote Lab's client is driven entirely by environment variables (`REMOTE_LAB_URL`, the three `REMOTE_LAB_*_TIMEOUT` overrides). No CI-platform-specific client flags exist, so the invocation shape is the same across runners -- set the env, run `pytest`. Three examples below.
+
+=== "GitHub Actions"
+
+    ```yaml title=".github/workflows/integration.yml"
+    - name: Run integration tests
+      env:
+        REMOTE_LAB_URL: http://lab-server:8000
+        REMOTE_LAB_SESSION_TIMEOUT: "1200"
+      run: pytest tests/ -q
+    ```
+
+=== "GitLab CI"
+
+    ```yaml title=".gitlab-ci.yml"
+    integration-tests:
+      stage: test
+      image: python:3.12
+      variables:
+        REMOTE_LAB_URL: "http://lab-server:8000"
+        REMOTE_LAB_SESSION_TIMEOUT: "1200"
+      script:
+        - pip install -e .[test]
+        - pytest tests/ -q
+      # GitLab-level timeout; coordinates with REMOTE_LAB_SESSION_TIMEOUT
+      timeout: 30 minutes
+    ```
+
+    If your runner is not on the Tailscale mesh, add a pre-`script` step to `tailscale up --auth-key "$TAILSCALE_AUTHKEY"` before `pytest` -- see [Deployment](../50-deployment/index.md).
+
+=== "Jenkins (declarative)"
+
+    ```groovy title="Jenkinsfile"
+    pipeline {
+        agent { label 'tailnet-runner' }
+        environment {
+            REMOTE_LAB_URL              = 'http://lab-server:8000'
+            REMOTE_LAB_SESSION_TIMEOUT  = '1200'
+        }
+        options {
+            timeout(time: 30, unit: 'MINUTES')
+        }
+        stages {
+            stage('Integration tests') {
+                steps {
+                    sh 'pip install -e .[test]'
+                    sh 'pytest tests/ -q'
+                }
+            }
+        }
+    }
+    ```
+
+    Pin the agent label (`tailnet-runner` above) to whichever Jenkins executor pool has VPN access to the lab server.
 
 ### Tips for CI
 

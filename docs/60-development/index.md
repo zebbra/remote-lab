@@ -6,7 +6,7 @@ difficulty_level: intermediate
 
 # Development
 
-This section covers the internals of the Remote Lab codebase -- how the modules fit together, what the data models look like, and how to contribute changes.
+Why the server holds one lab and only one lab, and what that costs you when the test suite grows -- that is what this section explains, together with the module graph, the Pydantic DTOs on the wire, and how to get changes landed.
 
 | Page | What it covers |
 |------|----------------|

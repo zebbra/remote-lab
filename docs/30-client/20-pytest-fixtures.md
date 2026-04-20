@@ -291,6 +291,28 @@ The first test through pays the `netlab up` cost (up to several minutes). The se
 !!! note "Trade-off: reuse vs. isolation"
     `reuse_lab=True` is *not* a free optimization — tests share live device state. If `test_r1_has_expected_neighbors` runs first and reconfigures `r1`, the second test sees that configuration, not a clean start. Use `reuse_lab=True` for read-only or idempotent tests; fall back to `reuse_lab=False` (default) when any test mutates device state in ways the next test cannot tolerate.
 
+### Device access from a test body
+
+Once a fixture yields, your test has `list[DeviceInfoDto]` -- one entry per node, each with `name` and `raw`. What you do from there is not Remote Lab's concern: the service does not bundle a NETCONF, YANG, RESTCONF, or gNMI client, and the fixture does not open any device-side connection for you.
+
+The idiomatic pattern is SSH via whatever library your project already uses (paramiko, Scrapli, Netmiko), reaching each node through the `ansible_host` field that Netlab populates in `DeviceInfoDto.raw` for the `clab` provider:
+
+```python
+import paramiko
+
+def test_r1_ospf(simple_frr):
+    r1 = next(d for d in simple_frr if d.name == "r1")
+    host = r1.raw["ansible_host"]   # Netlab-provided management IP
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(host, username="admin", password="admin")
+    stdin, stdout, stderr = ssh.exec_command("show ip ospf neighbor")
+    assert "Full" in stdout.read().decode()
+    ssh.close()
+```
+
+Credentials, port numbers, and the exact `raw` key set depend on the device kind and the Netlab version; inspect a real `DeviceInfoDto.raw` dump in your test output first. Model-driven workflows (push NETCONF config, pull gNMI telemetry, validate against a YANG model) are supported only in the sense that nothing stops you from bringing the relevant client library yourself -- Remote Lab's scope ends at "the devices are up and reachable."
+
 ### Custom Fixture Names
 
 By default, the fixture name is the topology file stem. Override it when you need a more descriptive name or when two topologies share the same stem:

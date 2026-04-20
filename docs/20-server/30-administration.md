@@ -6,7 +6,7 @@ difficulty_level: intermediate
 
 # Administration
 
-This page covers day-to-day operation of the Remote Lab server: starting it, monitoring health, recovering from failures, and troubleshooting common issues.
+Three surfaces cover most of on-call work: the journal (what the service just said), the `sessions` and `/debug/health` endpoints (what the service thinks its state is), and the systemd unit (what the service is supposed to be doing). The rest of the page is startup behavior, single-instance guard mechanics, the upgrade/rollback runbook, and a troubleshooting table for the faults that actually show up in practice.
 
 ## Starting the Server
 
