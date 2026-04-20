@@ -118,8 +118,9 @@ def acquire(
 | `topology` | `pathlib.Path` | Path to a Netlab `.yml` file. The client opens the file and posts it as multipart form data. |
 | `reuse` | `bool` | When `True`, increments the reference count on an already-running lab with the same SHA-256 content identity; when `False`, refuses to start if another lab is already up. |
 
-**Returns** a list of `DeviceInfoDto` describing the running devices (name,
-management IP, vendor metadata).
+**Returns** a list of `DeviceInfoDto` describing the running devices. Each DTO
+carries `.name` (from Netlab) and `.raw` — the full `netlab inspect` dictionary
+for that node. <!-- trace: neops_remote_lab/models/lab.py:23 -->
 
 **Raises** the underlying `requests.exceptions.RequestException` on transport
 errors and the standard `HTTPError` subclasses on non-retriable 4xx responses.
@@ -226,7 +227,7 @@ with remote_lab_client(base_url=os.environ["REMOTE_LAB_URL"]) as client:
         reuse=False,
     )
     for d in devices:
-        print(d.name, d.mgmt_ipv4)
+        print(d.name)
     client.release()
 ```
 
@@ -273,7 +274,7 @@ def main() -> None:
         )
         print(f"Acquired lab with {len(devices)} devices:")
         for d in devices:
-            print(f"  {d.name}  {d.mgmt_ipv4}")
+            print(f"  {d.name}")
         client.release()
     finally:
         client.close()

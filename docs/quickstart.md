@@ -24,7 +24,7 @@ devices, and tears it down cleanly — all with three lines of test code.
     - **`pytest`** installed in your project's virtual environment.
     - **A reachable Remote Lab Manager** at some host — we will call its base
       URL `$LAB_HOST`. If you also need to stand up the server itself, follow
-      [Netlab host setup](netlab-host-setup.md) first and return here.
+      [Netlab host setup](netlab_configuration.md) first and return here.
 
 ---
 
@@ -153,7 +153,8 @@ def test_demo_lab_has_two_devices(demo_lab):  # (1)
 
 1. The fixture name `demo_lab` matches the variable in `conftest.py`.
 2. The fixture yields a list of `DeviceInfoDto` objects — one per node in the
-   topology, with `.name` and `.mgmt_ipv4` populated by Netlab. <!-- trace: neops_remote_lab/testing/fixture.py:121 -->
+   topology. Each carries `.name` (from Netlab) and `.raw`, the full
+   `netlab inspect` dictionary for the node. <!-- trace: neops_remote_lab/models/lab.py:23 -->
 
 ---
 
