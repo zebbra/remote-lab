@@ -52,6 +52,10 @@ One-Lab Rule
 
 ## Locking and Concurrency
 
+<a id="labmanager"></a>
+LabManager
+:   A class-only singleton in `neops_remote_lab/netlab/lab_manager.py` that owns the one running lab per host. It enforces Netlab's one-lab-per-host limitation, holds topology identity (SHA-256), tracks reference counts, and registers an `atexit` teardown. Never instantiated — all methods are classmethods. See [Lab Lifecycle](../10-concepts/30-lab-lifecycle.md).
+
 GLOBAL_LOCK
 :   A `filelock.FileLock` at `<tempdir>/netlab_pytest.lock` that serializes lab operations across multiple OS processes. Any code path that starts, reuses, or tears down a lab must hold this lock. See [Lab Lifecycle](../10-concepts/30-lab-lifecycle.md).
 

@@ -6,7 +6,8 @@ difficulty_level: intermediate
 
 # Remote Lab Testing
 
-Remote mode runs Netlab on a shared server while your tests execute locally. Set `REMOTE_LAB_URL` and the [fixture factory](../30-client/20-pytest-fixtures.md) transparently switches from local `LabManager` calls to HTTP requests via `RemoteLabClient`. No changes to test code are needed.
+<!-- trace: neops_remote_lab/testing/fixture.py:34 -->
+Remote mode is the only mode `remote_lab_fixture` supports. Set `REMOTE_LAB_URL` to point the session-scoped `remote_lab_client` fixture at your server; the fixture raises `RuntimeError` at test setup if the variable is missing (`fixture.py:32-34`). For local-only Netlab without a server, see [Local Lab Testing](20-local-testing.md) for the direct `LabManager` pattern.
 
 ## Activating Remote Mode
 
@@ -26,7 +27,12 @@ When pytest starts, the `remote_lab_client` fixture initializes a `RemoteLabClie
 4. **Release lab** -- on fixture teardown, `client.release()` decrements the server's reference count
 5. **Close session** -- at the end of the pytest session (or via `atexit`), `client.close()` calls `DELETE /session/{id}` to end the session and free resources
 
-The client sends heartbeats implicitly -- each `GET /session/{id}` poll updates the server's `last_seen_at` timestamp. During lab acquisition, the long-running `POST /lab` request keeps the connection alive. Between tests, the session-scoped client stays active and the server does not consider it stale as long as tests keep executing within the heartbeat timeout window.
+<!-- trace: neops_remote_lab/server.py:481 -->
+<!-- trace: neops_remote_lab/server.py:318 -->
+Any `POST /lab`, `POST /lab/release`, or `GET /lab*` request updates the server's `last_seen_at` timestamp for the session -- the `X-Session-ID`-authenticated endpoints are the implicit keep-alive path during normal test execution. `GET /session/{id}` polls also refresh `last_seen_at` (server.py:318), which is why a session that keeps checking its queue position rarely goes stale.
+
+!!! note "Long-pause tests"
+    If your test harness has setup or teardown gaps longer than `_ACTIVE_SESSION_STALE` (300 s) between lab traffic, send explicit `POST /session/heartbeat` pings to avoid being dropped. <!-- trace: neops_remote_lab/server.py:481-492 --> The `/session/heartbeat` endpoint is a no-op on state -- it updates `last_seen_at` and returns `204`. `RemoteLabClient` does not call it automatically; the pytest fixture layer (or your own wrapper) owns that cadence. See the [REST API reference -- heartbeat](../20-server/10-rest-api.md) for the endpoint schema.
 
 For details on the session queue and promotion logic, see [Session Queue](../10-concepts/20-session-queue.md).
 

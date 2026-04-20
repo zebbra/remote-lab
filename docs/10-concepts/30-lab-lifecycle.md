@@ -101,12 +101,15 @@ Netlab's one-lab rule is not just per-process -- it is per-host. If multiple pyt
 GLOBAL_LOCK = FileLock(str(Path(tempfile.gettempdir()) / "netlab_pytest.lock"))
 ```
 
-The lock is acquired during:
+The lock is acquired (or required to be held) during:
 
-- `try_acquire()` -- the entire decision + start/reuse logic runs under the lock
-- `release()` -- ref count decrement is atomic with respect to other processes
-- `_terminate_current()` -- teardown is exclusive
-- `cleanup()` -- wraps `_terminate_current()` or `_terminate_default_netlab_instance()`
+- `try_acquire()` -- acquires the lock itself; the entire decision + start/reuse logic runs under it.
+- `release()` -- acquires the lock itself so ref-count decrement is atomic with respect to other processes.
+- `cleanup()` -- acquires the lock via `with GLOBAL_LOCK:` (`lab_manager.py:290`), then dispatches to one of the private terminators.
+
+<!-- trace: neops_remote_lab/netlab/lab_manager.py:256-257,290 -->
+<!-- trace: neops_remote_lab/netlab/lab_manager.py:290 -->
+- `_terminate_current()` and `_terminate_default_netlab_instance()` are **lock-held methods**, not lock-acquirers: their docstrings declare "Caller must hold `GLOBAL_LOCK`" (`lab_manager.py:256-257`) and they do not reacquire. The canonical caller is `cleanup()` at `lab_manager.py:290`, which wraps them inside `with GLOBAL_LOCK:`. If you add a new caller, acquire the lock at that call site.
 
 The lock file lives in the system temp directory (e.g., `/tmp/netlab_pytest.lock`). A stale lock from a crashed process must be manually removed -- see [Administration](../20-server/30-administration.md) for troubleshooting.
 

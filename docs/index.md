@@ -50,7 +50,8 @@ sequenceDiagram
 ## Key Features
 
 - **One-lab-per-host exclusivity** -- only one Netlab topology runs at a time, enforced by a FIFO session queue and automatic reference counting.
-- **Zero-config client** -- set `REMOTE_LAB_URL` and your existing pytest fixtures transparently switch to remote mode.
+<!-- trace: neops_remote_lab/testing/fixture.py:34 -->
+- **Single-mode client** -- `remote_lab_fixture` runs against a Remote Lab server exclusively; set `REMOTE_LAB_URL` and the session-scoped `remote_lab_client` fixture connects on first use (raises `RuntimeError` if the variable is unset).
 - **Lab reuse** -- tests sharing the same topology can reuse a running lab instead of tearing down and rebuilding, identified by SHA-256 content hash.
 - **Automatic cleanup** -- stale sessions are detected via heartbeat timeouts and cleaned up by an adaptive background task.
 - **Python client and pytest plugin** -- `RemoteLabClient` for programmatic access; `remote_lab_fixture` for declarative test fixtures.

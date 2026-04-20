@@ -8,6 +8,11 @@ difficulty_level: intermediate
 
 The Remote Lab server is configured through CLI flags, environment variables, and an optional YAML logging configuration file. There are no mandatory configuration files -- the server runs with sensible defaults out of the box.
 
+<!-- trace: neops_remote_lab/client.py:1 -->
+!!! warning "Internal-trust service"
+    <!-- trace: neops_remote_lab/client.py -->
+    As of this version, `REMOTE_LAB_TOKEN` and Bearer auth are commented out in `client.py`; the only access boundary on `/lab/*` endpoints is the `X-Session-ID` header of the currently `ACTIVE` session. Deploy only inside networks you trust. See [Production -- Security](../50-deployment/30-production.md#security) for firewall and VPN guidance.
+
 ## CLI Flags
 
 Pass these flags when starting the server via `neops-remote-lab` or `python -m neops_remote_lab`.

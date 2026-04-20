@@ -40,13 +40,18 @@ The position reported in API responses corresponds directly to the list index:
 
 The queue order never changes -- sessions cannot jump the line. When a session is removed (by the client or by cleanup), subsequent sessions shift forward automatically.
 
+<!-- trace: neops_remote_lab/server.py:306 -->
 ## Promotion Logic
 
-Promotion is handled by `_promote_if_needed()`, which runs after any event that could create a vacancy at the head of the queue:
+<!-- trace: neops_remote_lab/server.py:262,306,341,369 -->
+Promotion is handled by `_promote_if_needed()`, which runs synchronously after any event that could create a vacancy at the head of the queue. Four call sites in `server.py`:
 
-1. A client calls `DELETE /session/{id}` to end an active session
-2. A stale session is removed by the cleanup task
-3. Server startup cleans up leftover sessions
+1. **`POST /session`** (`server.py:306`) -- promotes immediately when the queue was previously empty. This is the most common trigger, because every newly-created session is eligible to become `ACTIVE` if no one is ahead of it.
+2. **`GET /active-session`** (`server.py:341`) -- in the orphan-cleanup branch, pops a stale head entry from the queue and promotes the next waiter before raising 404.
+3. **`DELETE /session/{id}`** (`server.py:369`) -- promotes the next waiter when the active session is ended, either by the client or by server cleanup.
+4. **`_cleanup_stale_sessions_async`** (`server.py:262`) -- promotes the next waiter after dropping an inactive active session whose heartbeat aged past `_ACTIVE_SESSION_STALE`.
+
+Server startup is **not** a promotion trigger: the lifespan context calls only `LabManager.cleanup(default_instance=True)` at `server.py:46`, never `_promote_if_needed()`. Any sessions that survived a crash live only in memory and would not be present after a restart anyway.
 
 The logic is defensive:
 

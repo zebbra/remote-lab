@@ -40,7 +40,8 @@ Before serving requests, the server verifies that the `netlab` CLI is available 
 
 On every startup, the server performs automatic cleanup of stale Netlab instances from previous runs. This calls `LabManager.cleanup` with `default_instance=True`, which tears down any `default` Netlab instance left behind by a crashed or force-killed server process.
 
-If no stale instance exists, the cleanup logs a warning and continues normally -- this is expected behavior on a clean start.
+<!-- trace: neops_remote_lab/server.py:47 -->
+On a clean start, the startup cleanup logs two INFO lines -- `Performing startup cleanup of stale netlab instances...` and `Startup cleanup completed successfully` (`server.py:44-47`). A WARNING (`Startup cleanup encountered an error ...`) is emitted only if the cleanup call raises an unexpected exception (`server.py:49`). Either path, the server continues startup.
 
 ## Single-Instance Guard
 

@@ -34,7 +34,8 @@ This surfaces:
 - Fixture mode detection (local vs. remote)
 - Session creation and queue position
 - Topology upload and acquisition timing
-- HTTP status and response body of `POST /lab/release` (the client only sees the response; the server holds the actual reference counter)
+<!-- trace: neops_remote_lab/client.py:127 -->
+- HTTP status of `POST /lab/release` (204 No Content). On 2xx the client logs `Lab released successfully`; on exception it logs `Failed to release lab: <error>` and swallows the error so teardown continues (`client.py:213-222`). No response body is read or logged -- the server holds the reference counter.
 
 ### Server-side
 
@@ -102,29 +103,44 @@ When `RemoteLabClient` or your own code hits the REST API, these status codes in
 
 See [REST API](../20-server/10-rest-api.md) for complete endpoint documentation.
 
-## Interpreting Server Logs
+## Interpreting Logs
 
-Server logs follow a structured format:
+Logs are emitted from two distinct processes -- the pytest client (`RemoteLabClient`) and the server (`remote-lab-server` logger) -- and greps fail silently when you look for a client-side string in server logs or vice versa. Split by owner.
 
-```
-2024-05-27 12:34:56 [INFO] remote-lab-server: sid=24f... topo=simple_frr.yml | Created session
-```
+### Client log patterns
 
-Key log messages to watch for:
+<!-- trace: neops_remote_lab/client.py:127-131 -->
+Emitted by `neops_remote_lab.client` on the test runner. Visible with `pytest --log-cli-level=INFO` or higher.
 
-| Log pattern | What it means |
-|-------------|---------------|
-| `Created session ... at queue position 0` | Your session is immediately active (no queue) |
-| `Created session ... at queue position N` | N sessions ahead of you in the queue |
-| `Session ... is active after X.Xs` | Your session was promoted from waiting to active |
-| `Session did not become active within Xs` | Client-side `session_timeout` expired while waiting in queue |
-| `Lab ... started (N devices)` | `netlab up` completed successfully |
-| `Lab busy - waiting` | `try_acquire()` returned `None`; the server will respond `423` |
-| `Tearing down lab ... (reason: topology-switch)` | A new topology was requested; the old lab is being destroyed |
-| `Re-using lab ... (ref=N)` | Reuse match -- no rebuild needed, reference count incremented |
-| `Session ... stale, cleaning up` | Server reclaimed a session that missed heartbeats for too long |
+<!-- trace: neops_remote_lab/client.py:220 -->
+| Log pattern | What it means | Source |
+|-------------|---------------|--------|
+| `Session ... is active after X.Xs` | `_wait_for_active_session` observed the session become `ACTIVE`. | `client.py:127-131` |
+| `Session did not become active within Xs` | The client's `session_timeout` expired while the session was still `WAITING` (the message text is raised as `TimeoutError`). | `client.py:170` |
+| `Lab released successfully` | `release()` got a 2xx from `POST /lab/release`. | `client.py:220` |
+| `Failed to release lab: <error>` | `release()` raised -- suppressed during teardown. | `client.py:222` |
+| `Lab acquired successfully.` | `acquire()` received a 2xx from `POST /lab`. | `client.py:201` |
+| `Closing session <sid>` / `Closed session <sid> successfully` | `close()` is sending / got 204/404 from `DELETE /session/{id}`. | `client.py:243,252` |
 
-When debugging a hanging test suite, look for the last `Created session` and whether an `is active` message follows. If the session stays in `WAITING`, another session is holding the lab.
+### Server log patterns
+
+<!-- trace: neops_remote_lab/server.py:253 -->
+<!-- trace: neops_remote_lab/server.py:261 -->
+Emitted by the `remote-lab-server` logger. Visible in the server's console (or journal via systemd).
+
+| Log pattern | What it means | Source |
+|-------------|---------------|--------|
+| `Performing startup cleanup of stale netlab instances...` | Server lifespan is running `LabManager.cleanup(default_instance=True)`. | `server.py:44` |
+| `Startup cleanup completed successfully` | Startup cleanup returned without raising (INFO-level, clean path). | `server.py:47` |
+| `Startup cleanup encountered an error ...` | Startup cleanup raised -- logged at WARNING; server continues. | `server.py:49` |
+| `Created session <sid> at queue position N` | `POST /session` succeeded; N=0 means immediately active, N>0 means queued. | `server.py:308` |
+| `Session <sid> promoted to ACTIVE (topology=...)` | `_promote_if_needed()` moved the session to the head of the queue. | `server.py:210` |
+| `Removing stale session <sid> due to inactivity` | Cleanup task dropped the session after `_WAITING_SESSION_TIMEOUT` or `_ACTIVE_SESSION_STALE` elapsed without a heartbeat. | `server.py:253` |
+| `Cleaning up lab for stale active session <sid>` | Server is tearing down the lab of a session that just went stale; the cleanup reason passed into `LabManager.cleanup()` is `stale-session-<sid>`. | `server.py:260-261` |
+| `Tearing down lab <topo> (reason: <reason>)` | `LabManager._terminate_current` fired; reason is one of `server-startup`, `server-shutdown`, `stale-session-<sid>`, `client-end`, `manual-cleanup`. | `lab_manager.py:262` |
+| `Lab <topo> became idle - awaiting next user or teardown (refcount=0)` | `release()` decremented ref to 0; lab stays running until a different topology is requested or cleanup fires. | `lab_manager.py:252` |
+
+When debugging a hanging test suite, find the latest `Created session` in server logs and check whether `Session ... promoted to ACTIVE` follows. If not, another session holds the lab -- check which session is at position 0 via `GET /active-session`.
 
 ## Stale State Recovery
 

@@ -179,6 +179,11 @@ curl -s http://localhost:8000/debug/health | jq .
 
 ## Security
 
+<!-- trace: neops_remote_lab/client.py:1 -->
+!!! warning "Internal-trust service"
+    <!-- trace: neops_remote_lab/client.py -->
+    As of this version, `REMOTE_LAB_TOKEN` and Bearer auth are commented out in `client.py`; the only access boundary on `/lab/*` endpoints is the `X-Session-ID` header of the currently `ACTIVE` session. Deploy only inside networks you trust. The guidance below describes the VPN and firewall posture that makes this trust assumption safe.
+
 Remote Lab uses an **internal trust model**. There is no authentication layer -- the `REMOTE_LAB_TOKEN` / Bearer auth code path in the client is commented out and the server has no corresponding handler, so the variable name is a placeholder, not active auth. The only access boundary is the `X-Session-ID` header, which must belong to an `ACTIVE` session.
 
 This means:

@@ -80,9 +80,10 @@ release() -> None
 
 Sends `POST /lab/release`. Accepts `204` (released) and `404` (no lab running) as success -- both mean the client no longer holds a reference. Logs and suppresses other errors rather than raising, since release is typically called during teardown where exceptions are unhelpful.
 
-### `destroy(force)`
+### `destroy(force=True)`
 
-Destroys the current lab, tearing down the Netlab topology.
+<!-- trace: neops_remote_lab/client.py:224 -->
+Destroys the current lab, tearing down the Netlab topology regardless of reference count. Unlike [`release()`](#release), which only decrements the server-side ref count and leaves the lab running at ref > 0, `destroy()` unconditionally removes the lab when `force=True`.
 
 ```python
 destroy(force: bool = True) -> None
@@ -90,9 +91,15 @@ destroy(force: bool = True) -> None
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `force` | `bool` | `True` | When `True`, destroys the lab regardless of reference count. |
+| `force` | `bool` | `True` | When `True`, server tears down the lab regardless of ref count. When `False`, the server returns `409 Conflict` if other references remain. |
 
-Sends `DELETE /lab` with `force` as a query parameter. Accepts `202` (teardown initiated) and `204` (torn down) as success. Like `release()`, logs and suppresses errors during teardown.
+**Behavior** (`client.py:224-238`):
+
+- Sends `DELETE /lab` with `force=<str(force).lower()>` as a query parameter and `X-Session-ID` via `_make_request`.
+- Accepts `202` (teardown initiated, async) and `204` (torn down synchronously) as success; both are logged as `Lab destroyed successfully`.
+- Any other status code triggers `resp.raise_for_status()`.
+- **Failure modes are suppressed during teardown**: if the request raises at any step, the exception is caught, logged as `Failed to destroy lab: <error>`, and not re-raised. This keeps teardown-order failures (server already down, session already closed, timeout on the `DELETE`) from masking the original test failure. Callers that need a guarantee the lab is gone should poll `GET /lab` after calling `destroy()`.
+- Typical use: admin tooling and CI cleanup scripts that need to reclaim a stuck lab without first issuing `release()`.
 
 ### `close()`
 

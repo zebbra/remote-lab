@@ -127,7 +127,7 @@ defaults.device: frr
 module: [ ospf ]
 
 nodes: [ r1, r2 ]
-links: [ r1, r2, r1-r2 ]
+links: [ r1-r2 ]
 ```
 
 Then run the following commands to start and stop your lab:
@@ -267,7 +267,7 @@ defaults.device: iol
 module: [ ospf ]
 
 nodes: [ r1, r2 ]
-links: [ r1, r2, r1-r2 ]
+links: [ r1-r2 ]
 ```
 
 ## Troubleshooting cheatsheet

@@ -11,8 +11,8 @@ Before you can run tests against a remote lab, you need the `neops-remote-lab` P
 !!! info "Server already running?"
     This guide assumes your team already has a Remote Lab server running on a shared VM. If that is not the case, see [Deployment](../50-deployment/index.md) first.
 
-!!! info "Going local instead?"
-    If you don't have a Remote Lab server available and don't want to set one up, skip this page and go straight to [Local Lab Testing](../40-testing/20-local-testing.md). Local mode runs Netlab directly on your machine via `LabManager` — no server, no VPN. Come back here when you're ready to use a shared server.
+!!! info "Running locally instead?"
+    Local and remote are **separate usage modes**, not a fallback chain. If you prefer to run Netlab on your own machine without a shared server, go to [Local Lab Testing](../40-testing/20-local-testing.md) -- that flow drives `LabManager` (the in-process class that owns Netlab topology lifecycle; see [glossary](../99-appendix/glossary.md#labmanager)) directly. The `remote_lab_fixture` shown in the next tutorial is remote-only and will raise `RuntimeError` if you try to use it without `REMOTE_LAB_URL`. Come back here when you want to target a shared server.
 
 ## Prerequisites
 

@@ -1,7 +1,7 @@
 ---
 page_purpose: explanation
 personas_served: [devops-engineer, senior-network-architect]
-difficulty_level: beginner
+difficulty_level: intermediate
 ---
 
 # Architecture

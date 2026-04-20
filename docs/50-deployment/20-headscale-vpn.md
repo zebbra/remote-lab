@@ -46,7 +46,8 @@ This repository includes working templates:
 
 ### `config/config.yaml` — Headscale configuration
 
-`server_url` is set to `http://127.0.0.1:8080` by default. If clients will reach your server at a public IP or DNS name, update this value (e.g., `http://<HEADSCALE_HOST>:8080`).
+<!-- trace: headscale/config/config.yaml:13 -->
+The repository commits `server_url: http://91.99.184.46:8080` -- this is the example lab's public IP and is not useful outside that environment. Before deploying for your own tailnet, edit `headscale/config/config.yaml:13` and replace the value with `http://<HEADSCALE_HOST>:8080` where `<HEADSCALE_HOST>` is the IP or DNS name clients reach Headscale at. This URL appears verbatim in every registered pre-auth key; changing it after clients register requires re-registering each node.
 
 !!! warning "`server_url` must be reachable from every client"
     The URL in `server_url` is what Headscale tells clients to use for control-plane calls. Every Tailscale peer that joins the tailnet must be able to resolve and reach it. Get this wrong and registration silently times out.
@@ -55,7 +56,11 @@ DNS/MagicDNS and DERP settings are present and can be adjusted later.
 
 ### `headplane.config.yaml` — Headplane configuration
 
-Points to Headscale at `http://headscale:8080` (the Compose service name) and mounts Headscale's `config.yaml` as read-only for visibility in the UI.
+<!-- trace: headscale/docker-compose.yml:12 -->
+Points to Headscale at `http://headscale:8080` (the Compose service name) and bind-mounts Headscale's `config.yaml` read-write so the Headplane UI can introspect and update configuration. Combined with `config_strict: false` in `headplane.config.yaml`, this means Headplane can mutate Headscale's live config.
+
+!!! warning "Headplane can mutate Headscale config"
+    The committed `docker-compose.yml` bind-mount at line 12 has no `:ro` flag, and `headplane.config.yaml` sets `config_strict: false`. Together, anyone with Headplane access can edit Headscale's configuration from the UI. Append `:ro` to the `config.yaml` bind-mount in `docker-compose.yml` if you want read-only behavior; restrict Headplane login accordingly (see the `cookie_secret` rotation warning below and the [Internal-trust warnings](../50-deployment/30-production.md#security) on Production).
 
 !!! warning "Rotate the bundled `cookie_secret` before exposing Headplane"
     The committed `headplane.config.yaml` ships a placeholder `cookie_secret` so the UI starts on first run. Anyone with access to the public repo could forge Headplane sessions if you deploy with the bundled value. Generate a fresh secret per deployment:
