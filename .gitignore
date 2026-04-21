@@ -65,4 +65,5 @@ site/
 site
 
 # Documentation toolkit ephemeral artifacts
-.ai-toolkit/
+.ai-toolkit/*
+!.ai-toolkit/project-purpose.md
