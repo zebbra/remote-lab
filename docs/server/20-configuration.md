@@ -21,7 +21,7 @@ The Remote Lab Manager reads its configuration from three places:
     The `REMOTE_LAB_TOKEN` code path in `RemoteLabClient.__init__` is
     **commented out**. <!-- trace: neops_remote_lab/client.py:46 --> Setting
     this environment variable does nothing. No endpoint enforces bearer
-    authentication. See [Administration → Security posture](administration.md#security-posture)
+    authentication. See [Administration → Security posture](30-administration.md#security-posture)
     before exposing the server.
 
 ---
@@ -69,7 +69,7 @@ export REMOTE_LAB_ACQUISITION_TIMEOUT=1800
     If you instantiate `RemoteLabClient` directly (e.g., from a helper script)
     the client defaults apply regardless of these env vars — pass the timeouts
     as keyword arguments instead. See the
-    [`RemoteLabClient` reference](remote-lab-client.md).
+    [`RemoteLabClient` reference](../client/20-python-client.md).
 
 ### Not wired: `REMOTE_LAB_TOKEN`
 
@@ -106,7 +106,7 @@ argparse. <!-- trace: neops_remote_lab/__main__.py:148 -->
 
 | Flag | Default | Description |
 |---|---|---|
-| `--host <addr>` | `0.0.0.0` | Interface to bind. The default binds on all interfaces — only appropriate on trusted networks (see [Administration](administration.md#security-posture)). |
+| `--host <addr>` | `0.0.0.0` | Interface to bind. The default binds on all interfaces — only appropriate on trusted networks (see [Administration](30-administration.md#security-posture)). |
 | `--port <int>` | `8000` | TCP port. |
 | `--log-level <level>` | `INFO` | Python logging level applied to the remote-lab loggers. Case-insensitive (`DEBUG`, `INFO`, `WARNING`, `ERROR`). |
 | `--log-config <path>` | `logging_config.yaml` | Path to a YAML logging config. If the path does not exist, the packaged default is used (`neops_remote_lab/logging_config.yaml`). |
@@ -168,12 +168,12 @@ NEOPS_NETLAB_STREAM_OUTPUT=1 neops-remote-lab --log-level DEBUG --port 8000
 
 The entry point performs two pre-flight checks before binding the HTTP port:
 
-- **Single-instance lock** — see [Administration → Single-instance filelock](administration.md#single-instance-filelock).
+- **Single-instance lock** — see [Administration → Single-instance filelock](30-administration.md#single-instance-filelock).
 - **Netlab CLI on PATH** — if `shutil.which("netlab")` returns `None` the
   server logs the install URL and exits with `SystemExit(1)` before starting.
   <!-- trace: neops_remote_lab/__main__.py:206 --> Install Netlab on the host
   before starting the server — see
-  [Netlab host setup](netlab_configuration.md).
+  [Netlab host setup](../deployment/10-netlab-host-setup.md).
 
 ---
 
@@ -183,7 +183,7 @@ The entry point performs two pre-flight checks before binding the HTTP port:
   `_SESSION_CLEANUP_INTERVAL = 5`, `_WAITING_SESSION_TIMEOUT = 600`,
   `_ACTIVE_SESSION_STALE = 300`. These are not exposed as flags because
   changing them shifts the FIFO contract that clients depend on; see
-  [Session queue](session-queue.md) for the reasoning.
+  [Session queue](../concepts/20-session-queue.md) for the reasoning.
 - **Netlab instance name** — the server always uses the `default` Netlab
   instance and cleans up stale defaults at startup.
 
@@ -194,7 +194,7 @@ one-size-fits-all defaults are deliberate.
 
 ## See also
 
-- [REST API](rest-api.md) — endpoints served on `--host`:`--port`
-- [Administration](administration.md) — operator runbook, stuck labs, security posture
-- [`RemoteLabClient`](remote-lab-client.md) — constructor arguments that mirror the client env vars
-- [pytest fixtures](pytest-fixtures.md) — how `remote_lab_client` consumes the env vars above
+- [REST API](10-rest-api.md) — endpoints served on `--host`:`--port`
+- [Administration](30-administration.md) — operator runbook, stuck labs, security posture
+- [`RemoteLabClient`](../client/20-python-client.md) — constructor arguments that mirror the client env vars
+- [pytest fixtures](../client/10-pytest-fixtures.md) — how `remote_lab_client` consumes the env vars above

@@ -68,7 +68,7 @@ the only way to skip ahead is to wait for the head to release or time out.
 exist (404 if unknown) and accepts heartbeats from both WAITING and ACTIVE
 sessions, which lets a queued client reset its WAITING timeout before it is
 promoted. <!-- trace: neops_remote_lab/server.py:488 --> See
-[session-queue.md](session-queue.md) for the promotion and timeout rules.
+[session-queue.md](20-session-queue.md) for the promotion and timeout rules.
 
 ## The one-server-per-host guard
 
@@ -84,7 +84,7 @@ address, and the command that started it — then exits with status 1.
     and probing whether the recorded PID is still alive; when the PID is gone
     it clears the stale metadata and proceeds. If both are stuck (live PID for a
     process that is actually hung), kill the PID manually. See
-    [administration.md](administration.md) once it lands.
+    [administration.md](../server/30-administration.md) once it lands.
 
 ## The one-lab-per-host guard
 
@@ -115,7 +115,7 @@ synchronous to avoid thread-hop overhead.
     `LabManager` registers a synchronous `cleanup` on `atexit`. If you put
     anything that awaits an event loop there, the interpreter deadlocks at
     shutdown because the loop is already closed. Details in
-    [lab-lifecycle.md](lab-lifecycle.md).
+    [lab-lifecycle.md](30-lab-lifecycle.md).
 
 ## How Netlab is invoked
 
@@ -172,14 +172,14 @@ practice the fixture uses them both so any incompatible change ripples.
     ACTIVE — and is not part of the ACTIVE gate. Bearer-token scaffolding
     exists in `client.py` but is commented out. Deploy this service on an
     internal-trust network only — the Headscale/Tailscale setup under
-    [headscale_headplane.md](headscale_headplane.md) is the expected
+    [headscale_headplane.md](../deployment/20-headscale-vpn.md) is the expected
     enclosure.
 
 ## Where to go next
 
-- [session-queue.md](session-queue.md) — FIFO promotion, heartbeats, and the
+- [session-queue.md](20-session-queue.md) — FIFO promotion, heartbeats, and the
   stale-session sweep that keeps a crashed client from blocking the queue.
-- [lab-lifecycle.md](lab-lifecycle.md) — SHA-based topology identity, reference
+- [lab-lifecycle.md](30-lab-lifecycle.md) — SHA-based topology identity, reference
   counting, the `try_acquire` vs `acquire` distinction, and `atexit` teardown.
-- [topology-format.md](topology-format.md) — the YAML shape and the `.yml`
+- [topology-format.md](40-topology-format.md) — the YAML shape and the `.yml`
   extension trap.

@@ -10,7 +10,7 @@ crosslink_references: []
 
 `RemoteLabClient` is the Python interface to the Remote Lab Manager HTTP API.
 Use it directly when you need to drive a lab from a script, a notebook, or any
-non-pytest context. Inside tests you should use [`remote_lab_fixture`](pytest-fixtures.md) —
+non-pytest context. Inside tests you should use [`remote_lab_fixture`](10-pytest-fixtures.md) —
 the fixture wraps this client, adds lifecycle hooks, and is the stable contract
 consumed by `neops-worker-sdk-py`.
 
@@ -310,8 +310,8 @@ python scripts/smoke.py
 
 ## See also
 
-- [Pytest fixtures](pytest-fixtures.md) — the preferred interface for test code.
-- [Session queue](session-queue.md) — the FIFO model that `_wait_for_active_session` polls.
-- [Lab lifecycle](lab-lifecycle.md) — reference counting, SHA identity, reuse semantics.
-- [REST API](rest-api.md) — every endpoint the client wraps, plus a few it doesn't.
-- [Configuration](configuration.md) — environment variables that tune the constructor's defaults.
+- [Pytest fixtures](10-pytest-fixtures.md) — the preferred interface for test code.
+- [Session queue](../concepts/20-session-queue.md) — the FIFO model that `_wait_for_active_session` polls.
+- [Lab lifecycle](../concepts/30-lab-lifecycle.md) — reference counting, SHA identity, reuse semantics.
+- [REST API](../server/10-rest-api.md) — every endpoint the client wraps, plus a few it doesn't.
+- [Configuration](../server/20-configuration.md) — environment variables that tune the constructor's defaults.

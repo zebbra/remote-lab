@@ -191,13 +191,13 @@ the session has already been promoted to ACTIVE, wasting a queue slot.
 !!! warning "Canonicalise your topology filenames to .yml"
     Anywhere you reference a topology — fixture arguments, CI artifact
     names, Docker volume mounts — use `.yml`. See
-    [topology-format.md](topology-format.md) for the broader contract.
+    [topology-format.md](40-topology-format.md) for the broader contract.
 
 ## Where to go next
 
-- [topology-format.md](topology-format.md) — what goes inside the YAML
+- [topology-format.md](40-topology-format.md) — what goes inside the YAML
   file, and what `extra_files` can deliver alongside it.
-- [session-queue.md](session-queue.md) — how session promotion and
+- [session-queue.md](20-session-queue.md) — how session promotion and
   eviction drive the lifecycle transitions above.
-- [architecture.md](architecture.md) — where `LabManager` fits in the
+- [architecture.md](10-architecture.md) — where `LabManager` fits in the
   overall request flow.

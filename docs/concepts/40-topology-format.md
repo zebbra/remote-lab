@@ -132,7 +132,7 @@ The `POST /lab` endpoint is `multipart/form-data` with three form fields:
 | Field | Type | Required | Purpose |
 |---|---|---|---|
 | `topology` | file | yes | The `.yml` topology. Uploaded filename is preserved in the workdir. |
-| `reuse` | string | no (defaults to true) | `"true"` opts into reuse if the content hash matches the running lab. See [lab-lifecycle.md](lab-lifecycle.md). |
+| `reuse` | string | no (defaults to true) | `"true"` opts into reuse if the content hash matches the running lab. See [lab-lifecycle.md](30-lab-lifecycle.md). |
 | `extra_files` | file (repeated) | no | Additional files written alongside the topology before Netlab runs. |
 
 ### extra_files: bringing supporting files with the topology
@@ -224,7 +224,7 @@ saves a queue slot.
 
 ## Where to go next
 
-- [lab-lifecycle.md](lab-lifecycle.md) — what the server does with the
+- [lab-lifecycle.md](30-lab-lifecycle.md) — what the server does with the
   topology after upload: SHA hashing, reuse detection, reference counting.
-- [netlab_configuration.md](netlab_configuration.md) — installing and
+- [netlab_configuration.md](../deployment/10-netlab-host-setup.md) — installing and
   configuring Netlab on the lab host itself.

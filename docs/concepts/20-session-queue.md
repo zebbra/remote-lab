@@ -177,7 +177,7 @@ Expected sequence during a busy queue:
 ```
 
 `RemoteLabClient` does this automatically with exponential backoff on
-retriable errors. See [remote-lab-client.md](remote-lab-client.md) when it
+retriable errors. See [remote-lab-client.md](../client/20-python-client.md) when it
 lands.
 
 ## Common pitfalls
@@ -195,7 +195,7 @@ lands.
 
 ## Where to go next
 
-- [lab-lifecycle.md](lab-lifecycle.md) — what happens after promotion:
+- [lab-lifecycle.md](30-lab-lifecycle.md) — what happens after promotion:
   uploading a topology, reuse semantics, and release.
-- [architecture.md](architecture.md) — how this queue sits inside the broader
+- [architecture.md](10-architecture.md) — how this queue sits inside the broader
   server + client topology.

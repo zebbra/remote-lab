@@ -23,7 +23,7 @@ use directly, together with its schema, error codes, and an example invocation.
     alive before promotion. <!-- trace: neops_remote_lab/server.py:488 -->
     Treat the HTTP surface as **internal-trust** and do not expose it to
     untrusted networks. See
-    [Administration → Security posture](administration.md#security-posture).
+    [Administration → Security posture](30-administration.md#security-posture).
 
 ## Conventions used below
 
@@ -171,7 +171,7 @@ either and the server reaps the session, and (if ACTIVE) frees its lab. <!-- tra
 !!! info "The fixture does this for you"
     The session-scoped `remote_lab_client` fixture pings heartbeat in the
     background. You only need to send heartbeats explicitly when you use
-    [`RemoteLabClient`](remote-lab-client.md) directly from non-pytest code.
+    [`RemoteLabClient`](../client/20-python-client.md) directly from non-pytest code.
 
 **Headers**:
 
@@ -220,7 +220,7 @@ content hashes match. <!-- trace: neops_remote_lab/server.py:396 -->
     The server identifies topologies by SHA-256 of file content, not filename.
     Two files with different names but identical content share the same lab
     when `reuse=true`. Reference counting drops the lab when the count hits
-    zero. See [Lab lifecycle](lab-lifecycle.md).
+    zero. See [Lab lifecycle](../concepts/30-lab-lifecycle.md).
 
 **Response** — `200 OK`, `AcquireResponseDto`:
 
@@ -416,7 +416,7 @@ contract can be promoted.
 
 ## See also
 
-- [Session queue](session-queue.md) — FIFO semantics, stale-sweep timeouts, and 423 responses
-- [Lab lifecycle](lab-lifecycle.md) — reference counting, SHA identity, and teardown
-- [Configuration](configuration.md) — environment variables and CLI flags for client and server
-- [Administration](administration.md) — operator runbook and security posture
+- [Session queue](../concepts/20-session-queue.md) — FIFO semantics, stale-sweep timeouts, and 423 responses
+- [Lab lifecycle](../concepts/30-lab-lifecycle.md) — reference counting, SHA identity, and teardown
+- [Configuration](20-configuration.md) — environment variables and CLI flags for client and server
+- [Administration](30-administration.md) — operator runbook and security posture

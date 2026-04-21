@@ -48,9 +48,9 @@ signature is a downstream break.
     WAITING sessions too, which is how a client keeps its queue slot alive
     before promotion. **Deploy only on a Headscale tailnet or another
     private network.** See
-    [Administration → Security posture](administration.md#security-posture)
+    [Administration → Security posture](server/30-administration.md#security-posture)
     for the full threat model and
-    [Headscale VPN](headscale_headplane.md) for the recommended enclosure.
+    [Headscale VPN](deployment/20-headscale-vpn.md) for the recommended enclosure.
     <!-- trace: neops_remote_lab/client.py:46 -->
     <!-- trace: neops_remote_lab/server.py:488 -->
 
@@ -99,9 +99,9 @@ sequenceDiagram
 
 *Session-and-lab lifecycle: FIFO queue → exclusive access → refcount
 teardown.* The promotion rules, stale-session timeouts, and heartbeat
-cadence are detailed in [Session queue](session-queue.md); the
+cadence are detailed in [Session queue](concepts/20-session-queue.md); the
 SHA-256-keyed reuse counting is covered in
-[Lab lifecycle](lab-lifecycle.md).
+[Lab lifecycle](concepts/30-lab-lifecycle.md).
 
 ## Who uses this?
 
@@ -115,7 +115,7 @@ SHA-256-keyed reuse counting is covered in
     write your test, run `pytest`. Session + queue + lifecycle disappear
     into the fixture.
 
-    [Start the quickstart →](quickstart.md)
+    [Start the quickstart →](getting-started/10-quickstart.md)
 
 -   **Concepts explorers** — you want to understand what the service does
 
@@ -124,7 +124,7 @@ SHA-256-keyed reuse counting is covered in
     Component layout, request flow, invariants, and the stable public
     API contract. Start at Architecture and work outward.
 
-    [Read the architecture →](architecture.md)
+    [Read the architecture →](concepts/10-architecture.md)
 
 -   **Integrators** — you want to drive the service from code
 
@@ -134,7 +134,7 @@ SHA-256-keyed reuse counting is covered in
     (`acquire`, `release`, `close`, plus accessors). Minimal retry policy
     baked in; no hidden magic.
 
-    [See the Python client →](remote-lab-client.md)
+    [See the Python client →](client/20-python-client.md)
 
 -   **Operators** — you want to run this on a shared host
 
@@ -143,7 +143,7 @@ SHA-256-keyed reuse counting is covered in
     Startup sequence, single-instance filelock recovery, stale-lab
     cleanup, and the security posture you sign up for.
 
-    [Open the runbook →](administration.md)
+    [Open the runbook →](server/30-administration.md)
 
 </div>
 
@@ -152,25 +152,25 @@ SHA-256-keyed reuse counting is covered in
 Pick the route that matches your current question.
 
 !!! tip "New to the project — you want your first passing test (~15 min)"
-    [Quickstart](quickstart.md) → [Pytest fixtures](pytest-fixtures.md) →
-    [Topology format](topology-format.md).
+    [Quickstart](getting-started/10-quickstart.md) → [Pytest fixtures](client/10-pytest-fixtures.md) →
+    [Topology format](concepts/40-topology-format.md).
     You will install the client, write a three-line test, and see it pass.
 
 !!! info "Concepts first — you want to understand before you build (~25 min)"
-    [Architecture](architecture.md) → [Session queue](session-queue.md) →
-    [Lab lifecycle](lab-lifecycle.md) → [Topology format](topology-format.md).
+    [Architecture](concepts/10-architecture.md) → [Session queue](concepts/20-session-queue.md) →
+    [Lab lifecycle](concepts/30-lab-lifecycle.md) → [Topology format](concepts/40-topology-format.md).
     These four pages cover every invariant the system enforces and why.
 
 !!! info "Standing up the host — you are deploying the service (~45 min)"
-    [Netlab host setup](netlab_configuration.md) →
-    [Headscale VPN](headscale_headplane.md) →
-    [Administration](administration.md) → [Configuration](configuration.md).
+    [Netlab host setup](deployment/10-netlab-host-setup.md) →
+    [Headscale VPN](deployment/20-headscale-vpn.md) →
+    [Administration](server/30-administration.md) → [Configuration](server/20-configuration.md).
     Install Netlab, enclose the host in a private tailnet, then configure
     and operate the server.
 
 !!! info "Wiring in a new client — you are integrating a consumer (~20 min)"
-    [REST API](rest-api.md) → [Python client](remote-lab-client.md) →
-    [Pytest fixtures](pytest-fixtures.md).
+    [REST API](server/10-rest-api.md) → [Python client](client/20-python-client.md) →
+    [Pytest fixtures](client/10-pytest-fixtures.md).
     The API reference is authoritative; the Python client is a thin
     wrapper over it; the fixture is the stable consumer surface.
 
@@ -181,7 +181,7 @@ Pick the route that matches your current question.
 - [netlab.tools](https://netlab.tools/) — upstream documentation for
   Netlab itself (topology YAML, provider support, vendor kinds).
 - [Headscale](https://headscale.net/) — the control-plane choice
-  documented in [Headscale VPN](headscale_headplane.md).
+  documented in [Headscale VPN](deployment/20-headscale-vpn.md).
 - [Material for MkDocs reference](https://squidfunk.github.io/mkdocs-material/reference/)
   and [pymdown-extensions Snippets](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/)
   — theme and extension docs backing this site.

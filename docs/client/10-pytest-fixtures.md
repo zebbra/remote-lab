@@ -14,7 +14,7 @@ topology to run against, and its signature is part of that contract — changes
 are considered breaking and require a major version bump.
 
 If you are writing tests, this is the page you want. If you need to drive the
-server from a script, see the [RemoteLabClient reference](remote-lab-client.md)
+server from a script, see the [RemoteLabClient reference](20-python-client.md)
 instead.
 
 !!! info "How the plugin loads"
@@ -281,10 +281,10 @@ downstream consumers.
 
 ## See also
 
-- [RemoteLabClient reference](remote-lab-client.md) — the HTTP client the
+- [RemoteLabClient reference](20-python-client.md) — the HTTP client the
   fixtures wrap.
-- [Lab lifecycle](lab-lifecycle.md) — reference counting and reuse semantics
+- [Lab lifecycle](../concepts/30-lab-lifecycle.md) — reference counting and reuse semantics
   (relevant when `reuse_lab=True`).
-- [Topology format](topology-format.md) — what to put in the `.yml` file.
-- [Configuration](configuration.md) — environment variables that the
+- [Topology format](../concepts/40-topology-format.md) — what to put in the `.yml` file.
+- [Configuration](../server/20-configuration.md) — environment variables that the
   `remote_lab_client` fixture reads.

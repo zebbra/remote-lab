@@ -13,7 +13,7 @@ Read the [Security posture](#security-posture) section before exposing the
 server on any network you do not fully control.
 
 !!! info "Prerequisites"
-    - Familiarity with the [architecture](architecture.md) and [REST API](rest-api.md).
+    - Familiarity with the [architecture](../concepts/10-architecture.md) and [REST API](10-rest-api.md).
     - Shell access to the lab host with permission to read `/tmp`, kill processes, and restart the `neops-remote-lab` service.
     - `netlab` CLI installed and on `PATH`. If it is missing, the server exits before binding the port. <!-- trace: neops_remote_lab/__main__.py:206 -->
 
@@ -24,7 +24,7 @@ server on any network you do not fully control.
 !!! note "Netlab host setup comes first"
     This section assumes the Netlab CLI is already installed and runnable
     on the lab host. If you are starting from a fresh VM, complete
-    [Netlab host setup](netlab_configuration.md) first — the server
+    [Netlab host setup](../deployment/10-netlab-host-setup.md) first — the server
     launcher will refuse to start without `netlab` on `PATH`. <!-- trace: neops_remote_lab/__main__.py:206 -->
 
 The server ships as the `neops-remote-lab` Python distribution. The
@@ -126,7 +126,7 @@ The entry point is:
 neops-remote-lab --host 0.0.0.0 --port 8000 --log-level INFO
 ```
 
-See [Configuration → Server CLI flags](configuration.md#server-cli-flags) for
+See [Configuration → Server CLI flags](20-configuration.md#server-cli-flags) for
 every supported flag.
 
 On startup the server, in order:
@@ -272,7 +272,7 @@ curl -s "http://$LAB_HOST:8000/debug/health" | jq .
 ```
 
 Returns uptime, queue length, and session count. Intended for debugging only —
-see the note in the [REST API reference](rest-api.md#endpoints-not-documented-here).
+see the note in the [REST API reference](10-rest-api.md#endpoints-not-documented-here).
 
 ### Log monitoring
 
@@ -341,8 +341,8 @@ Remember: **only one operator should be doing this at a time**. The Netlab
 
 ## See also
 
-- [REST API](rest-api.md) — endpoint reference for operator scripting
-- [Configuration](configuration.md) — flags and environment variables
-- [Architecture](architecture.md) — where the single-instance + one-lab invariants come from
-- [Session queue](session-queue.md) — FIFO semantics and 423 Locked flow
-- [Headscale + Tailscale VPN setup](headscale_headplane.md) — common deployment model for private reachability
+- [REST API](10-rest-api.md) — endpoint reference for operator scripting
+- [Configuration](20-configuration.md) — flags and environment variables
+- [Architecture](../concepts/10-architecture.md) — where the single-instance + one-lab invariants come from
+- [Session queue](../concepts/20-session-queue.md) — FIFO semantics and 423 Locked flow
+- [Headscale + Tailscale VPN setup](../deployment/20-headscale-vpn.md) — common deployment model for private reachability

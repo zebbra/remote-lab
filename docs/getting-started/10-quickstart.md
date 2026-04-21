@@ -24,7 +24,7 @@ devices, and tears it down cleanly — all with three lines of test code.
     - **`pytest`** installed in your project's virtual environment.
     - **A reachable Remote Lab Manager** at some host — we will call its base
       URL `$LAB_HOST`. If you also need to stand up the server itself, follow
-      [Netlab host setup](netlab_configuration.md) first and return here.
+      [Netlab host setup](../deployment/10-netlab-host-setup.md) first and return here.
 
 ---
 
@@ -207,8 +207,8 @@ Five things, in order:
    alive until the pytest process exits — `atexit` cleanup then closes it.
 
 For the full picture of the session queue, heartbeat timeouts, and the
-reference-counted lab lifecycle, read [Architecture](architecture.md),
-[Session queue](session-queue.md), and [Lab lifecycle](lab-lifecycle.md) in
+reference-counted lab lifecycle, read [Architecture](../concepts/10-architecture.md),
+[Session queue](../concepts/20-session-queue.md), and [Lab lifecycle](../concepts/30-lab-lifecycle.md) in
 that order.
 
 ---
@@ -217,11 +217,11 @@ that order.
 
 - **Multi-test sharing** — set `reuse_lab=True` on the factory to share one
   running lab across every test that uses the same topology. See the
-  `reuse_lab` parameter in [pytest fixtures](pytest-fixtures.md).
+  `reuse_lab` parameter in [pytest fixtures](../client/10-pytest-fixtures.md).
 - **Authoring topologies** — vendor defaults, `extra_files`, the `.yml`
-  constraint, and common traps are in [Topology format](topology-format.md).
+  constraint, and common traps are in [Topology format](../concepts/40-topology-format.md).
 - **Driving the server from Python without pytest** — the client class is
-  documented in [RemoteLabClient reference](remote-lab-client.md).
+  documented in [RemoteLabClient reference](../client/20-python-client.md).
 - **Stable public API** — `remote_lab_fixture` is the stable contract
   consumed directly by `neops-worker-sdk-py`. Its signature and semantics
   will not break within a major version.
