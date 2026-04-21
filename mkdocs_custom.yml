@@ -2,11 +2,28 @@ site_name: Neops Remote Lab
 
 nav:
   - Start: index.md
-  - Getting Started: getting-started
-  - Concepts: concepts
-  - Client: client
-  - Server: server
-  - Deployment: deployment
+  - Getting Started:
+      - getting-started/index.md
+      - getting-started/10-quickstart.md
+  - Concepts:
+      - concepts/index.md
+      - concepts/10-architecture.md
+      - concepts/20-session-queue.md
+      - concepts/30-lab-lifecycle.md
+      - concepts/40-topology-format.md
+  - Client:
+      - client/index.md
+      - client/10-pytest-fixtures.md
+      - client/20-python-client.md
+  - Server:
+      - server/index.md
+      - server/10-rest-api.md
+      - server/20-configuration.md
+      - server/30-administration.md
+  - Deployment:
+      - deployment/index.md
+      - deployment/10-netlab-host-setup.md
+      - deployment/20-headscale-vpn.md
 #  - Dummy Project: '!include ./submodules/zebbra-mkdocs-dummyproject/mkdocs_custom.yml'
 
 

@@ -115,7 +115,7 @@ SHA-256-keyed reuse counting is covered in
     write your test, run `pytest`. Session + queue + lifecycle disappear
     into the fixture.
 
-    [Start the quickstart →](getting-started/10-quickstart.md)
+    [Open Getting Started →](getting-started/index.md)
 
 -   **Concepts explorers** — you want to understand what the service does
 
@@ -124,7 +124,7 @@ SHA-256-keyed reuse counting is covered in
     Component layout, request flow, invariants, and the stable public
     API contract. Start at Architecture and work outward.
 
-    [Read the architecture →](concepts/10-architecture.md)
+    [Open the Concepts →](concepts/index.md)
 
 -   **Integrators** — you want to drive the service from code
 
@@ -134,7 +134,7 @@ SHA-256-keyed reuse counting is covered in
     (`acquire`, `release`, `close`, plus accessors). Minimal retry policy
     baked in; no hidden magic.
 
-    [See the Python client →](client/20-python-client.md)
+    [Open the Client reference →](client/index.md)
 
 -   **Operators** — you want to run this on a shared host
 
@@ -143,7 +143,7 @@ SHA-256-keyed reuse counting is covered in
     Startup sequence, single-instance filelock recovery, stale-lab
     cleanup, and the security posture you sign up for.
 
-    [Open the runbook →](server/30-administration.md)
+    [Open the Server reference →](server/index.md)
 
 </div>
 
