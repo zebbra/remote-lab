@@ -1,10 +1,12 @@
 site_name: Neops Remote Lab
 
-# Append the tabbed extension on top of the base set so the rest-api / cURL
-# walkthroughs that use `=== "cURL"` style content tabs render correctly.
+# Append extra extensions on top of the base set:
+# - pymdownx.tabbed: rest-api / cURL walkthroughs that use `=== "cURL"` style content tabs.
+# - def_list: definition-list rendering (Term\n:   Definition) used by the glossary.
 markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
+  - def_list
 
 nav:
   - Start: index.md

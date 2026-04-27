@@ -42,6 +42,7 @@ markdown_extensions:
 - md_in_html
 - pymdownx.tabbed:
     alternate_style: true
+- def_list
 nav:
 - Start: index.md
 - Getting Started:

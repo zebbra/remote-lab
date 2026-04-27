@@ -12,7 +12,7 @@ crosslink_references: []
 Use it directly when you need to drive a lab from a script, a notebook, or any
 non-pytest context. Inside tests you should use [`remote_lab_fixture`](10-pytest-fixtures.md) —
 the fixture wraps this client, adds lifecycle hooks, and is the stable contract
-consumed by `neops-worker-sdk-py`.
+consumed by the [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/).
 
 !!! warning "No HTTP authentication"
     `neops-remote-lab` ships without HTTP authentication, so the client

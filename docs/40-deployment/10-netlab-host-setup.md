@@ -95,7 +95,9 @@ All systems (Ansible, Docker, libvirt, etc.) must pass.
 
 If you're authoring tests against Remote Lab, see [Pytest fixtures](../20-client/10-pytest-fixtures.md) for the public fixture API, or [Quickstart](../getting-started/10-quickstart.md) to run your first lab-backed test.
 
-For consumers integrating via `neops-worker-sdk-py`, that repo owns the `remote_lab_fixture` consumer surface.
+For consumers integrating via the [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/),
+that project owns the `remote_lab_fixture` consumer surface — see its
+[Remote lab testing guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/).
 
 ## 2. – Configure Rootless Containerlab
 

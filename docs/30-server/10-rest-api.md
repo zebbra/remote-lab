@@ -211,7 +211,7 @@ content hashes match. <!-- trace: neops_remote_lab/server.py:396 -->
 
 | Form field | Type | Required | Description |
 |---|---|:-:|---|
-| `topology` | file upload | yes | Netlab topology file. Must have a filename ending in `.yml` or `.yaml` (the HTTP surface accepts both, but `LabManager` internally requires `.yml`). |
+| `topology` | file upload | yes | Netlab topology file. Must have a filename ending in `.yml` or `.yaml` (case-insensitive); both are accepted end-to-end. |
 | `reuse` | string `"true"` / `"false"` | no | Defaults to `true`. When true and a lab for the same topology is already running, the server increments a reference count and returns the existing lab instead of starting a new one. |
 | `extra_files` | file upload (repeatable) | no | Supporting files referenced from the topology (variable files, per-node config, Ansible vars). Saved next to the topology on the server. |
 

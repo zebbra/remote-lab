@@ -8,10 +8,11 @@ crosslink_references: []
 
 # Getting Started
 
-If you are here to get a function-block test passing against a real
-Netlab topology — on your laptop, in CI, or both — you are in the right
-place. The [Quickstart](10-quickstart.md) walks you from a fresh
-environment to a passing test in about ten minutes.
+If you are here to get a [function-block](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/)
+test passing against a real Netlab topology — on your laptop, in CI, or
+both — you are in the right place. The [Quickstart](10-quickstart.md)
+walks you from a fresh environment to a passing test in about ten
+minutes.
 
 ## In this section
 

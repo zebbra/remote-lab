@@ -77,12 +77,9 @@ links: [ r1-r2 ]
 Save this somewhere convenient — you will reference it by path in the
 upload step.
 
-!!! warning "The file extension matters"
-    Use `.yml`, not `.yaml`. The HTTP layer accepts both, but the
-    underlying `LabManager` only accepts `.yml` — a `.yaml` upload passes
-    HTTP validation, the session is promoted to `ACTIVE`, and *then* the
-    acquire fails. The queue slot is wasted. See
-    [Lab lifecycle → The `.yml` extension trap](../10-concepts/30-lab-lifecycle.md#the-yml-extension-trap).
+!!! tip "`.yml` or `.yaml` — either works"
+    Both extensions are accepted (case-insensitive). Pick whichever your
+    project already uses; the server normalises behaviour around both.
 
 ---
 

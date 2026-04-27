@@ -37,7 +37,7 @@ If you have not installed Netlab + Containerlab yet, start with
 |---|---|---|---|---|
 | [FRRouting](https://netlab.tools/platforms/frr/) | `frr` | Open-source | seconds | Protocol tests (BGP/OSPF/IS-IS), CI-friendly defaults, no license cost. |
 | [Nokia SR Linux](https://netlab.tools/platforms/srlinux/) | `srlinux` | Free for use (Nokia EULA) | ~30 s | YANG/gNMI-driven config, EVPN, segment-routing, Nokia-style CLI semantics, no license fee. |
-| [Cisco IOL](https://netlab.tools/platforms/cisco_iol/) | `cisco_iol` | Cisco license required | ~60 s | IOS-style CLI parsing, classic Cisco show-output formats, integration with worker-SDK function blocks targeting IOS. |
+| [Cisco IOL](https://netlab.tools/platforms/cisco_iol/) | `cisco_iol` | Cisco license required | ~60 s | IOS-style CLI parsing, classic Cisco show-output formats, integration with [Worker SDK function blocks](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/) targeting IOS. |
 
 If you only need IP routing protocols and cheap CI, use **FRR**. If you
 need a real network-OS environment without a license, use **SR Linux**. If
@@ -454,8 +454,8 @@ top-level `device:` at it, and the topology files can omit the
 ## Where to go next
 
 - **[Topology format](../10-concepts/40-topology-format.md)** — the
-  YAML shape Netlab expects, the `extra_files` upload contract, and the
-  `.yml` extension constraint.
+  YAML shape Netlab expects, vendor defaults, and the `extra_files`
+  upload contract.
 - **[Netlab host setup](10-netlab-host-setup.md)** — the rootless
   Netlab + Containerlab install this page assumes you've already done.
 - **[netlab.tools/platforms](https://netlab.tools/platforms/)** —
@@ -463,7 +463,8 @@ top-level `device:` at it, and the topology files can omit the
 - **[containerlab.dev/manual/kinds](https://containerlab.dev/manual/kinds/)**
   — authoritative per-kind reference for the underlying container
   runtime.
-- **[neops-worker-sdk-py](https://github.com/zebbra/neops-worker-sdk-py)**
-  — once your platform boots, the function-block test harness in
-  worker-sdk is the consumer that drives `remote_lab_fixture` against
-  it.
+- **[Worker SDK → Remote lab testing](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)**
+  — once your platform boots, the
+  [function-block](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/)
+  test harness in the Worker SDK is the consumer that drives
+  `remote_lab_fixture` against it.

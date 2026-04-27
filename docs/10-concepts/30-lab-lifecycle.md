@@ -169,22 +169,6 @@ lab instance 'default' is already running"*.
 The call is made with `expected_failure=True`, so when no default instance
 exists it's a silent no-op.
 
-## The `.yml` extension trap
-
-<!-- trace: neops_remote_lab/netlab/lab_manager.py:68 -->
-`prepare_workdir` copies the topology into a fresh temp directory, but
-only if the source has a `.yml` extension (lowercase). Anything else —
-including `.yaml` — raises `ValueError("Topology must be a .yml file")`.
-
-The HTTP layer in `server.py` is more permissive and accepts either
-`.yml` or `.yaml` at upload time. A `.yaml` upload therefore fails **after**
-the session has already been promoted to ACTIVE, wasting a queue slot.
-
-!!! warning "Canonicalise your topology filenames to .yml"
-    Anywhere you reference a topology — fixture arguments, CI artifact
-    names, Docker volume mounts — use `.yml`. See
-    [Topology format](40-topology-format.md) for the broader contract.
-
 ## Where to go next
 
 - [Topology format](40-topology-format.md) — what goes inside the YAML

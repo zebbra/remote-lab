@@ -60,18 +60,17 @@ either teardown-then-restart (if `ref == 0`) or return `423`.
 Most systems key on filename. This one does not. Code that depends on
 filename equality is wrong; code that depends on content equality is right.
 
-### `.yml` extension is required by `LabManager`
+### `.yml` and `.yaml` are both accepted
 
 <!-- trace: neops_remote_lab/netlab/lab_manager.py:68 -->
-`prepare_workdir` rejects anything whose suffix is not exactly `.yml`
-(lowercase). The HTTP layer is more permissive — `POST /lab` accepts both
-`.yml` and `.yaml` at upload time — which means a `.yaml` upload passes the
-HTTP check, the session is promoted to ACTIVE, and only then does
-`LabManager` raise. The slot is wasted.
+Both extensions, case-insensitive, pass `prepare_workdir`'s suffix check
+(`.yml`, `.yaml`, `.YML`, `.YAML`). The HTTP layer accepts the same set,
+so the surface is uniform end-to-end — there is no asymmetry between what
+`POST /lab` validates and what `LabManager` accepts.
 
-If you change either layer, change both. Better: tighten the HTTP layer to
-match `LabManager`. Documented surface for users in
-[Topology format → required `.yml`](../10-concepts/40-topology-format.md#required-the-yml-extension).
+If you add a new entry point that copies a topology, mirror this check
+(suffix in `(".yml", ".yaml")` after `.lower()`). Anything else — `.json`,
+`.txt`, no extension — should raise loudly.
 
 ### `X-Session-ID` is the only access boundary on `/lab/*`
 

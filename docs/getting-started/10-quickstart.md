@@ -128,9 +128,9 @@ cannot help you debug transport.
 
 ## 3. Write a minimal topology
 
-The topology is a Netlab YAML file. `LabManager` enforces the `.yml` extension
-internally — `.yaml` will fail when the server attempts to boot — so name the
-file `.yml` even though the HTTP surface accepts both.
+The topology is a Netlab YAML file — either `.yml` or `.yaml`,
+case-insensitive. We use `.yml` in our examples for consistency, but pick
+whichever your project already uses.
 
 Create `tests/topologies/demo.yml`:
 
@@ -245,8 +245,8 @@ that order.
 - **Driving the server from Python without pytest** — the client class is
   documented in [RemoteLabClient reference](../20-client/20-python-client.md).
 - **Stable public API** — `remote_lab_fixture` is the stable contract
-  consumed directly by `neops-worker-sdk-py`. Its signature and semantics
-  will not break within a major version.
+  consumed directly by the [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/).
+  Its signature and semantics will not break within a major version.
 
 !!! warning "Authentication is not enforced"
     The server does not validate Bearer tokens — `X-Session-ID` of an active

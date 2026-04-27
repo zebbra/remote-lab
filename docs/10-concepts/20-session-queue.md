@@ -60,9 +60,10 @@ If a client three places back gets impatient and `DELETE`s its session, that
 slot is removed without rearranging anyone else's position.
 
 > **Why no priority scheme?** A priority queue needs a reason to prefer one
-> test over another. None of the consumer projects — most importantly
-> `neops-worker-sdk-py` — surface that intent to the server, so the server
-> doesn't try to guess. First-come, first-served is the only fair default.
+> test over another. None of the consumer projects — most importantly the
+> [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) — surface
+> that intent to the server, so the server doesn't try to guess.
+> First-come, first-served is the only fair default.
 
 ## The access boundary
 

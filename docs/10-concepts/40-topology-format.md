@@ -1,6 +1,6 @@
 ---
 title: Topology Format
-description: The Netlab YAML shape neops-remote-lab expects — required .yml extension, provider choice, node/link structure, and the extra_files multipart contract.
+description: The Netlab YAML shape neops-remote-lab expects — provider choice, node/link structure, vendor defaults, and the extra_files multipart upload contract.
 tags: [concept, testing, deployment]
 crosslink_defines: [topology]
 crosslink_references: []
@@ -8,18 +8,16 @@ crosslink_references: []
 
 # Topology Format
 
-A topology is a single YAML file that tells Netlab what network to build:
+A **topology** is a single YAML file (`.yml` or `.yaml` — both are
+accepted, case-insensitive) that tells Netlab what network to build:
 which nodes, which links, which provider. `neops-remote-lab` accepts that
 file over HTTP, copies it into a clean workdir, and hands it to the Netlab
-CLI verbatim. The YAML dialect is Netlab's, not ours — but a handful of
-server-side rules make the difference between a topology that queues and one
-that 423s you after a five-minute wait.
+CLI verbatim. The YAML dialect is **Netlab's**, not ours.
 
-> **Why cover this here if Netlab owns the schema?** Two reasons. First, the
-> `.yml` extension rule and the `extra_files` upload contract are enforced
-> in *this* server, not in Netlab. Second, fixture consumers often inherit
-> topologies from upstream repos and need a single-page reference for the
-> contract they're honouring.
+> **Why a page on topology format if Netlab owns the schema?** The
+> `extra_files` upload contract is enforced in *this* server, not in
+> Netlab, and fixture consumers often inherit topologies from upstream
+> repos and want a single-page reference for the surface they're using.
 
 ## The minimal topology
 
@@ -44,27 +42,6 @@ Nodes: r1, r2
     expected by callers. In any shipped example, use `$LAB_HOST` for the
     server address and RFC 5737 documentation ranges (`192.0.2.0/24`,
     `198.51.100.0/24`, `203.0.113.0/24`) for placeholder device IPs.
-
-## Required: the .yml extension
-
-<!-- trace: neops_remote_lab/netlab/lab_manager.py:68 -->
-`prepare_workdir` — the function every acquire flows through — will only
-copy a topology whose suffix is `.yml` (lowercase). Any other extension,
-including `.yaml`, `.YML`, or `.yml.bak`, raises `ValueError("Topology must
-be a .yml file")` and aborts the acquire.
-
-<!-- trace: neops_remote_lab/server.py:404 -->
-The `POST /lab` endpoint pre-validates the upload filename against the
-looser pattern `{.yml, .yaml}` (case-insensitive), so a `.yaml` file
-passes the HTTP validation and then fails inside `LabManager`. Result: the
-session is already ACTIVE when the rejection happens, wasting a queue
-slot.
-
-!!! warning "Canonicalise to lowercase .yml"
-    Wherever you name topology files — on disk, in CI artifacts, in
-    fixture arguments — use exactly `.yml`. Rename `.yaml` files before
-    committing them. This is the single most common first-time failure
-    with this service.
 
 ## Supported providers
 
@@ -95,7 +72,7 @@ different configuration semantics — never conflate them.**
 |---|---|---|---|
 | [FRRouting](https://netlab.tools/platforms/frr/) | `device: frr` | `frrouting/frr` (Docker Hub) | Protocol tests (BGP/OSPF/IS-IS). Open-source, no license, fast boot. The default for CI. |
 | [Nokia SR Linux](https://netlab.tools/platforms/srlinux/) | `device: srlinux` | `ghcr.io/nokia/srlinux` (GHCR) | Real vendor NOS without a license fee. YANG/gNMI-driven config, EVPN, SR-MPLS. |
-| [Cisco IOL](https://netlab.tools/platforms/cisco_iol/) | `device: cisco_iol` | `vrnetlab/cisco_iol` (built locally) | IOS-style CLI for function blocks targeting Cisco. **Cisco license required.** |
+| [Cisco IOL](https://netlab.tools/platforms/cisco_iol/) | `device: cisco_iol` | `vrnetlab/cisco_iol` (built locally) | IOS-style CLI for [function blocks](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/) targeting Cisco. **Cisco license required.** |
 
 For setup details, FRR limitations, the SR Linux quickstart, the Cisco
 IOL build, and the recipe for adding any other Netlab-supported platform,
@@ -122,11 +99,13 @@ links:
 
 !!! info "Pre-built fixtures live in consumer repos"
     The README mentions `simple_iol` and `simple_frr` fixtures. Those are
-    conventions defined by downstream consumers (most notably the
-    [`neops-worker-sdk-py`](https://github.com/zebbra/neops-worker-sdk-py)
-    test suites), not fixtures shipped from this repository. If your
-    project needs them, see the consuming project's test directory for
-    canonical topology files to copy.
+    conventions defined by downstream consumers — most notably the
+    [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/)
+    test suites
+    ([Remote lab integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)) —
+    not fixtures shipped from this repository. If your project needs
+    them, see the consuming project's test directory for canonical
+    topology files to copy.
 
 ## The multipart upload contract
 
@@ -134,7 +113,7 @@ The `POST /lab` endpoint is `multipart/form-data` with three form fields:
 
 | Field | Type | Required | Purpose |
 |---|---|---|---|
-| `topology` | file | yes | The `.yml` topology. Uploaded filename is preserved in the workdir. |
+| `topology` | file | yes | The Netlab topology — `.yml` or `.yaml`, case-insensitive. The uploaded filename is preserved in the workdir. |
 | `reuse` | string | no (defaults to true) | `"true"` opts into reuse if the content hash matches the running lab. See [Lab lifecycle](30-lab-lifecycle.md). |
 | `extra_files` | file (repeated) | no | Additional files written alongside the topology before Netlab runs. |
 

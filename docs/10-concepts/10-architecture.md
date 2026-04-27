@@ -150,11 +150,14 @@ flowchart LR
 ```
 
 `remote_lab_fixture` is the **stable public API**. Consumer repositories —
-notably [`neops-worker-sdk-py`](https://github.com/zebbra/neops-worker-sdk-py) — import it directly and treat its call signature
-as a contract. Changing its arguments is a breaking change. The REST surface
-and `RemoteLabClient` are lower-level and may evolve more freely, but the
-fixture uses them both, so any incompatible change is detected immediately by
-the fixture's own tests.
+notably the [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/),
+which uses it to give [function-block](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/)
+tests a real topology
+([integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)) —
+import it directly and treat its call signature as a contract. Changing its
+arguments is a breaking change. The REST surface and `RemoteLabClient` are
+lower-level and may evolve more freely, but the fixture uses them both, so any
+incompatible change is detected immediately by the fixture's own tests.
 
 !!! info "No HTTP authentication"
     The `X-Session-ID` header is the only access boundary on `/lab/*`
@@ -171,5 +174,5 @@ the fixture's own tests.
   stale-session sweep that keeps a crashed client from blocking the queue.
 - [Lab lifecycle](30-lab-lifecycle.md) — SHA-based topology identity, reference
   counting, the `try_acquire` vs `acquire` distinction, and `atexit` teardown.
-- [Topology format](40-topology-format.md) — the YAML shape and the `.yml`
-  extension trap.
+- [Topology format](40-topology-format.md) — the YAML shape, vendor
+  defaults, and the `extra_files` upload contract.

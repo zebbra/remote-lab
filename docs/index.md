@@ -26,8 +26,10 @@ This repository ships two cooperating surfaces: a **FastAPI server**
 (`neops_remote_lab.server`) that runs on the lab host, and a **pytest11
 plugin** (`neops_remote_lab.testing.fixture`) that runs inside your test
 suite. The plugin's `remote_lab_fixture` factory is the **stable public API** —
-[**neops-worker-sdk-py**](https://github.com/zebbra/neops-worker-sdk-py) imports it
-directly, so its call signature is a contract you can rely on across releases:
+the [**Worker SDK**](https://docs.neops.io/neops-worker-sdk-py/docs/) imports it
+directly to give [function-block](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/)
+tests a real topology to run against ([Worker SDK → Remote lab testing](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)),
+so its call signature is a contract you can rely on across releases:
 you can focus on your test code without worrying that an upstream change will
 quietly rearrange the fixture under you.
 
@@ -108,7 +110,7 @@ SHA-256-keyed reuse counting is covered in
 
 <div class="grid cards" markdown>
 
--   **SDK consumers** — you want a fixture that gives you a real device
+-   **Neops SDK consumers** — you want a fixture that gives you a real device
 
     ---
 
@@ -189,11 +191,16 @@ Pick the route that matches your current question.
 
 ## External references
 
+- [neops platform docs](https://docs.neops.io/) — the umbrella site
+  hosting all neops project docs (Workflow Engine, Worker SDK, Remote
+  Lab, Web Client, Secure Gateway). Start here if you arrived from a
+  peer project and want to see how Remote Lab sits in the platform.
 - [Netlab](https://netlab.tools/) — the upstream lab orchestrator this
   service wraps. Authoritative reference for topology YAML, providers, and
   vendor kinds.
-- [neops-worker-sdk-py](https://github.com/zebbra/neops-worker-sdk-py) — the primary
-  consumer of this package; imports `remote_lab_fixture` as a stable API.
+- [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) — the primary
+  consumer of this package; imports `remote_lab_fixture` as a stable API
+  ([integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)).
 - [Containerlab](https://containerlab.dev/) — the container runtime Netlab
   drives by default in this project (`provider: clab`).
 - [Headscale](https://headscale.net/) — the open-source Tailscale control
