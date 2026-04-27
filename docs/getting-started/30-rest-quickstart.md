@@ -43,8 +43,7 @@ and `jq`.
       distributions; `apt install jq` on Debian/Ubuntu, `brew install jq`
       on macOS.
     - **VPN connectivity to the lab host.** The service has no
-      authentication — see
-      [Administration → Security posture](../30-server/30-administration.md#security-posture).
+      HTTP authentication — see [Security model](../30-server/40-security.md).
 
 ```bash
 export BASE_URL="http://lab.example.com:8000"   # your Remote Lab Manager
@@ -351,9 +350,9 @@ layers over exactly this lifecycle. Two short sketches:
 
 ## Where to go next
 
-- **[CI integration](../30-server/40-ci-integration.md)** — wire this
-  lifecycle into GitHub Actions, GitLab CI, or Jenkins. Includes the
-  queue-contention math for sizing concurrency against a single lab
+- **[CI quickstart](40-ci-quickstart.md)** — wire this
+  lifecycle into GitHub Actions, GitLab CI, or Jenkins. Threads out to
+  the queue-contention math for sizing concurrency against a single lab
   host.
 - **[REST API](../30-server/10-rest-api.md)** — the authoritative
   endpoint reference: every status code, every response DTO, every

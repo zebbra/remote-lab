@@ -16,6 +16,12 @@ log-pattern tables further down are the difference between *the test
 timed out* and *the session was evicted at second 305 because the
 heartbeat stopped landing*.
 
+!!! danger "No HTTP authentication"
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. The only access boundary on `/lab/*` is the
+    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
+    [Security model](40-security.md) for the full posture.
+
 For operator-side runbook entries (stuck filelocks, port conflicts,
 `netlab` not on `PATH`, server startup failures), see
 [Administration → Troubleshooting](30-administration.md#troubleshooting).
@@ -33,7 +39,7 @@ This page is the client- and API-side counterpart.
 | `423 Locked` on `POST /lab` only | Lab is busy with a different topology | The client retries every 5 s automatically. If you cannot wait, see "Lab stuck busy" below. |
 | `404 Not Found` on `GET /session/{id}` | Session expired (heartbeat or queue timeout) | Create a new session. See [Stale-session eviction](../10-concepts/20-session-queue.md#stale-session-eviction) for the timeouts. |
 | Lab stuck busy on every request | A previous session did not release | Force-destroy with `DELETE /lab?force=true` using an active `X-Session-ID`, or restart the server. See [Administration → Forced cleanup](30-administration.md#forced-cleanup-of-a-stuck-lab). |
-| Containers unreachable from the test | VPN or routing problem | Confirm Tailscale/Headscale is up; check `network_mode: host` in the topology; review firewall rules. See [Headscale VPN](../40-deployment/20-headscale-vpn.md). |
+| Containers unreachable from the test | VPN or routing problem | Confirm Tailscale/Headscale is up; check `network_mode: host` in the topology; review firewall rules. See [Headscale VPN](../40-deployment/20-headscale-quick-setup.md). |
 | Connection refused on `$REMOTE_LAB_URL` | Server not running, wrong host, or VPN down | `curl $REMOTE_LAB_URL/healthz` should return 204. If it errors, fix transport before continuing. |
 
 For the operator's view of the same symptom space (stale filelocks, port
@@ -123,7 +129,7 @@ curl -s "$REMOTE_LAB_URL/debug/health" | jq .
 |-------|-------------------|
 | `uptime` | How long the server has been running. A low value after a crash signals a recent restart — your sessions from before the restart are gone. |
 | `sessions` | Total tracked sessions. Compare with `queue_length` to see how many are waiting vs active. |
-| `queue_length` | Sessions currently in the queue. If this is consistently high, you may need to lower CI concurrency or coordinate with the operator on `_WAITING_SESSION_TIMEOUT`. See [CI integration → Queue contention](40-ci-integration.md#queue-contention-in-shared-ci). |
+| `queue_length` | Sessions currently in the queue. If this is consistently high, you may need to lower CI concurrency or coordinate with the operator on `_WAITING_SESSION_TIMEOUT`. See [Session Queue → Queue contention](../10-concepts/20-session-queue.md#queue-contention-under-ci-load). |
 
 The basic liveness check at `/healthz` returns `204` with no body — use
 that for load balancer probes. `/debug/health` is for human consumption
@@ -260,5 +266,6 @@ curl -s -X DELETE "$REMOTE_LAB_URL/session/<orphaned-session-id>"
 - **[Lab lifecycle](../10-concepts/30-lab-lifecycle.md)** — what
   `try_acquire` does internally; the reuse and teardown rules behind
   `423 Locked` and `Lab ... became idle`.
-- **[CI integration](40-ci-integration.md)** — queue-contention math
-  if the symptoms above keep recurring under concurrency.
+- **[CI quickstart](../getting-started/40-ci-quickstart.md)** — runner-pipeline shapes
+  and the queue-tuning thread-out for the symptoms above when they recur
+  under concurrency.

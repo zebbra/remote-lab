@@ -21,7 +21,7 @@ is what you come back to when CI flags something you didn't expect.
 You do **not** need Netlab or Containerlab installed to develop the server
 itself — CI doesn't have them either, and the test suite stubs `LabManager`
 to keep tests host-agnostic. See
-[Invariants → CI test stubbing](20-invariants.md#ci-test-stubbing).
+[Internals: CI test stubbing](60-internals-test-stubbing.md).
 
 ## Clone and install
 
@@ -212,7 +212,7 @@ What CI does test:
 - Client-side logic — retry, timeout, session lifecycle.
 
 These tests rely on `LabManager` being **stubbed** during the test run; see
-[Invariants → CI test stubbing](20-invariants.md#ci-test-stubbing) for the
+[Internals: CI test stubbing](60-internals-test-stubbing.md) for the
 pattern.
 
 What CI cannot test:

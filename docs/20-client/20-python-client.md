@@ -17,12 +17,11 @@ instead* — the fixture wraps this client, adds lifecycle hooks, and is
 the stable contract consumed by the
 [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/).
 
-!!! warning "No HTTP authentication"
-    `neops-remote-lab` ships without HTTP authentication, so the client
-    sends no `Authorization` header. The server's only access boundary is
-    the `X-Session-ID` header of an active session; non-active sessions
-    receive `423 Locked`. Treat the Remote Lab Manager as internal-trust
-    infrastructure behind a VPN.
+!!! danger "No HTTP authentication"
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. The only access boundary on `/lab/*` is the
+    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
+    [Security model](../30-server/40-security.md) for the full posture.
 
 ---
 
@@ -276,10 +275,14 @@ python scripts/smoke.py
 
 ---
 
+## Configuration
+
+Constructor arguments default to the corresponding env vars: `base_url` falls back to `REMOTE_LAB_URL`; `request_timeout`, `session_timeout`, and `lab_acquisition_timeout` mirror `REMOTE_LAB_REQUEST_TIMEOUT`, `REMOTE_LAB_SESSION_TIMEOUT`, `REMOTE_LAB_ACQUISITION_TIMEOUT`. **When you instantiate the client directly, the constructor kwargs win** — the env vars only apply through the pytest fixture path. See [Configuration](30-configuration.md) for the full reference.
+
 ## See also
 
-- [Pytest fixtures](10-pytest-fixtures.md) — the preferred interface for test code.
-- [Session queue](../10-concepts/20-session-queue.md) — the FIFO model that `_wait_for_active_session` polls.
-- [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting, SHA identity, reuse semantics.
+- [Pytest Fixtures](10-pytest-fixtures.md) — the preferred interface for test code.
+- [Configuration](30-configuration.md) — environment variables that drive the constructor's defaults via the fixture.
+- [Session Queue](../10-concepts/20-session-queue.md) — the FIFO model that `_wait_for_active_session` polls.
+- [Lab Lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting, SHA identity, reuse semantics.
 - [REST API](../30-server/10-rest-api.md) — every endpoint the client wraps, plus a few it doesn't.
-- [Configuration](../30-server/20-configuration.md) — environment variables that tune the constructor's defaults.

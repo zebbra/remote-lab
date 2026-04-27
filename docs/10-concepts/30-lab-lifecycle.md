@@ -43,32 +43,7 @@ against a lab started by the other.
 
 ## try_acquire vs acquire
 
-These two methods look almost identical in their signatures, and they call
-the same internal helpers. The difference is what they do when the lab is
-busy.
-
-<!-- trace: neops_remote_lab/netlab/lab_manager.py:172 -->
-`try_acquire(topo, reuse=True)` is non-blocking. It returns a device list
-when the lab is free, the same-content reuse path succeeds, or a
-same-content exclusive restart succeeds; it returns `None` when the lab is
-busy with an incompatible request.
-
-<!-- trace: neops_remote_lab/netlab/lab_manager.py:163 -->
-`acquire` is a polling wrapper: it calls `try_acquire`, sleeps 2 seconds if
-the return is `None`, and retries forever until it succeeds.
-
-!!! danger "Use the right one for your context"
-    The server MUST use `try_acquire`. Blocking the event loop for minutes
-    on a busy lab would stall every other session's poll. `POST /lab` on a
-    busy lab returns `423 Locked` and expects the client to retry.
-
-    Local tests (running against a `LabManager` in the same process, not
-    over HTTP) typically use `acquire` because they are the only caller and
-    blocking is the point — they want the lab when it's free.
-
-    Mixing them is how you hang a test suite: call `acquire` from inside
-    the server's event loop and the loop never wakes up to process the
-    release that would let you in.
+The server uses a non-blocking `try_acquire`; local-test fixtures use a blocking-poll `acquire`. Mixing them deadlocks. See [Contributing → LabManager singleton & locking](../50-contributing/40-internals-lab-manager.md#try_acquire-vs-acquire) for the contract.
 
 ## The decision tree
 
@@ -145,34 +120,18 @@ Starting lab spine_leaf.yml - this may take several minutes...
 ## atexit is the last safety net
 
 <!-- trace: neops_remote_lab/netlab/lab_manager.py:327 -->
-`LabManager` registers a cleanup function with `atexit.register`. When the
-interpreter exits — normally or because pytest crashed — this hook runs and
-tears down any lab that is still up.
+`LabManager` registers a cleanup function with `atexit.register`. When the interpreter exits — normally or because pytest crashed — this hook runs and tears down any lab that is still up. A test that raises before reaching its `finally` block may never call release; `atexit` catches it.
 
-!!! info "It also runs if someone forgot to release"
-    A test that raises before reaching its `finally` block may never call
-    release. The `atexit` hook still fires when the pytest process exits,
-    so a lab that would otherwise be orphaned gets cleaned up. The queue
-    head advances on the next server tick when the session times out.
+For the contributor view of why this path stays synchronous and silent, see [Internals: atexit + lifespan](../50-contributing/50-internals-atexit.md#atexit-teardown) before changing it.
 
-The `atexit` hook is intentionally synchronous and quiet — modifying it has
-sharp edges that contributors should know about. See
-[Invariants & Internals → atexit teardown](../50-contributing/20-invariants.md#atexit-teardown)
-before changing that path.
+An ACTIVE session must heartbeat — see [Session Queue → The heartbeat](20-session-queue.md#the-heartbeat) — or the lab gets reaped from under it.
 
 ## Long-running CI host sanity check
 
 <!-- trace: neops_remote_lab/netlab/lab_manager.py:125 -->
-Before starting any new lab, `_start` calls
-`_terminate_default_netlab_instance` to forcibly run
-`netlab down --instance default --cleanup`. This is an unconditional,
-best-effort cleanup designed for long-lived CI hosts: if a previous job
-crashed before its own teardown, the `default` netlab instance may still
-be live on the host, and `netlab up` would fail with *"It looks like the
-lab instance 'default' is already running"*.
+Before starting any new lab, `_start` forcibly runs `netlab down --instance default --cleanup` to reclaim a stale default instance left over from a crashed prior job. The call is made with `expected_failure=True`, so when no default instance exists it's a silent no-op.
 
-The call is made with `expected_failure=True`, so when no default instance
-exists it's a silent no-op.
+For the operator's view of the same cleanup at server startup time, see [Administration → Starting the server](../30-server/30-administration.md#starting-the-server).
 
 ## Where to go next
 

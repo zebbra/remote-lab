@@ -36,4 +36,4 @@ minutes.
 If you are standing up a **production** Remote Lab Manager host (not just
 a local dev server), start instead with
 [Netlab host setup](../40-deployment/10-netlab-host-setup.md) and
-[Headscale VPN](../40-deployment/20-headscale-vpn.md).
+[Headscale VPN](../40-deployment/20-headscale-quick-setup.md).

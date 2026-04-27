@@ -26,8 +26,9 @@ to add a new device kind.
 | Guide | What you'll learn |
 |---|---|
 | [Netlab host setup](10-netlab-host-setup.md) | Install `networklab` on Ubuntu 24.04+, configure rootless Containerlab with `clab_admins` + setuid, stop netlab from wrapping Containerlab in `sudo`, enable VRF for FRR labs, and validate with `netlab test clab`. |
-| [Headscale VPN](20-headscale-vpn.md) | Deploy Headscale + Headplane with Docker Compose, authenticate the UI without OIDC, manage users and pre-auth keys, enrol the Remote Lab host as a subnet router, and connect peers with `tailscale up --accept-routes`. Covers HTTP-only testing (`cookie_secure=false`, `TS_ALLOW_INSECURE=1`) and when to move to TLS. |
-| [Vendors & images](30-vendor-images.md) | Pick a router/switch image to run inside Netlab — open-source defaults ([FRR](https://netlab.tools/platforms/frr/), [Nokia SR Linux](https://netlab.tools/platforms/srlinux/)), licensed options ([Cisco IOL](https://netlab.tools/platforms/cisco_iol/)), and the recipe for adding any other [Netlab-supported platform](https://netlab.tools/platforms/). Also: FRR limitations to know before you commit. |
+| [Headscale VPN — Quick setup](20-headscale-quick-setup.md) | The five-command happy path — Headscale + Headplane via Docker Compose, the lab host as a subnet router, one client peer that can reach the lab subnet. |
+| [Headscale VPN — Reference](30-headscale-reference.md) | ACL configuration, user and pre-auth key management, system settings, troubleshooting, and the full command summary once the tailnet is up. |
+| [Vendor setup](40-vendor-setup.md) | Per-vendor install walkthroughs — FRR auto-pull, Nokia SR Linux image pin, Cisco IOL vrnetlab build, and the generic recipe for adding any other Netlab-supported platform. For decision-making, see [Topology Format → Vendor defaults](../10-concepts/40-topology-format.md#vendor-defaults-which-device-to-use). |
 
 ## What to read next
 

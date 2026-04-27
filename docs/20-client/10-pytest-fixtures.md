@@ -268,12 +268,13 @@ downstream consumers.
 
 ---
 
+## Configuration
+
+The fixture reads four environment variables on first use: `REMOTE_LAB_URL` (required, points at the server) and three optional timeout overrides — `REMOTE_LAB_REQUEST_TIMEOUT`, `REMOTE_LAB_SESSION_TIMEOUT`, `REMOTE_LAB_ACQUISITION_TIMEOUT`. Set them in your shell or your CI env block before invoking pytest. See [Configuration](30-configuration.md) for the full reference, defaults, and the timeout-coordination guidance.
+
 ## See also
 
-- [RemoteLabClient reference](20-python-client.md) — the HTTP client the
-  fixtures wrap.
-- [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting and reuse semantics
-  (relevant when `reuse_lab=True`).
-- [Topology format](../10-concepts/40-topology-format.md) — what to put in the `.yml` file.
-- [Configuration](../30-server/20-configuration.md) — environment variables that the
-  `remote_lab_client` fixture reads.
+- [RemoteLabClient reference](20-python-client.md) — the HTTP client the fixtures wrap.
+- [Configuration](30-configuration.md) — the environment variables the `remote_lab_client` fixture reads.
+- [Lab Lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting and reuse semantics (relevant when `reuse_lab=True`).
+- [Topology Format](../10-concepts/40-topology-format.md) — what to put in the `.yml` file.

@@ -22,38 +22,18 @@ queue, gets the lab, then tears it down when the last consumer walks away.
 
 ## Where it sits in the neops ecosystem
 
-This repository ships two cooperating surfaces: a **FastAPI server**
-(`neops_remote_lab.server`) that runs on the lab host, and a **pytest11
-plugin** (`neops_remote_lab.testing.fixture`) that runs inside your test
-suite. The plugin's `remote_lab_fixture` factory is the **stable public API** —
-the [**Worker SDK**](https://docs.neops.io/neops-worker-sdk-py/docs/) imports it
-directly to give [function-block](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/)
-tests a real topology to run against ([Worker SDK → Remote lab testing](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)),
-so its call signature is a contract you can rely on across releases:
-you can focus on your test code without worrying that an upstream change will
-quietly rearrange the fixture under you.
+`neops-remote-lab` is the test substrate for the wider neops platform. The [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) imports `remote_lab_fixture` directly. If you're new to neops, [How Remote Lab fits with neops](99-appendix/neops-ecosystem.md) maps the surrounding pieces; if you're not on neops at all, this section is safely skippable.
 
 <!-- trace: AGENTS.md:3 -->
 
 !!! note "Two audiences, one project"
-    If you are writing tests, you will only touch the pytest side
-    (`remote_lab_fixture`, `RemoteLabClient`). If you are running the
-    service on a shared host, you will mostly live in the FastAPI side and
-    the Netlab + VPN deployment pages. Both sides share the same vocabulary
-    ("session", "lab", "reuse") and the same FIFO contract.
+    If you are writing tests, you will only touch the pytest side (`remote_lab_fixture`, `RemoteLabClient`). If you are running the service on a shared host, you will mostly live in the FastAPI side and the Netlab + VPN deployment pages. Both sides share the same vocabulary ("session", "lab", "reuse") and the same FIFO contract.
 
-!!! danger "Internal-trust service — no HTTP authentication"
-    `neops-remote-lab` ships **without** HTTP authentication. The only
-    access boundary on `/lab/*` endpoints is the `X-Session-ID` header of an
-    ACTIVE session; non-active sessions receive `423 Locked`. The
-    `/session/heartbeat` endpoint is gated less tightly — it only requires
-    the session to exist (404 if unknown) and accepts heartbeats from
-    WAITING sessions too, which is how a client keeps its queue slot alive
-    before promotion. **Deploy only on a Headscale tailnet or another
-    private network.** See
-    [Administration → Security posture](30-server/30-administration.md#security-posture)
-    for the full threat model and
-    [Headscale VPN](40-deployment/20-headscale-vpn.md) for the recommended enclosure.
+!!! danger "No HTTP authentication"
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. The only access boundary on `/lab/*` is the
+    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
+    [Security model](30-server/40-security.md) for the full posture.
     <!-- trace: neops_remote_lab/server.py:488 -->
 
 ## Session-and-lab lifecycle
@@ -126,7 +106,7 @@ SHA-256-keyed reuse counting is covered in
     ---
 
     Startup sequence, single-instance filelock recovery, stale-lab
-    cleanup, the [Headscale enclosure](40-deployment/20-headscale-vpn.md),
+    cleanup, the [Headscale enclosure](40-deployment/20-headscale-quick-setup.md),
     and the security posture you sign up for.
 
     [Open the Server reference →](30-server/index.md)
@@ -171,7 +151,7 @@ Pick the route that matches your current question.
 
 !!! info "Standing up the host — you are deploying the service"
     [Netlab host setup](40-deployment/10-netlab-host-setup.md) →
-    [Headscale VPN](40-deployment/20-headscale-vpn.md) →
+    [Headscale VPN](40-deployment/20-headscale-quick-setup.md) →
     [Administration](30-server/30-administration.md) → [Configuration](30-server/20-configuration.md).
     Install Netlab, enclose the host in a private tailnet, then configure
     and operate the server.
@@ -184,7 +164,7 @@ Pick the route that matches your current question.
 
 !!! info "Driving from a non-Python stack — you are integrating into an existing harness"
     [REST quickstart](getting-started/30-rest-quickstart.md) →
-    [CI integration](30-server/40-ci-integration.md) →
+    [CI quickstart](getting-started/40-ci-quickstart.md) →
     [Debugging](30-server/50-debugging.md).
     Stand up a session and a lab end-to-end with cURL, then wire it into
     your CI runner of choice.
@@ -205,7 +185,7 @@ Pick the route that matches your current question.
   drives by default in this project (`provider: clab`).
 - [Headscale](https://headscale.net/) — the open-source Tailscale control
   plane used for the recommended VPN enclosure
-  ([deployment guide](40-deployment/20-headscale-vpn.md)).
+  ([deployment guide](40-deployment/20-headscale-quick-setup.md)).
 - [Material for MkDocs reference](https://squidfunk.github.io/mkdocs-material/reference/)
   and [pymdown-extensions Snippets](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/)
   — theme and extension docs backing this site.

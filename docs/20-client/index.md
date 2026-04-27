@@ -29,6 +29,7 @@ notebook, or any non-pytest context.
 |---|---|
 | [Pytest Fixtures](10-pytest-fixtures.md) | `remote_lab_fixture` factory arguments, the `remote_lab_client` session-scoped fixture, the one-fixture-per-test rule, and end-to-end reuse patterns. |
 | [Python Client](20-python-client.md) | `RemoteLabClient` constructor, session lifecycle, `acquire` / `release` / `destroy` / `close`, retry behaviour, and the swallow-and-log quirks. |
+| [Configuration](30-configuration.md) | The four environment variables both surfaces consume — `REMOTE_LAB_URL` plus three optional timeouts — with defaults, when-to-raise guidance, and the timeout-coordination warning. |
 
 ## What to read next
 
@@ -38,5 +39,5 @@ notebook, or any non-pytest context.
   counting and reuse semantics that `reuse_lab=True` opts into.
 - **[REST API](../30-server/10-rest-api.md)** — the authoritative endpoint
   reference the Python client wraps.
-- **[Configuration](../30-server/20-configuration.md)** — the environment
-  variables the client reads (`REMOTE_LAB_URL` and the three timeouts).
+- **[CI quickstart](../getting-started/40-ci-quickstart.md)** — wire the
+  same env vars into GitHub Actions, GitLab CI, or Jenkins pipelines.

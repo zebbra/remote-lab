@@ -14,16 +14,10 @@ are expected to use directly, with its **schema**, **error codes**, and
 an **example invocation** for each.
 
 !!! danger "No HTTP authentication"
-    The service ships **without** bearer-token, OAuth, or mTLS authentication.
-    The only access boundary on `/lab/*` is the `X-Session-ID` header of an
-    **ACTIVE** session; non-active sessions receive `423 Locked`. The
-    `/session/heartbeat` endpoint is gated less tightly: it only requires
-    the session to exist (404 if unknown) and accepts heartbeats from
-    WAITING sessions as well, which is how a client keeps its queue slot
-    alive before promotion. <!-- trace: neops_remote_lab/server.py:488 -->
-    Treat the HTTP surface as **internal-trust** and do not expose it to
-    untrusted networks. See
-    [Administration → Security posture](30-administration.md#security-posture).
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. The only access boundary on `/lab/*` is the
+    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
+    [Security model](40-security.md) for the full posture.
 
 ## Conventions used below
 

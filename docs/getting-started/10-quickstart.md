@@ -211,29 +211,7 @@ nothing else holds it, tears the topology down. <!-- trace: neops_remote_lab/tes
 
 ## What just happened
 
-Five things, in order:
-
-1. **pytest loaded the plugin.** `neops_remote_lab.testing.pytest_order_plugin`
-   registered the `remote_lab_fixture` factory and installed the
-   collection-time guard that rejects tests with more than one lab fixture.
-2. **The `remote_lab_client` session-scoped fixture connected.** It read
-   `REMOTE_LAB_URL`, created a session on the server, and waited for the
-   session to reach ACTIVE state — joining a FIFO queue if someone else held
-   the host.
-3. **Your test asked for `demo_lab`.** The generated fixture uploaded
-   `demo.yml` via multipart POST to `/lab`, polling every five seconds if the
-   server responded `423 Locked` (another test in the run holding the host).
-4. **Netlab brought the topology up.** The server returned a list of
-   `DeviceInfoDto` objects once `netlab up` completed. Your test body ran
-   against those.
-5. **Teardown ran.** The fixture called `release()`, which on a non-reuse lab
-   triggers teardown when the reference count hits zero. The session stays
-   alive until the pytest process exits — `atexit` cleanup then closes it.
-
-For the full picture of the session queue, heartbeat timeouts, and the
-reference-counted lab lifecycle, read [Architecture](../10-concepts/10-architecture.md),
-[Session queue](../10-concepts/20-session-queue.md), and [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) in
-that order.
+Curious what just happened? [Runtime walk-through](../10-concepts/10-architecture.md#runtime-walk-through-what-happens-during-a-test) animates the components against this exact test.
 
 ---
 
@@ -250,7 +228,8 @@ that order.
   consumed directly by the [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/).
   Its signature and semantics will not break within a major version.
 
-!!! warning "Authentication is not enforced"
-    The server does not validate Bearer tokens — `X-Session-ID` of an active
-    session is the only access boundary on `/lab/*` endpoints. Treat the
-    Remote Lab Manager as internal-trust infrastructure behind your VPN.
+!!! danger "No HTTP authentication"
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. The only access boundary on `/lab/*` is the
+    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
+    [Security model](../30-server/40-security.md) for the full posture.

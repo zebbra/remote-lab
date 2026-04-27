@@ -14,9 +14,9 @@ The Remote Lab Manager refuses to start without `netlab` on `PATH`. This
 page is the **prerequisite for everything else in deployment**: install
 [Netlab](https://netlab.tools/) and [Containerlab](https://containerlab.dev/)
 rootless on Ubuntu, validate the install with `netlab test clab`, then
-move on to [Vendors & images](30-vendor-images.md) (which device kinds
-to ship) and [Headscale VPN](20-headscale-vpn.md) (how clients reach
-the lab).
+move on to [Vendor setup](40-vendor-setup.md) (per-vendor install walkthroughs)
+and [Headscale VPN — Quick setup](20-headscale-quick-setup.md) (how clients
+reach the lab).
 
 ---
 
@@ -219,18 +219,7 @@ No `sudo`, no password prompt — ideal for CI.
 
 ## 4. – Pick a router/switch image to run
 
-Once `netlab test clab` passes, you have a working lab host that can boot
-the open-source [FRR](https://netlab.tools/platforms/frr/) image out of
-the box. For everything else — open-source vendor stacks like
-[Nokia SR Linux](https://netlab.tools/platforms/srlinux/), licensed
-images like [Cisco IOL](https://netlab.tools/platforms/cisco_iol/), or
-adding any other Netlab-supported platform — see the dedicated
-[Vendors & images](30-vendor-images.md) guide.
-
-The vendor page covers when each platform is the right call, the FRR
-limitations to know about before you commit, the SR Linux setup (free,
-public registry, no license), the Cisco IOL build path (license
-required), and a generic recipe for adding any other Netlab platform.
+Once `netlab test clab` passes, the host can boot the open-source [FRR](https://netlab.tools/platforms/frr/) image out of the box. For deciding **which** vendor fits your tests (FRR vs SR Linux vs Cisco IOL, with limitations and trade-offs), see [Topology Format → Vendor defaults](../10-concepts/40-topology-format.md#vendor-defaults-which-device-to-use). For the install walkthroughs (image pull, license setup, vrnetlab build), see [Vendor setup](40-vendor-setup.md).
 
 ---
 

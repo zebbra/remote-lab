@@ -8,10 +8,7 @@ crosslink_references: []
 
 # Glossary
 
-One-line definitions, grouped by domain. Each entry links to the
-in-depth page; the [§ Terms from neighbouring projects](#terms-from-neighbouring-projects)
-section at the end disambiguates words an External API user may meet on
-peer repos.
+One-line definitions, grouped by domain. Each entry links to the in-depth page where the concept lives. For peer-project terminology (Function Block, Worker, Workflow, Provider, Blackboard, Context), see [How Remote Lab fits with neops](neops-ecosystem.md).
 
 ---
 
@@ -56,7 +53,7 @@ peer repos.
 ## Locking and concurrency
 
 **`LabManager`**
-:   Class-only singleton (no instances) that owns the running lab and enforces one-lab-per-host. See [Invariants → The LabManager singleton](../50-contributing/20-invariants.md#the-labmanager-singleton).
+:   Class-only singleton (no instances) that owns the running lab and enforces one-lab-per-host. See [LabManager singleton](../50-contributing/40-internals-lab-manager.md).
 
 **`GLOBAL_LOCK`**
 :   `filelock.FileLock` at `<tempdir>/netlab_pytest.lock` — serializes lab operations across processes. See [Invariants → One lab per host](../50-contributing/20-invariants.md#one-lab-per-host).
@@ -65,10 +62,10 @@ peer repos.
 :   Separate `FileLock` in `__main__.py` that prevents two server processes on one host. See [Invariants → One server instance per host](../50-contributing/20-invariants.md#one-server-instance-per-host).
 
 **`try_acquire` vs `acquire`**
-:   `try_acquire` is non-blocking (server uses this); `acquire` polls forever (local fixtures only). Mixing them deadlocks the event loop. See [Invariants → `try_acquire` vs `acquire`](../50-contributing/20-invariants.md#try_acquire-vs-acquire).
+:   `try_acquire` is non-blocking (server uses this); `acquire` polls forever (local fixtures only). Mixing them deadlocks the event loop. See [LabManager → `try_acquire` vs `acquire`](../50-contributing/40-internals-lab-manager.md#try_acquire-vs-acquire).
 
 **`atexit` teardown**
-:   Synchronous, silent cleanup hook that tears down any live lab on interpreter exit. Never add async code. See [Invariants → atexit teardown](../50-contributing/20-invariants.md#atexit-teardown).
+:   Synchronous, silent cleanup hook that tears down any live lab on interpreter exit. Never add async code. See [atexit + lifespan](../50-contributing/50-internals-atexit.md#atexit-teardown).
 
 ---
 
@@ -128,16 +125,16 @@ peer repos.
 :   Netlab's default provider (`provider: clab`); pulls vendor NOS containers and wires them.
 
 **[FRR](https://frrouting.org/)**
-:   Open-source software router; the default `device:` in most topologies. See [Vendors & images → FRR](../40-deployment/30-vendor-images.md#frrouting-device-frr).
+:   Open-source software router; the default `device:` in most topologies. See [Vendor setup → FRR](../40-deployment/40-vendor-setup.md#frrouting-device-frr).
 
 **[Nokia SR Linux](https://learn.srlinux.dev/)**
-:   Container-native vendor NOS, free under Nokia EULA. See [Vendors & images → SR Linux](../40-deployment/30-vendor-images.md#nokia-sr-linux-device-srlinux).
+:   Container-native vendor NOS, free under Nokia EULA. See [Vendor setup → Nokia SR Linux](../40-deployment/40-vendor-setup.md#nokia-sr-linux-device-srlinux).
 
 **[Cisco IOL](https://netlab.tools/platforms/cisco_iol/)**
-:   IOS-on-Linux, license required. See [Vendors & images → Cisco IOL](../40-deployment/30-vendor-images.md#cisco-iol-device-cisco_iol-license-required).
+:   IOS-on-Linux, license required. See [Vendor setup → Cisco IOL](../40-deployment/40-vendor-setup.md#cisco-iol-device-cisco_iol-license-required).
 
 **[Headscale](https://headscale.net/)**
-:   Self-hosted Tailscale control plane; the recommended enclosure for the no-auth lab service. See [Headscale VPN](../40-deployment/20-headscale-vpn.md).
+:   Self-hosted Tailscale control plane; the recommended enclosure for the no-auth lab service. See [Headscale VPN](../40-deployment/20-headscale-quick-setup.md).
 
 **[Headplane](https://github.com/tale/headplane)**
 :   Web UI for Headscale.
@@ -146,39 +143,10 @@ peer repos.
 :   The mesh VPN whose protocol Headscale implements.
 
 **Subnet router**
-:   A Tailscale node advertising lab subnet routes to the rest of the mesh — typically the lab host itself. See [Headscale VPN → Subnet router](../40-deployment/20-headscale-vpn.md#71-remote-lab-host-subnet-router).
+:   A Tailscale node advertising lab subnet routes to the rest of the mesh — typically the lab host itself. See [Headscale VPN → Quick setup](../40-deployment/20-headscale-quick-setup.md#register-the-lab-host-as-a-subnet-router).
 
 ---
 
-## Terms from neighbouring projects
+## Peer-project terminology
 
-These words appear in neops-ecosystem docs and may be familiar if you
-arrived from a peer project. **None of them are Remote Lab concepts** —
-Remote Lab provides the topology that worker-SDK function-block tests
-run against, and runs independently of the workflow engine.
-
-**Function block**
-:   A typed Python class implementing one unit of automation work — read configs, push templates, check compliance, discover inventory — orchestrated by the workflow engine. Defined in the Worker SDK; Remote Lab gives the function-block tests a real topology to exercise against. See [Worker SDK → Function blocks](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/) and [Workflow Engine → Function blocks](https://docs.neops.io/neops-workflow-engine/docs/10-concepts/20-function-blocks/).
-
-**Worker**
-:   A Python process that registers with the workflow engine, polls for jobs from the [blackboard](#blackboard), executes function blocks, and writes results back. See [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/).
-
-**Workflow**
-:   A versioned, declarative description of an ordered sequence of operations to perform on network entities. Authored as YAML, executed by the workflow engine. See [Workflow Engine → Workflows](https://docs.neops.io/neops-workflow-engine/docs/10-concepts/10-workflow/).
-
-**Workflow engine**
-:   The NestJS service that validates, schedules, and orchestrates workflow execution; talks to workers via the [blackboard](#blackboard). Remote Lab runs independently of it. See [Workflow Engine](https://docs.neops.io/neops-workflow-engine/docs/).
-
-<a id="blackboard"></a>**Blackboard**
-:   The shared job queue between the workflow engine and workers — the engine writes jobs, workers read and return results. **Not the same mechanism as the Remote Lab [session queue](#session-queue)**: the blackboard decouples workers from the engine; the session queue serializes exclusive lab access. See [Workflow Engine → Blackboard](https://docs.neops.io/neops-workflow-engine/docs/10-concepts/60-blackboard/).
-
-**Context** (`WorkflowContext`)
-:   The typed object that carries entity data between function-block steps within a running workflow. Remote Lab returns device data via flat [`DeviceInfoDto`](#deviceinfodto)s instead — different shape, different scope. See [Workflow Engine → Context](https://docs.neops.io/neops-workflow-engine/docs/10-concepts/30-context/).
-
-Two terms collide in interesting ways:
-
-**Provider**
-:   In a Remote Lab topology, `provider:` is [Netlab](https://netlab.tools/)'s runtime selector (`clab`, `libvirt`, …). Unrelated to neops-core's legacy automation-class sense of the same word.
-
-**Heartbeat**
-:   Remote Lab's `POST /session/heartbeat` is a client→server session keepalive (see [§ Sessions and queueing](#sessions-and-queueing) above). The workflow engine has its own heartbeat — a worker→engine liveness ping. Same word, different scope.
+Peer-project terminology (Function Block, Worker, Workflow, Provider, Blackboard, Context, etc.) — see [How Remote Lab fits with neops](neops-ecosystem.md).

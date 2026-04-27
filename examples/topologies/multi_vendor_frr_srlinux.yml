@@ -1,0 +1,13 @@
+provider: clab
+
+nodes:
+  spine1:
+    device: srlinux
+  leaf1:
+    device: frr
+  leaf2:
+    device: frr
+
+links:
+  - leaf1-spine1
+  - leaf2-spine1

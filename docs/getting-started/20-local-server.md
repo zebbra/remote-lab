@@ -27,7 +27,7 @@ this page and set `REMOTE_LAB_URL` to the remote URL there.
     **Doesn't cover:** running the server under `systemd` (that's
     [Administration → Running as a system service](../30-server/30-administration.md#running-as-a-system-service)),
     enclosing the host in a VPN (that's
-    [Headscale VPN](../40-deployment/20-headscale-vpn.md)), or the multi-user
+    [Headscale VPN](../40-deployment/20-headscale-quick-setup.md)), or the multi-user
     operator runbook (that's
     [Administration](../30-server/30-administration.md) end-to-end).
 
@@ -217,7 +217,7 @@ quickly, exploring topology shapes. It's the wrong shape when:
 
 - **More than one developer or CI job needs the lab.** The one-server-
   per-host invariant means a second developer cannot run their own server
-  on your machine; a shared VM (with [Headscale VPN](../40-deployment/20-headscale-vpn.md)
+  on your machine; a shared VM (with [Headscale VPN](../40-deployment/20-headscale-quick-setup.md)
   in front of it) is the multi-user shape.
 - **You need the lab to outlive your shell session.** Local-dev assumes
   you stop the server when you stop working. A long-lived service belongs
@@ -244,5 +244,5 @@ change on the consumer side.
   reference, including stale-lock recovery, the security posture you sign
   up for, and the systemd unit if you want the server to come back after
   reboot.
-- **[Headscale VPN](../40-deployment/20-headscale-vpn.md)** — when local
+- **[Headscale VPN](../40-deployment/20-headscale-quick-setup.md)** — when local
   is no longer enough, the recommended VPN enclosure for a shared host.

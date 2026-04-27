@@ -1,0 +1,116 @@
+---
+title: CI quickstart
+description: Wire neops-remote-lab into GitHub Actions, GitLab CI, or Jenkins — env-var setup, runner pipeline tabs, VPN connectivity, and queue-tuning pointers.
+tags: [tutorial, ci, getting-started]
+crosslink_defines: []
+crosslink_references: []
+---
+
+# CI quickstart
+
+Wire `neops-remote-lab` into your CI in any runner — the env-var setup and pipeline tabs are below; deeper concerns thread out.
+
+!!! danger "No HTTP authentication"
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. The only access boundary on `/lab/*` is the
+    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
+    [Security model](../30-server/40-security.md) for the full posture.
+
+## Environment variables
+
+The Python client and the pytest fixture are driven entirely by environment variables — no CI-platform-specific flags.
+
+| Variable | Required? | Default | Purpose |
+|---|---|---|---|
+| `REMOTE_LAB_URL` | yes | — | Base URL of the Remote Lab Manager. |
+| `REMOTE_LAB_REQUEST_TIMEOUT` | no | `30` | Per-HTTP-request timeout. |
+| `REMOTE_LAB_SESSION_TIMEOUT` | no | `600` | Max wait for the session to become ACTIVE. |
+| `REMOTE_LAB_ACQUISITION_TIMEOUT` | no | `600` | Max time for a single `POST /lab` call. |
+
+For full details, defaults, and the timeout-coordination warning, see [Configuration](../20-client/30-configuration.md).
+
+## VPN connectivity
+
+The runner must reach the Remote Lab server and the lab subnet — there is no HTTP authentication, so the network boundary is the access boundary. If you use Headscale/Tailscale, ensure the runner has a valid tailnet session before the test command runs. See [Headscale VPN — Quick setup](../40-deployment/20-headscale-quick-setup.md).
+
+## Runner pipelines
+
+Three sketches. The shape is identical: set the env, run the test command. Replace `pytest tests/ -q` with whatever your test command actually is.
+
+=== "GitHub Actions"
+
+    ```yaml title=".github/workflows/integration.yml"
+    - name: Run integration tests
+      env:
+        REMOTE_LAB_URL: http://lab.example.com:8000
+        REMOTE_LAB_SESSION_TIMEOUT: "1200"
+      run: pytest tests/ -q
+    ```
+
+=== "GitLab CI"
+
+    ```yaml title=".gitlab-ci.yml"
+    integration-tests:
+      stage: test
+      image: python:3.12
+      variables:
+        REMOTE_LAB_URL: "http://lab.example.com:8000"
+        REMOTE_LAB_SESSION_TIMEOUT: "1200"
+      script:
+        - pip install -e .[test]
+        - pytest tests/ -q
+      timeout: 30 minutes
+    ```
+
+    If your runner is not on the Tailscale mesh, add a pre-`script` step to `tailscale up --auth-key "$TAILSCALE_AUTHKEY"` before the test command.
+
+=== "Jenkins (declarative)"
+
+    ```groovy title="Jenkinsfile"
+    pipeline {
+        agent { label 'tailnet-runner' }
+        environment {
+            REMOTE_LAB_URL              = 'http://lab.example.com:8000'
+            REMOTE_LAB_SESSION_TIMEOUT  = '1200'
+        }
+        options {
+            timeout(time: 30, unit: 'MINUTES')
+        }
+        stages {
+            stage('Integration tests') {
+                steps {
+                    sh 'pip install -e .[test]'
+                    sh 'pytest tests/ -q'
+                }
+            }
+        }
+    }
+    ```
+
+    Pin the agent label (`tailnet-runner` above) to whichever Jenkins executor pool has VPN access to the lab server.
+
+## Tips for CI
+
+- **Parallel jobs.** Multiple CI jobs can target the same server — the session queue serializes access. Raise `REMOTE_LAB_SESSION_TIMEOUT` on the client to accommodate queue depth, and coordinate with the server-side `_WAITING_SESSION_TIMEOUT` (600 s).
+- **Fail fast on bad config.** If `REMOTE_LAB_URL` points at an unreachable server, the pytest fixture fails at session creation rather than mid-test. You see a `ConnectionError` in the first seconds of the run — useful, since you can fix the env-var without burning a 30-minute CI slot.
+- **Log level.** Set `--log-cli-level=INFO` (pytest) or its equivalent in your harness to capture session creation, queue position, and lab acquisition events in build logs. The difference between *the test timed out somewhere* and *the test waited 12 minutes for the queue then acquired*.
+
+## Verifying server reachability
+
+Before running your full suite, confirm connectivity from the runner:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" "$REMOTE_LAB_URL/healthz"
+# Expected: 204
+
+curl -s "$REMOTE_LAB_URL/debug/health" | jq .
+```
+
+If the liveness check fails the server is down or unreachable — fix that before anything else; the pipeline cannot recover from missing transport. See [Debugging](../30-server/50-debugging.md).
+
+## See also
+
+- **[Session Queue → Queue contention under CI load](../10-concepts/20-session-queue.md#queue-contention-under-ci-load)** — the queue-depth math for sizing concurrency against a single lab host.
+- **[Configuration](../20-client/30-configuration.md)** — full env-var reference, defaults, and the timeout-coordination warning.
+- **[Debugging](../30-server/50-debugging.md)** — HTTP error codes and log patterns for when a CI run fails in a way the build log does not explain.
+- **[Python Client → Retry behavior](../20-client/20-python-client.md#retry-behavior)** — what the client retries automatically and what surfaces as an exception.

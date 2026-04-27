@@ -12,10 +12,11 @@ crosslink_references: []
 shared host. Install, run under `systemd`, recover from a stale lock,
 unstick a wedged lab, and the security posture you sign up for.
 
-!!! warning "Read the security posture first"
-    The server has **no HTTP authentication**. Read the
-    [Security posture](#security-posture) section *before* exposing the
-    server on any network you do not fully control.
+!!! danger "No HTTP authentication"
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. The only access boundary on `/lab/*` is the
+    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
+    [Security model](40-security.md) for the full posture.
 
 !!! info "Prerequisites"
     - Familiarity with the [architecture](../10-concepts/10-architecture.md) and [REST API](10-rest-api.md).
@@ -222,50 +223,6 @@ neops-remote-lab --host 0.0.0.0 --port 8000
 
 ---
 
-## Security posture
-
-!!! danger "The service has no authentication — treat it as internal-trust"
-    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
-    authentication. No endpoint enforces an `Authorization` header.
-
-### The only access boundary
-
-The sole boundary on `/lab/*` and `/session/heartbeat` is the `X-Session-ID`
-header — and only for a session that is currently in the ACTIVE state in the
-FIFO queue. <!-- trace: neops_remote_lab/server.py:390 -->
-
-- Unknown session ids → `404 Not Found`
-- Waiting (not-yet-ACTIVE) session ids → `423 Locked`
-- Anyone who can create a session (`POST /session`, no auth) can eventually
-  reach ACTIVE by waiting in the queue.
-
-This is explicitly called out as an invariant in [`AGENTS.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/AGENTS.md).
-The service is designed for **internal** CI networks, not for the public
-internet.
-
-### Operational guidance
-
-| Do | Don't |
-|---|---|
-| Bind the server behind a VPN (Headscale, WireGuard, Tailscale). | Expose `:8000` to the public internet. |
-| Use `--host` to bind to a specific interface when the host has a public NIC. | Leave `--host 0.0.0.0` on a multi-homed host without a firewall. |
-| Restrict network reachability with host/cloud firewall rules. | Rely on `X-Session-ID` as a secret — it's returned by an unauthenticated `POST /session`. |
-| Use a reverse proxy (nginx, Caddy) with TLS + mutual auth if you must expose across hosts. | Assume HTTPS by itself protects the endpoints — the service still trusts any caller able to complete the session handshake. |
-
-### When you expose the service
-
-If your deployment requires network reachability beyond a single VPN, layer
-these controls in front of the server:
-
-1. **Network-level ACLs** — restrict TCP 8000 to known caller subnets.
-2. **mTLS at a reverse proxy** — each caller presents a client certificate.
-3. **Rate limiting** on `POST /session` — prevents queue-flooding.
-
-None of this replaces the need to treat the service as internal; it reduces
-the blast radius of a compromised caller.
-
----
-
 ## Routine operations
 
 ### Checking server health
@@ -347,6 +304,7 @@ Remember: **only one operator should be doing this at a time**. The Netlab
 
 - [REST API](10-rest-api.md) — endpoint reference for operator scripting
 - [Configuration](20-configuration.md) — flags and environment variables
+- [Security model](40-security.md) — the threat model the operational guidance above is built on top of
 - [Architecture](../10-concepts/10-architecture.md) — where the single-instance + one-lab invariants come from
-- [Session queue](../10-concepts/20-session-queue.md) — FIFO semantics and 423 Locked flow
-- [Headscale + Tailscale VPN setup](../40-deployment/20-headscale-vpn.md) — common deployment model for private reachability
+- [Session Queue](../10-concepts/20-session-queue.md) — FIFO semantics and 423 Locked flow
+- [Headscale VPN — Quick setup](../40-deployment/20-headscale-quick-setup.md) — the recommended VPN enclosure
