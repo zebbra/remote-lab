@@ -10,12 +10,6 @@ crosslink_references: []
 
 Server-side knobs only: a handful of CLI flags on the `neops-remote-lab` entry point and a single environment variable that toggles Netlab subprocess streaming. Client-side configuration (`REMOTE_LAB_URL` plus the three timeouts) lives on its own page under [Use from Python → Configuration](../20-client/30-configuration.md).
 
-!!! danger "No HTTP authentication"
-    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
-    authentication. The only access boundary on `/lab/*` is the
-    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](30-security.md) for the full posture.
-
 ## Server CLI flags
 
 The `neops-remote-lab` entry point is defined in `neops_remote_lab/__main__.py:main()` and parses the following flags via argparse. <!-- trace: neops_remote_lab/__main__.py:148 -->

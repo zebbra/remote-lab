@@ -197,8 +197,3 @@ Curious what just happened? [Runtime walk-through](../10-concepts/10-architectur
   consumed directly by the [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/).
   Its signature and semantics will not break within a major version.
 
-!!! danger "No HTTP authentication"
-    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
-    authentication. The only access boundary on `/lab/*` is the
-    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](../30-server/30-security.md) for the full posture.

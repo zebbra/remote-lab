@@ -56,12 +56,6 @@ tool's `bin` directory is not on `PATH` — run `uv tool update-shell`,
 `pipx ensurepath`, or add the symlink target manually depending on which
 installer you used.
 
-!!! danger "No HTTP authentication"
-    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
-    authentication. The only access boundary on `/lab/*` is the
-    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](30-security.md) for the full posture.
-
 !!! info "Before you start"
     Netlab CLI must already be on `PATH` — the launcher refuses to start without it. <!-- trace: neops_remote_lab/__main__.py:206 --> If the host is fresh, run [Netlab host setup](../40-deployment/10-netlab-host-setup.md) first. You'll also want shell access with permission to read `/tmp`, kill processes, and restart the service.
 

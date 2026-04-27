@@ -10,12 +10,6 @@ crosslink_references: []
 
 Grep this page when something breaks — for any client, in any language. Symptom-first table below; underlying mechanisms and log patterns expand each row further down. For operator-side runbook entries (stuck filelocks, port conflicts, server startup), see [Administration → Troubleshooting](10-administration.md#troubleshooting).
 
-!!! danger "No HTTP authentication"
-    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
-    authentication. The only access boundary on `/lab/*` is the
-    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](30-security.md) for the full posture.
-
 ## Quick reference
 
 | Symptom | Likely cause | Fix |

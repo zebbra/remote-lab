@@ -128,12 +128,6 @@ cleanup attempts.
 
 `remote_lab_fixture` is the **stable public API**. The [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) imports it directly to give [function-block](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/) tests a real topology ([integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)). For the broader neops vocabulary and which concepts apply to Remote Lab, see [How Remote Lab fits with neops](../99-appendix/neops-ecosystem.md).
 
-!!! danger "No HTTP authentication"
-    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
-    authentication. The only access boundary on `/lab/*` is the
-    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](../30-server/30-security.md) for the full posture.
-
 ## Where to go next
 
 - [Session queue](20-session-queue.md) — FIFO promotion, heartbeats, and the

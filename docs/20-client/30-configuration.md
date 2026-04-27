@@ -10,12 +10,6 @@ crosslink_references: []
 
 Four environment variables. One required (`REMOTE_LAB_URL`); three optional timeouts. The pytest fixture reads them at session setup; `RemoteLabClient` reads them at construction. Setting them in CI is exactly the same shape as setting them locally.
 
-!!! danger "No HTTP authentication"
-    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
-    authentication. The only access boundary on `/lab/*` is the
-    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](../30-server/30-security.md) for the full posture.
-
 ## The variables
 
 Read by `RemoteLabClient` and the `remote_lab_client` pytest fixture.
