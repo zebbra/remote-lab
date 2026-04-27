@@ -141,7 +141,7 @@ endpoint is in [REST API](40-rest-api.md).
 
 `DELETE /lab` returns `204 No Content` (not `404`) when the session is
 `ACTIVE` but no lab is running — there is nothing to destroy. See
-[REST API → `DELETE /lab`](40-rest-api.md#delete-lab-destroy-the-lab)
+[REST API → `DELETE /lab`](40-rest-api.md)
 for the full matrix.
 
 ---

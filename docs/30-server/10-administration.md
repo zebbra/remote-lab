@@ -219,7 +219,7 @@ curl -s "http://$LAB_HOST:8000/debug/health" | jq .
 ```
 
 Returns uptime, queue length, and session count. Intended for debugging only —
-see the note in the [REST API reference](40-rest-api.md#endpoints-not-documented-here).
+see the note in the [REST API reference](40-rest-api.md).
 
 ### Log monitoring
 
