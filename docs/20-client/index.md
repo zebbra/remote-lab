@@ -1,12 +1,12 @@
 ---
-title: Client
+title: Use from Python
 description: The two public consumer surfaces — the pytest fixture factory (stable API) and the Python HTTP client (lower-level, for scripts and notebooks).
 tags: [reference, client, testing, api]
 crosslink_defines: []
 crosslink_references: []
 ---
 
-# Client
+# Use from Python
 
 Two Python surfaces reach the Remote Lab Manager. Both ship in the same
 package — `pip install neops-remote-lab` — and you choose which to use

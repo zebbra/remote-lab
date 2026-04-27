@@ -1,12 +1,12 @@
 ---
-title: Server
+title: Run the Service
 description: Operator-facing reference — the HTTP surface, every runtime knob, and the runbook for keeping the server healthy.
 tags: [reference, server, operator]
 crosslink_defines: []
 crosslink_references: []
 ---
 
-# Server
+# Run the Service
 
 Everything you need to **understand, configure, and run** the Remote Lab
 Manager service. The pages below move from **contract** (REST API)

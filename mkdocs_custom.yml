@@ -21,18 +21,18 @@ nav:
       - 10-concepts/20-session-queue.md
       - 10-concepts/30-lab-lifecycle.md
       - 10-concepts/40-topology-format.md
-  - Client:
+  - Use from Python:
       - 20-client/index.md
       - 20-client/10-pytest-fixtures.md
       - 20-client/20-python-client.md
-  - Server:
+  - Run the Service:
       - 30-server/index.md
       - 30-server/10-rest-api.md
       - 30-server/20-configuration.md
       - 30-server/30-administration.md
       - 30-server/40-ci-integration.md
       - 30-server/50-debugging.md
-  - Deployment:
+  - Deploy & Operate:
       - 40-deployment/index.md
       - 40-deployment/10-netlab-host-setup.md
       - 40-deployment/20-headscale-vpn.md

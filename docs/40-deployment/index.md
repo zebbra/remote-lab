@@ -1,12 +1,12 @@
 ---
-title: Deployment
+title: Deploy & Operate
 description: Stand up the lab host plus the VPN enclosure around it — Netlab + Containerlab installation, Headscale + Headplane with Docker Compose, and client enrollment.
 tags: [how-to, deployment, operator]
 crosslink_defines: []
 crosslink_references: []
 ---
 
-# Deployment
+# Deploy & Operate
 
 Three bring-up guides cover a fresh Remote Lab host end-to-end: install
 and configure rootless [Netlab](https://netlab.tools/) +
