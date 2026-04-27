@@ -18,7 +18,7 @@ Material that does not belong to a single section but is referenced from many.
 | [Cookbook](cookbook.md) | Discovery surface for the runnable examples that ship with the repo — pytest, Python, cURL, topologies, and deployment artifacts. Every link is a GitHub permalink. |
 | [How Remote Lab fits with neops](neops-ecosystem.md) | Peer-project terminology bridge. Which neops concepts apply to Remote Lab, which don't, and how the pieces connect. For Neops devs and External API users alike. |
 
-## Where to go next
+## What to read next
 
 - **[Start](../index.md)** — the landing page and reading paths.
 - **[REST API](../30-server/10-rest-api.md)** — endpoint-by-endpoint reference.
