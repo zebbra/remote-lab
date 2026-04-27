@@ -31,6 +31,8 @@ markdown_extensions:
       name: mermaid
 - pymdownx.inlinehilite
 - pymdownx.snippets:
+    auto_append:
+    - includes/abbreviations.md
     base_path:
     - !relative
     check_paths: true
@@ -43,6 +45,18 @@ markdown_extensions:
 - pymdownx.tabbed:
     alternate_style: true
 - def_list
+- smarty
+- pymdownx.smartsymbols
+- pymdownx.magiclink
+- pymdownx.betterem
+- pymdownx.keys
+- pymdownx.tasklist:
+    custom_checkbox: true
+- abbr
+- footnotes
+- pymdownx.tilde
+- pymdownx.caret
+- pymdownx.mark
 nav:
 - Start: index.md
 - Get started:
@@ -102,6 +116,7 @@ plugins:
     - '**/node_modules/*'
     - .venv
     - '**/.venv/*'
+    - includes/*
     regex:
     - .*\.(tmp|bin|tar)$
 repo_url: https://github.com/zebbra/neops-remote-lab
@@ -126,6 +141,9 @@ theme:
   - search.suggest
   - search.highlight
   - content.action.edit
+  - navigation.tabs.sticky
+  - navigation.path
+  - toc.follow
   logo: assets/logo.svg
   name: material
   palette:
