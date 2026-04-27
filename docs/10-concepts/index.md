@@ -22,6 +22,12 @@ Read these four pages in order if you want to reason about edge cases
 
 <div class="grid cards" markdown>
 
+-   :material-map-clock:{ .lg .middle } &nbsp; **[Three-minute tour](05-tour.md)**
+
+    ---
+
+    The four-step session-and-lab lifecycle without queue mechanics or refcount math. Read first; the rest is the deep version.
+
 -   :material-vector-arrange-above:{ .lg .middle } &nbsp; **[Architecture](10-architecture.md)**
 
     ---

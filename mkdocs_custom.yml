@@ -64,6 +64,7 @@ nav:
       - "Vendor setup": 40-deployment/40-vendor-setup.md
   - Concepts:
       - "Concepts": 10-concepts/index.md
+      - "Three-minute tour": 10-concepts/05-tour.md
       - "Architecture": 10-concepts/10-architecture.md
       - "Session queue": 10-concepts/20-session-queue.md
       - "Lab lifecycle": 10-concepts/30-lab-lifecycle.md

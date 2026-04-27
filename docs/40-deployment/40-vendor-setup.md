@@ -32,7 +32,7 @@ If you have not installed Netlab + Containerlab yet, start with [Netlab host set
 
 `netlab up` pulls `frrouting/frr` from Docker Hub on first run, then uses the cached image afterward.
 
-For when FRR is the right call and what its limitations are (no vendor CLI, no hardware-specific behavior, VRF-module dependency), see [Topology Format → Pick FRR when](../10-concepts/40-topology-format.md#pick-frr-when).
+For when FRR is the right call and what its limitations are (no vendor CLI, no hardware-specific behavior, VRF-module dependency), see [Topology Format → Pick FRR when](../10-concepts/40-topology-format.md#when-frr-is-the-right-call).
 
 ---
 
@@ -81,7 +81,7 @@ netlab show images | grep -i srlinux
 
 You should see your `srlinux` device pointing at the image you pinned.
 
-For when SR Linux is the right call and its trade-offs vs FRR/IOL, see [Topology Format → Pick SR Linux when](../10-concepts/40-topology-format.md#pick-sr-linux-when).
+For when SR Linux is the right call and its trade-offs vs FRR/IOL, see [Topology Format → Pick SR Linux when](../10-concepts/40-topology-format.md#when-sr-linux-is-the-right-call).
 
 ---
 

@@ -61,61 +61,93 @@ supports will run — but container-based labs are what this project is built
 and validated against. If you stray, expect to maintain your own host
 provisioning.
 
-## Vendor defaults: which device to use
+## Vendor defaults: which device to use {#vendor-defaults-which-device-to-use}
 
-Multi-vendor topologies pick their device kind with the `device:` key, either globally under `defaults:` or per-node. **Different devices have different configuration semantics — never conflate them.**
+Multi-vendor topologies pick their device kind with the `device:` key, either globally under `defaults:` or per-node. **Different devices have different configuration semantics — never conflate them.** The three you'll meet in 95% of neops topologies:
 
-### Quick comparison
+<div class="grid cards" markdown>
 
-The three platforms you will see most in neops repos:
+-   :material-flash:{ .lg .middle } &nbsp; **FRR**
 
-| Platform | Netlab device | License | Boot time | Use when |
-|---|---|---|---|---|
-| [FRRouting](https://netlab.tools/platforms/frr/) | `frr` | Open-source | seconds | Protocol tests (BGP/OSPF/IS-IS), CI-friendly defaults, no license cost. The default for CI. |
-| [Nokia SR Linux](https://netlab.tools/platforms/srlinux/) | `srlinux` | Free for use (Nokia EULA) | ~30 s | YANG/gNMI-driven config, EVPN, segment-routing, Nokia-style CLI semantics, no license fee. |
-| [Cisco IOL](https://netlab.tools/platforms/cisco_iol/) | `cisco_iol` | Cisco license required | ~60 s | IOS-style CLI parsing, classic Cisco show-output formats, integration with [Worker SDK function blocks](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/) targeting IOS. |
+    ---
 
-If you only need IP routing protocols and cheap CI, use **FRR**. If you need a real network-OS environment without a license, use **SR Linux**. If you need IOS CLI semantics, use **Cisco IOL** — and accept the license overhead.
+    `device: frr` &middot; open-source &middot; seconds boot
 
-### Pick FRR when
+    - Protocol tests (BGP, OSPF, IS-IS, RIP, BFD, MPLS LDP, EVPN)
+    - CI defaults — no license, fastest boot
+    - No vendor CLI semantics (don't grep for IOS strings)
 
-- You're testing routing-protocol behavior (OSPFv2/v3, BGP, IS-IS, RIP, PIM, BFD, MPLS LDP, VRF, EVPN).
+    [Setup →](../40-deployment/40-vendor-setup.md) &middot; [netlab.tools/frr](https://netlab.tools/platforms/frr/)
+
+-   :material-shield-network:{ .lg .middle } &nbsp; **Nokia SR Linux**
+
+    ---
+
+    `device: srlinux` &middot; free EULA &middot; ~30 s boot
+
+    - YANG / gNMI / JSON-RPC native
+    - EVPN, segment routing, DC fabrics
+    - Container-only, ~1 GB RAM per node
+
+    [Setup →](../40-deployment/40-vendor-setup.md) &middot; [netlab.tools/srlinux](https://netlab.tools/platforms/srlinux/)
+
+-   :material-router-network:{ .lg .middle } &nbsp; **Cisco IOL**
+
+    ---
+
+    `device: cisco_iol` &middot; license required &middot; ~60 s boot
+
+    - IOS CLI semantics
+    - [Worker SDK function blocks](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/) targeting Cisco
+    - vrnetlab build path; license overhead
+
+    [Setup →](../40-deployment/40-vendor-setup.md) &middot; [netlab.tools/cisco_iol](https://netlab.tools/platforms/cisco_iol/)
+
+</div>
+
+If you only need IP **routing protocols** and cheap CI, use **FRR**. If you need a **real network-OS environment** without a license, use **SR Linux**. If you need **IOS CLI semantics**, use **Cisco IOL** — and *accept the license overhead*.
+
+### When FRR is the right call
+
+FRR is a software router. *It does not emulate hardware; it does not implement vendor-proprietary features; it does not have a Cisco-style or Junos-style CLI.* Pick FRR when:
+
+- You're testing routing-protocol behaviour (OSPFv2/v3, BGP, IS-IS, RIP, PIM, BFD, MPLS LDP, VRF, EVPN).
 - You want CI to run quickly without licensing concerns.
 - The function block under test does not depend on vendor-specific CLI output formats.
 
-**FRR limitations to know about before you commit.** FRR is a software router. It does not emulate hardware; it does not implement vendor-proprietary features; it does not have a Cisco-style or Junos-style CLI:
+??? info "FRR limitations to know about before you commit"
 
-- **No vendor CLI semantics.** FRR's `vtysh` resembles IOS at a glance but the show-output formats, command grammars, and config artifacts differ. Tests that grep for IOS-specific strings will fail against FRR. Use Cisco IOL for those.
-- **Protocol coverage is broad but not complete.** Cisco-proprietary protocols (EIGRP, GLBP, HSRP) have partial or no FRR equivalents. The [FRR documentation](https://docs.frrouting.org/) is authoritative about what's supported in the version you're running.
-- **VRF support requires the Linux VRF kernel module.** Covered in [Netlab host setup → VRF support](../40-deployment/10-netlab-host-setup.md#optional-23-enable-vrf-support-for-frr-labs-ubuntu). Without the module, FRR labs that use VRFs will fail.
-- **No hardware-specific behavior.** Interface flap timers, ASIC-level packet handling, queueing, and platform-specific timing are absent.
-- **Configuration via `vtysh`, not vendor CLI.** Programmatic config goes through Netlab's templates, not raw vendor commands. If your function block sends raw IOS or Junos CLI, FRR is the wrong target.
+    - **No vendor CLI semantics.** `vtysh` resembles IOS at a glance but show-output formats, command grammars, and config artifacts differ. Tests that grep for IOS-specific strings will fail against FRR.
+    - **Protocol coverage is broad but not complete.** Cisco-proprietary protocols (EIGRP, GLBP, HSRP) have partial or no FRR equivalents. The [FRR documentation](https://docs.frrouting.org/) is authoritative about what's supported.
+    - **VRF support requires the Linux VRF kernel module.** Covered in [Netlab host setup → VRF support](../40-deployment/10-netlab-host-setup.md#optional-23-enable-vrf-support-for-frr-labs-ubuntu).
+    - **No hardware-specific behavior.** Interface flap timers, ASIC-level packet handling, queueing, and platform-specific timing are absent.
+    - **Configuration via `vtysh`, not vendor CLI.** Programmatic config goes through Netlab's templates, not raw vendor commands.
 
-For most function-block tests in the worker-SDK ecosystem, FRR is fine — the integration tests live above CLI-format details. Use FRR by default; move to a vendor image only when you know you need vendor semantics.
+    For most function-block tests, FRR is fine — the integration tests live above CLI-format details. Use FRR by default; move to a vendor image only when you know you need vendor semantics.
 
-### Pick SR Linux when
+### When SR Linux is the right call
 
-- You need a real vendor NOS (not a software router) but cannot or will not arrange a commercial license.
-- The function block under test uses YANG/gNMI/JSON-RPC config or queries — SR Linux has those native.
+A real vendor NOS, no license fee:
+
+- Function block uses YANG / gNMI / JSON-RPC config or queries.
 - You're testing EVPN, segment routing, or other DC-style features.
-- You want reproducible CI against a vendor target (image is public, tags are stable).
+- You want reproducible CI against a vendor target (public image, stable tags).
 
-**SR Linux limitations.** Container-only (no real hardware via this path); not OSI-approved open-source (Nokia EULA); ~1 GB RAM per node; ~30 s boot. For large topologies, prefer Netlab's parallelism and `reuse_lab=True` to amortize boot cost — see [Session Queue → Shared topologies collapse the queue](20-session-queue.md#shared-topologies-collapse-the-queue).
+??? info "SR Linux trade-offs"
 
-### Pick Cisco IOL when
+    Container-only (no real hardware via this path); not OSI-approved open-source (Nokia EULA); ~1 GB RAM per node; ~30 s boot. For large topologies, prefer Netlab's parallelism and `reuse_lab=True` to amortize boot cost — see [Session queue → Shared topologies collapse the queue](20-session-queue.md#shared-topologies-collapse-the-queue).
 
-- The function block under test depends on IOS CLI semantics that neither FRR nor SR Linux can replicate (show-output parsing, IOS configuration block ordering, classic show commands).
-- You can arrange a Cisco license and the binaries.
+### When Cisco IOL is the right call
 
-If you do not have IOL access, **stick with FRR or SR Linux** — both are free and both cover most function-block test scenarios.
+When the function block depends on IOS CLI semantics neither FRR nor SR Linux can replicate (show-output parsing, IOS configuration block ordering, classic show commands), and you can arrange a Cisco license. **Without IOL access, stick with FRR or SR Linux** — both are free and both cover most function-block test scenarios.
 
 ### Other Netlab-supported platforms
 
-Netlab supports many more platforms than the three above. The full list is on [netlab.tools/platforms](https://netlab.tools/platforms/). The ones you are most likely to encounter in neops repos:
+Netlab supports many more platforms — the full list is on [netlab.tools/platforms](https://netlab.tools/platforms/). The ones you are most likely to encounter:
 
 | Platform | Netlab device | License |
 |---|---|---|
-| [Arista cEOS](https://netlab.tools/platforms/eos/) | `eos` | Free for use (Arista TAC registration) |
+| [Arista cEOS](https://netlab.tools/platforms/eos/) | `eos` | Free (Arista TAC registration) |
 | [Cumulus Linux (NVIDIA)](https://netlab.tools/platforms/cumulus/) | `cumulus` | Free community version |
 | [Mikrotik RouterOS](https://netlab.tools/platforms/routeros/) | `routeros` | Free virtual edition (CHR) |
 | [Cisco IOS XE / CSR1000v](https://netlab.tools/platforms/csr/) | `csr` | License required |
@@ -123,9 +155,9 @@ Netlab supports many more platforms than the three above. The full list is on [n
 | [Juniper vSRX / vMX](https://netlab.tools/platforms/vsrx/) | `vsrx`, `vmx` | License required |
 | [BIRD](https://netlab.tools/platforms/bird/) | `bird` | Open-source |
 
-Before adding any of these, check the platform page on netlab.tools for the per-platform module-support matrix — not every protocol module works on every platform.
+Before adding any of these, check the platform page on netlab.tools for the module-support matrix — not every protocol module works on every platform.
 
-For setup details, FRR limitations in depth, the SR Linux quickstart, the Cisco IOL build path, and the recipe for adding any other Netlab-supported platform, see [Vendor setup](../40-deployment/40-vendor-setup.md). The authoritative per-platform reference is the [Netlab platform list](https://netlab.tools/platforms/) for the Netlab view and [Containerlab kinds](https://containerlab.dev/manual/kinds/) for the container-runtime view.
+For per-vendor install walkthroughs (image pull, license setup, vrnetlab build), see [Vendor setup](../40-deployment/40-vendor-setup.md).
 
 ### Example: per-node selection
 
