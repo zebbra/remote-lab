@@ -13,10 +13,10 @@ crosslink_references: []
 Clients need to reach Netlab lab subnets that live inside a host's libvirt network. A small [Headscale](https://headscale.net/) control plane (a self-hosted, Tailscale-compatible coordination server) plus [Headplane](https://github.com/tale/headplane) (a web UI for Headscale) and [Tailscale](https://tailscale.com/kb/) peers give you that reachability without exposing the host. For low-level server details, see the upstream [Headscale repo](https://github.com/juanfont/headscale).
 
 !!! note "Placeholder convention"
-    Throughout this guide, substitute `$HEADSCALE_HOST` with your Headscale server's IP or DNS name (`export HEADSCALE_HOST=lab.example.com`). Examples use environment-variable form so commands are copy-pasteable once you export the variable.
+    Throughout this guide, substitute `$HEADSCALE_HOST` with your Headscale server's IP or DNS name (`export HEADSCALE_HOST=lab.example.com`) and `$LAB_SUBNET` with the IPv4 CIDR of the lab network you want to advertise (`export LAB_SUBNET=192.168.121.0/24`). The `192.168.121.0/24` value used in the `tailscale up` examples is the libvirt default; a Containerlab-only host typically uses a `172.20.20.0/24` management bridge — set `LAB_SUBNET` to whatever your provider allocates. Examples use environment-variable form so commands are copy-pasteable once you export the variables.
 
-!!! warning "Replace me — shipped dev IP"
-    The shipped `headscale/config/config.yaml:13` has a one-developer Hetzner IP (`91.99.184.46`) baked in as `server_url`. `README.md:139` and `headscale/headplane.config.yaml:32` (`public_url`) carry the same value. **Change these before deploying anywhere outside the neops-labs shared VM.** This page documents the drift; the source files are not edited here.
+!!! warning "The shipped configs need a real `server_url` before they will work"
+    `headscale/config/config.yaml` and `headscale/headplane.config.yaml` ship with `CHANGE-ME.example` placeholders — Headscale will refuse to start, and Tailscale clients cannot register, until you replace both with a host every peer can reach. Set them to your `$HEADSCALE_HOST` (or, for production, an `https://headscale.example.com` URL behind a reverse proxy with TLS).
 
 ---
 
@@ -62,7 +62,7 @@ This repository includes working templates:
 ### `config/config.yaml` — Headscale configuration
 
 <!-- trace: headscale/config/config.yaml:13 -->
-The shipped value of `server_url` is `http://91.99.184.46:8080` (the neops-labs dev VM). You MUST override this to a host or IP your clients can reach — for production, a `https://headscale.example.com` URL behind a reverse proxy with TLS is the recommended shape. For local testing, `http://127.0.0.1:8080` works if every client is on the same host.
+The shipped value of `server_url` is the placeholder `http://CHANGE-ME.example:8080`. You MUST override this to a host or IP your clients can reach — for production, a `https://headscale.example.com` URL behind a reverse proxy with TLS is the recommended shape. For local testing, `http://127.0.0.1:8080` works if every client is on the same host.
 
 !!! warning "Clients must reach `server_url`"
     Whatever you set `server_url` to, it must be reachable from every Tailscale peer that will join the tailnet. A peer that cannot reach the control plane cannot register.
@@ -181,14 +181,14 @@ You will connect two types of clients:
 
 ### 7.1 Remote Lab host (subnet router)
 
-On the Remote Lab VM, install Tailscale and advertise the lab subnet. Example for the `192.168.121.0/24` lab:
+On the Remote Lab VM, install Tailscale and advertise the lab subnet:
 
 ```bash
 TS_ALLOW_INSECURE=1 tailscale up \
   --login-server http://$HEADSCALE_HOST:8080 \
   --accept-routes \
   --reset \
-  --advertise-routes=192.168.121.0/24
+  --advertise-routes=$LAB_SUBNET
 ```
 
 !!! info "Why `TS_ALLOW_INSECURE=1`?"
@@ -275,7 +275,7 @@ Other pointers:
 
 - Check container logs: `docker logs headscale`, `docker logs headplane`
 - Verify Headscale health: `curl http://127.0.0.1:9090/metrics` (or via SSH tunnel)
-- Confirm routes on peers: `ip route | grep 192.168.121.0/24`
+- Confirm routes on peers: `ip route | grep $LAB_SUBNET`
 
 ---
 
@@ -304,7 +304,7 @@ docker exec headscale headscale preauthkeys create -u <user> -e 24h
 **Remote Lab VM (subnet router)**
 
 ```bash
-TS_ALLOW_INSECURE=1 tailscale up --login-server http://$HEADSCALE_HOST:8080 --accept-routes --advertise-routes=192.168.121.0/24
+TS_ALLOW_INSECURE=1 tailscale up --login-server http://$HEADSCALE_HOST:8080 --accept-routes --advertise-routes=$LAB_SUBNET
 ```
 
 **Approve interactive registration (example token)**

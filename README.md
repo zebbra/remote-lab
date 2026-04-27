@@ -135,9 +135,6 @@ In projects that use `neops-remote-lab`, set the Remote Lab Manager URL:
 ```bash
 export REMOTE_LAB_URL=http://<host>:8000
 
-# Hetzner neops-labs VM:
-export REMOTE_LAB_URL=http://91.99.184.46:8000 
-
 # Optional: put this into a .env file and load it using python-dotenv or your preferred method
 ```
 

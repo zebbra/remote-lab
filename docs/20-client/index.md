@@ -29,11 +29,11 @@ or any non-pytest context.
 
 ## What to read next
 
-- **[Architecture](../concepts/10-architecture.md)** — where the client
+- **[Architecture](../10-concepts/10-architecture.md)** — where the client
   sits relative to the server and `LabManager`.
-- **[Lab Lifecycle](../concepts/30-lab-lifecycle.md)** — reference
+- **[Lab Lifecycle](../10-concepts/30-lab-lifecycle.md)** — reference
   counting and reuse semantics that `reuse_lab=True` opts into.
-- **[REST API](../server/10-rest-api.md)** — the authoritative endpoint
+- **[REST API](../30-server/10-rest-api.md)** — the authoritative endpoint
   reference the Python client wraps.
-- **[Configuration](../server/20-configuration.md)** — the environment
+- **[Configuration](../30-server/20-configuration.md)** — the environment
   variables the client reads (`REMOTE_LAB_URL` and the three timeouts).

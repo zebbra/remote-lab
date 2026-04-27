@@ -17,11 +17,12 @@ The Remote Lab Manager reads its configuration from three places:
 3. **Server-side environment variables** — a single toggle affecting Netlab
    subprocess output.
 
-!!! danger "Bearer authentication is NOT wired"
-    The `REMOTE_LAB_TOKEN` code path in `RemoteLabClient.__init__` is
-    **commented out**. <!-- trace: neops_remote_lab/client.py:46 --> Setting
-    this environment variable does nothing. No endpoint enforces bearer
-    authentication. See [Administration → Security posture](30-administration.md#security-posture)
+!!! danger "No HTTP authentication"
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. `REMOTE_LAB_TOKEN` is not consumed; setting it does
+    nothing. The only access boundary on `/lab/*` is the `X-Session-ID`
+    header of an ACTIVE session. Read
+    [Administration → Security posture](30-administration.md#security-posture)
     before exposing the server.
 
 ---
@@ -69,13 +70,12 @@ export REMOTE_LAB_ACQUISITION_TIMEOUT=1800
     If you instantiate `RemoteLabClient` directly (e.g., from a helper script)
     the client defaults apply regardless of these env vars — pass the timeouts
     as keyword arguments instead. See the
-    [`RemoteLabClient` reference](../client/20-python-client.md).
+    [`RemoteLabClient` reference](../20-client/20-python-client.md).
 
 ### Not wired: `REMOTE_LAB_TOKEN`
 
-Referenced inside a comment in `client.py`; the `Authorization: Bearer`
-header-injection block is inactive. Setting this variable does nothing. Do not
-rely on it as an access boundary.
+The variable is not consumed by either the client or the server. Setting it
+has no effect; do not rely on it as an access boundary.
 
 ---
 
@@ -173,7 +173,7 @@ The entry point performs two pre-flight checks before binding the HTTP port:
   server logs the install URL and exits with `SystemExit(1)` before starting.
   <!-- trace: neops_remote_lab/__main__.py:206 --> Install Netlab on the host
   before starting the server — see
-  [Netlab host setup](../deployment/10-netlab-host-setup.md).
+  [Netlab host setup](../40-deployment/10-netlab-host-setup.md).
 
 ---
 
@@ -183,7 +183,7 @@ The entry point performs two pre-flight checks before binding the HTTP port:
   `_SESSION_CLEANUP_INTERVAL = 5`, `_WAITING_SESSION_TIMEOUT = 600`,
   `_ACTIVE_SESSION_STALE = 300`. These are not exposed as flags because
   changing them shifts the FIFO contract that clients depend on; see
-  [Session queue](../concepts/20-session-queue.md) for the reasoning.
+  [Session queue](../10-concepts/20-session-queue.md) for the reasoning.
 - **Netlab instance name** — the server always uses the `default` Netlab
   instance and cleans up stale defaults at startup.
 
@@ -196,5 +196,5 @@ one-size-fits-all defaults are deliberate.
 
 - [REST API](10-rest-api.md) — endpoints served on `--host`:`--port`
 - [Administration](30-administration.md) — operator runbook, stuck labs, security posture
-- [`RemoteLabClient`](../client/20-python-client.md) — constructor arguments that mirror the client env vars
-- [pytest fixtures](../client/10-pytest-fixtures.md) — how `remote_lab_client` consumes the env vars above
+- [`RemoteLabClient`](../20-client/20-python-client.md) — constructor arguments that mirror the client env vars
+- [pytest fixtures](../20-client/10-pytest-fixtures.md) — how `remote_lab_client` consumes the env vars above

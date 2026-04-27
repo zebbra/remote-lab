@@ -26,10 +26,10 @@ Manager's `X-Session-ID`-only access boundary relies on for safety.
 
 ## What to read next
 
-- **[Administration](../server/30-administration.md)** — install the
+- **[Administration](../30-server/30-administration.md)** — install the
   `neops-remote-lab` service itself once the host is ready, including
   the recommended `systemd` unit and the stale-lock recovery runbook.
-- **[Configuration](../server/20-configuration.md)** — server CLI flags
+- **[Configuration](../30-server/20-configuration.md)** — server CLI flags
   (`--host`, `--port`, `--debug`) and client environment variables.
-- **[REST API](../server/10-rest-api.md)** — the HTTP surface now
+- **[REST API](../30-server/10-rest-api.md)** — the HTTP surface now
   protected by the tailnet.

@@ -140,28 +140,20 @@ Starting lab spine_leaf.yml - this may take several minutes...
 ## atexit is the last safety net
 
 <!-- trace: neops_remote_lab/netlab/lab_manager.py:327 -->
-At module import time `LabManager` registers a `_atexit_cleanup` function
-with `atexit.register`. When the interpreter exits, this runs
-`LabManager.cleanup(silent=True)` synchronously, which acquires the global
-file lock and tears down any running lab.
-
-The `silent=True` flag disables logging for the duration of the call — by
-the time `atexit` runs, the logging handlers have already had their streams
-closed, and logging through them raises `ValueError: I/O operation on
-closed file`.
-
-!!! danger "Never add async code to this path"
-    Once the interpreter reaches `atexit`, there is no running event loop.
-    If any `LabManager` teardown code awaits a coroutine, or blocks on an
-    asyncio primitive, it deadlocks and the process has to be killed. The
-    current teardown is synchronous subprocess calls to `netlab down
-    --cleanup`; keep it that way.
+`LabManager` registers a cleanup function with `atexit.register`. When the
+interpreter exits — normally or because pytest crashed — this hook runs and
+tears down any lab that is still up.
 
 !!! info "It also runs if someone forgot to release"
     A test that raises before reaching its `finally` block may never call
     release. The `atexit` hook still fires when the pytest process exits,
     so a lab that would otherwise be orphaned gets cleaned up. The queue
     head advances on the next server tick when the session times out.
+
+The `atexit` hook is intentionally synchronous and quiet — modifying it has
+sharp edges that contributors should know about. See
+[Invariants & Internals → atexit teardown](../50-contributing/20-invariants.md#atexit-teardown)
+before changing that path.
 
 ## Long-running CI host sanity check
 
@@ -191,13 +183,13 @@ the session has already been promoted to ACTIVE, wasting a queue slot.
 !!! warning "Canonicalise your topology filenames to .yml"
     Anywhere you reference a topology — fixture arguments, CI artifact
     names, Docker volume mounts — use `.yml`. See
-    [topology-format.md](40-topology-format.md) for the broader contract.
+    [Topology format](40-topology-format.md) for the broader contract.
 
 ## Where to go next
 
-- [topology-format.md](40-topology-format.md) — what goes inside the YAML
+- [Topology format](40-topology-format.md) — what goes inside the YAML
   file, and what `extra_files` can deliver alongside it.
-- [session-queue.md](20-session-queue.md) — how session promotion and
+- [Session queue](20-session-queue.md) — how session promotion and
   eviction drive the lifecycle transitions above.
-- [architecture.md](10-architecture.md) — where `LabManager` fits in the
+- [Architecture](10-architecture.md) — where `LabManager` fits in the
   overall request flow.

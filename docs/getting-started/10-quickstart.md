@@ -22,9 +22,15 @@ devices, and tears it down cleanly — all with three lines of test code.
 
     - **Ubuntu 22.04+** (or similar) with **Python 3.11+** and `pipx` available.
     - **`pytest`** installed in your project's virtual environment.
-    - **A reachable Remote Lab Manager** at some host — we will call its base
-      URL `$LAB_HOST`. If you also need to stand up the server itself, follow
-      [Netlab host setup](../deployment/10-netlab-host-setup.md) first and return here.
+    - **A reachable Remote Lab Manager** — its base URL goes into the
+      `REMOTE_LAB_URL` environment variable in step 2.
+
+!!! tip "Don't have a remote server yet?"
+    On Ubuntu you can run the server locally and point your tests at
+    `http://localhost:8000`. The deep-dive in
+    [Local development server](20-local-server.md) walks through the rootless
+    Netlab + Containerlab install and a one-command launch. You can finish
+    that page and come straight back here.
 
 ---
 
@@ -42,19 +48,21 @@ pip install neops-remote-lab
     Successfully installed neops-remote-lab-<version>
     ```
 
-Verify the pytest plugin registers:
+Verify the package and fixture import cleanly:
 
 ```bash
-pytest --trace-config 2>&1 | grep remote_lab
+python -c "from neops_remote_lab.testing.fixture import remote_lab_fixture; print('OK')"
 ```
 
 !!! success "Expected output"
     ```
-    PLUGIN registered: <module 'neops_remote_lab.testing.pytest_order_plugin' ...>
+    OK
     ```
 
-If you see the plugin line, pytest has auto-loaded the plugin via the package's
-entry point and `remote_lab_fixture` is importable from your test code.
+A successful import means the pytest plugin's entry point is registered (the
+package's `[project.entry-points.pytest11]` declares `neops-remote-lab` →
+`neops_remote_lab.pytest_plugins`) and `remote_lab_fixture` is reachable from
+your test code.
 
 ---
 
@@ -65,7 +73,9 @@ environment variable. The pytest fixture fails fast at session setup if this
 variable is missing — no silent fallback to localhost, no default. <!-- trace: neops_remote_lab/testing/fixture.py:34 -->
 
 ```bash title="Set the base URL"
-export REMOTE_LAB_URL="http://$LAB_HOST:8000"
+# Replace lab.example.com with your Remote Lab Manager hostname (or use
+# http://localhost:8000 if you started the server locally — see the tip above).
+export REMOTE_LAB_URL="http://lab.example.com:8000"
 ```
 
 !!! tip "Put it in a .env file"
@@ -169,7 +179,7 @@ pytest tests/test_demo.py -v
 !!! success "Expected output (abbreviated)"
     ```
     tests/test_demo.py::test_demo_lab_has_two_devices
-    [INFO] Connecting to remote lab at: http://<LAB_HOST>:8000
+    [INFO] Connecting to remote lab at: http://lab.example.com:8000
     [INFO] Created session 4b8c... at queue position 0
     [INFO] Session 4b8c... is active after 0.3s.
     [INFO] Starting lab acquisition for demo.yml (reuse=False)
@@ -207,8 +217,8 @@ Five things, in order:
    alive until the pytest process exits — `atexit` cleanup then closes it.
 
 For the full picture of the session queue, heartbeat timeouts, and the
-reference-counted lab lifecycle, read [Architecture](../concepts/10-architecture.md),
-[Session queue](../concepts/20-session-queue.md), and [Lab lifecycle](../concepts/30-lab-lifecycle.md) in
+reference-counted lab lifecycle, read [Architecture](../10-concepts/10-architecture.md),
+[Session queue](../10-concepts/20-session-queue.md), and [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) in
 that order.
 
 ---
@@ -217,11 +227,11 @@ that order.
 
 - **Multi-test sharing** — set `reuse_lab=True` on the factory to share one
   running lab across every test that uses the same topology. See the
-  `reuse_lab` parameter in [pytest fixtures](../client/10-pytest-fixtures.md).
+  `reuse_lab` parameter in [pytest fixtures](../20-client/10-pytest-fixtures.md).
 - **Authoring topologies** — vendor defaults, `extra_files`, the `.yml`
-  constraint, and common traps are in [Topology format](../concepts/40-topology-format.md).
+  constraint, and common traps are in [Topology format](../10-concepts/40-topology-format.md).
 - **Driving the server from Python without pytest** — the client class is
-  documented in [RemoteLabClient reference](../client/20-python-client.md).
+  documented in [RemoteLabClient reference](../20-client/20-python-client.md).
 - **Stable public API** — `remote_lab_fixture` is the stable contract
   consumed directly by `neops-worker-sdk-py`. Its signature and semantics
   will not break within a major version.

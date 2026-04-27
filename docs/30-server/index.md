@@ -22,13 +22,13 @@ through knobs (Configuration) to runbook (Administration).
 
 ## What to read next
 
-- **[Architecture](../concepts/10-architecture.md)** — why the service
+- **[Architecture](../10-concepts/10-architecture.md)** — why the service
   is shaped the way it is; the three cooperating components; the
   one-server-per-host and one-lab-per-host invariants.
-- **[Session Queue](../concepts/20-session-queue.md)** — the FIFO model
+- **[Session Queue](../10-concepts/20-session-queue.md)** — the FIFO model
   that the `X-Session-ID` access boundary enforces.
-- **[Netlab host setup](../deployment/10-netlab-host-setup.md)** — must
+- **[Netlab host setup](../40-deployment/10-netlab-host-setup.md)** — must
   be complete before the server will start; the launcher exits if
   `netlab` is not on `PATH`.
-- **[Headscale VPN](../deployment/20-headscale-vpn.md)** — the
+- **[Headscale VPN](../40-deployment/20-headscale-vpn.md)** — the
   recommended enclosure for the internal-trust HTTP surface.

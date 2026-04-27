@@ -13,7 +13,7 @@ Read the [Security posture](#security-posture) section before exposing the
 server on any network you do not fully control.
 
 !!! info "Prerequisites"
-    - Familiarity with the [architecture](../concepts/10-architecture.md) and [REST API](10-rest-api.md).
+    - Familiarity with the [architecture](../10-concepts/10-architecture.md) and [REST API](10-rest-api.md).
     - Shell access to the lab host with permission to read `/tmp`, kill processes, and restart the `neops-remote-lab` service.
     - `netlab` CLI installed and on `PATH`. If it is missing, the server exits before binding the port. <!-- trace: neops_remote_lab/__main__.py:206 -->
 
@@ -24,7 +24,7 @@ server on any network you do not fully control.
 !!! note "Netlab host setup comes first"
     This section assumes the Netlab CLI is already installed and runnable
     on the lab host. If you are starting from a fresh VM, complete
-    [Netlab host setup](../deployment/10-netlab-host-setup.md) first — the server
+    [Netlab host setup](../40-deployment/10-netlab-host-setup.md) first — the server
     launcher will refuse to start without `netlab` on `PATH`. <!-- trace: neops_remote_lab/__main__.py:206 -->
 
 The server ships as the `neops-remote-lab` Python distribution. The
@@ -214,9 +214,8 @@ neops-remote-lab --host 0.0.0.0 --port 8000
 ## Security posture
 
 !!! danger "The service has no authentication — treat it as internal-trust"
-    The `REMOTE_LAB_TOKEN` / Bearer-auth path in `RemoteLabClient` is
-    **commented out** and no endpoint in `server.py` enforces bearer
-    authentication. <!-- trace: neops_remote_lab/client.py:46 -->
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. No endpoint enforces an `Authorization` header.
 
 ### The only access boundary
 
@@ -343,6 +342,6 @@ Remember: **only one operator should be doing this at a time**. The Netlab
 
 - [REST API](10-rest-api.md) — endpoint reference for operator scripting
 - [Configuration](20-configuration.md) — flags and environment variables
-- [Architecture](../concepts/10-architecture.md) — where the single-instance + one-lab invariants come from
-- [Session queue](../concepts/20-session-queue.md) — FIFO semantics and 423 Locked flow
-- [Headscale + Tailscale VPN setup](../deployment/20-headscale-vpn.md) — common deployment model for private reachability
+- [Architecture](../10-concepts/10-architecture.md) — where the single-instance + one-lab invariants come from
+- [Session queue](../10-concepts/20-session-queue.md) — FIFO semantics and 423 Locked flow
+- [Headscale + Tailscale VPN setup](../40-deployment/20-headscale-vpn.md) — common deployment model for private reachability

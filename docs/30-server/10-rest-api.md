@@ -12,9 +12,8 @@ The Remote Lab Manager exposes a small HTTP surface for session management and
 lab lifecycle. This page documents every endpoint that callers are expected to
 use directly, together with its schema, error codes, and an example invocation.
 
-!!! danger "No authentication is wired"
-    The service has **no bearer-token or OAuth authentication** — the
-    `REMOTE_LAB_TOKEN` path is commented out in `client.py`. <!-- trace: neops_remote_lab/client.py:46 -->
+!!! danger "No HTTP authentication"
+    The service ships **without** bearer-token, OAuth, or mTLS authentication.
     The only access boundary on `/lab/*` is the `X-Session-ID` header of an
     **ACTIVE** session; non-active sessions receive `423 Locked`. The
     `/session/heartbeat` endpoint is gated less tightly: it only requires
@@ -171,7 +170,7 @@ either and the server reaps the session, and (if ACTIVE) frees its lab. <!-- tra
 !!! info "The fixture does this for you"
     The session-scoped `remote_lab_client` fixture pings heartbeat in the
     background. You only need to send heartbeats explicitly when you use
-    [`RemoteLabClient`](../client/20-python-client.md) directly from non-pytest code.
+    [`RemoteLabClient`](../20-client/20-python-client.md) directly from non-pytest code.
 
 **Headers**:
 
@@ -220,7 +219,7 @@ content hashes match. <!-- trace: neops_remote_lab/server.py:396 -->
     The server identifies topologies by SHA-256 of file content, not filename.
     Two files with different names but identical content share the same lab
     when `reuse=true`. Reference counting drops the lab when the count hits
-    zero. See [Lab lifecycle](../concepts/30-lab-lifecycle.md).
+    zero. See [Lab lifecycle](../10-concepts/30-lab-lifecycle.md).
 
 **Response** — `200 OK`, `AcquireResponseDto`:
 
@@ -416,7 +415,7 @@ contract can be promoted.
 
 ## See also
 
-- [Session queue](../concepts/20-session-queue.md) — FIFO semantics, stale-sweep timeouts, and 423 responses
-- [Lab lifecycle](../concepts/30-lab-lifecycle.md) — reference counting, SHA identity, and teardown
+- [Session queue](../10-concepts/20-session-queue.md) — FIFO semantics, stale-sweep timeouts, and 423 responses
+- [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting, SHA identity, and teardown
 - [Configuration](20-configuration.md) — environment variables and CLI flags for client and server
 - [Administration](30-administration.md) — operator runbook and security posture

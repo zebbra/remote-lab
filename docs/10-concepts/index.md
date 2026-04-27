@@ -25,9 +25,9 @@ HTTP surface papers over.
 
 ## What to read next
 
-- **[REST API](../server/10-rest-api.md)** — the endpoint-by-endpoint
+- **[REST API](../30-server/10-rest-api.md)** — the endpoint-by-endpoint
   contract these invariants enforce.
-- **[Pytest Fixtures](../client/10-pytest-fixtures.md)** — how
+- **[Pytest Fixtures](../20-client/10-pytest-fixtures.md)** — how
   `remote_lab_fixture` wraps these invariants into a stable public API.
-- **[Administration](../server/30-administration.md)** — the operator
+- **[Administration](../30-server/30-administration.md)** — the operator
   runbook that handles the failure modes these invariants allow.

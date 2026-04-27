@@ -256,7 +256,7 @@ pytest tests/test_frr_ospf.py -v
 !!! success "Expected output (abbreviated)"
     ```
     tests/test_frr_ospf.py::test_two_routers_present PASSED
-    tests/test_frr_ospf.py::test_devices_have_management_ips PASSED
+    tests/test_frr_ospf.py::test_devices_reported_by_netlab PASSED
     tests/test_frr_ospf.py::test_device_names_are_stable PASSED
     3 passed
     ```
@@ -283,8 +283,8 @@ downstream consumers.
 
 - [RemoteLabClient reference](20-python-client.md) — the HTTP client the
   fixtures wrap.
-- [Lab lifecycle](../concepts/30-lab-lifecycle.md) — reference counting and reuse semantics
+- [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting and reuse semantics
   (relevant when `reuse_lab=True`).
-- [Topology format](../concepts/40-topology-format.md) — what to put in the `.yml` file.
-- [Configuration](../server/20-configuration.md) — environment variables that the
+- [Topology format](../10-concepts/40-topology-format.md) — what to put in the `.yml` file.
+- [Configuration](../30-server/20-configuration.md) — environment variables that the
   `remote_lab_client` fixture reads.

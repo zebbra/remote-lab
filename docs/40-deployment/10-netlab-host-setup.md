@@ -68,7 +68,7 @@ All systems (Ansible, Docker, libvirt, etc.) must pass.
 
 ---
 
-If you're authoring tests against Remote Lab, see [Pytest fixtures](../client/10-pytest-fixtures.md) for the public fixture API, or [Quickstart](../getting-started/10-quickstart.md) to run your first lab-backed test.
+If you're authoring tests against Remote Lab, see [Pytest fixtures](../20-client/10-pytest-fixtures.md) for the public fixture API, or [Quickstart](../getting-started/10-quickstart.md) to run your first lab-backed test.
 
 For consumers integrating via `neops-worker-sdk-py`, that repo owns the `remote_lab_fixture` consumer surface.
 
@@ -301,7 +301,7 @@ links: [ r1, r2, r1-r2 ]
 | Wrong or missing image             | `netlab show images`                                                        |
 | `netlab up` asks for sudo password | Ensure `containerlab` runs without sudo, and you're in the right groups     |
 | `pip install` errors with `externally-managed-environment` | PEP 668 is blocking system pip on Ubuntu 24.04+; install via `pipx install networklab` instead (see §1 pipx warning) |
-| Forward link to `testing-framework.md` is broken | The old page was split into [Pytest fixtures](../client/10-pytest-fixtures.md) and [Quickstart](../getting-started/10-quickstart.md); update references to point at those |
+| Forward link to `testing-framework.md` is broken | The old page was split into [Pytest fixtures](../20-client/10-pytest-fixtures.md) and [Quickstart](../getting-started/10-quickstart.md); update references to point at those |
 
 You now have a **fully rootless, scriptable Netlab setup** that works cleanly in CI and without passwords or privilege
 escalation.

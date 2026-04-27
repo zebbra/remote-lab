@@ -21,15 +21,15 @@ environment to a passing test in about ten minutes.
 
 ## What to read next
 
-- **[Pytest Fixtures](../client/10-pytest-fixtures.md)** — the stable
+- **[Pytest Fixtures](../20-client/10-pytest-fixtures.md)** — the stable
   public API in full: factory arguments, the `remote_lab_client`
   session fixture, the one-fixture-per-test rule.
-- **[Architecture](../concepts/10-architecture.md)** — how the server,
+- **[Architecture](../10-concepts/10-architecture.md)** — how the server,
   `LabManager`, and client cooperate; useful before you start debugging
   queue or lifecycle behaviour.
-- **[Topology Format](../concepts/40-topology-format.md)** — the
+- **[Topology Format](../10-concepts/40-topology-format.md)** — the
   `.yml` extension rule and the `extra_files` multipart contract.
 
 If you are standing up the Remote Lab Manager host itself, start instead
-with [Netlab host setup](../deployment/10-netlab-host-setup.md) and
-[Headscale VPN](../deployment/20-headscale-vpn.md).
+with [Netlab host setup](../40-deployment/10-netlab-host-setup.md) and
+[Headscale VPN](../40-deployment/20-headscale-vpn.md).

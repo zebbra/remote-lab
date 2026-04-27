@@ -10,7 +10,7 @@
 #
 # https://myheadscale.example.com:443
 #
-server_url: http://91.99.184.46:8080
+server_url: http://CHANGE-ME.example:8080  # MUST replace with a host every Tailscale peer can reach
 
 # Address to listen to / bind to on the server
 #

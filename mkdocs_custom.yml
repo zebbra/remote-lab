@@ -1,29 +1,35 @@
 site_name: Neops Remote Lab
 
+# Append the tabbed extension on top of the base set so the rest-api / cURL
+# walkthroughs that use `=== "cURL"` style content tabs render correctly.
+markdown_extensions:
+  - pymdownx.tabbed:
+      alternate_style: true
+
 nav:
   - Start: index.md
   - Getting Started:
       - getting-started/index.md
       - getting-started/10-quickstart.md
   - Concepts:
-      - concepts/index.md
-      - concepts/10-architecture.md
-      - concepts/20-session-queue.md
-      - concepts/30-lab-lifecycle.md
-      - concepts/40-topology-format.md
+      - 10-concepts/index.md
+      - 10-concepts/10-architecture.md
+      - 10-concepts/20-session-queue.md
+      - 10-concepts/30-lab-lifecycle.md
+      - 10-concepts/40-topology-format.md
   - Client:
-      - client/index.md
-      - client/10-pytest-fixtures.md
-      - client/20-python-client.md
+      - 20-client/index.md
+      - 20-client/10-pytest-fixtures.md
+      - 20-client/20-python-client.md
   - Server:
-      - server/index.md
-      - server/10-rest-api.md
-      - server/20-configuration.md
-      - server/30-administration.md
+      - 30-server/index.md
+      - 30-server/10-rest-api.md
+      - 30-server/20-configuration.md
+      - 30-server/30-administration.md
   - Deployment:
-      - deployment/index.md
-      - deployment/10-netlab-host-setup.md
-      - deployment/20-headscale-vpn.md
+      - 40-deployment/index.md
+      - 40-deployment/10-netlab-host-setup.md
+      - 40-deployment/20-headscale-vpn.md
 #  - Dummy Project: '!include ./submodules/zebbra-mkdocs-dummyproject/mkdocs_custom.yml'
 
 
@@ -52,7 +58,7 @@ theme:
 # --8<-- [end:theme]
 
 # --8<-- [start:repo]
-repo_url: https://github.com/zebbra/neops
+repo_url: https://github.com/zebbra/neops-remote-lab
 edit_uri: edit/main/docs
 # --8<-- [end:repo]
 
