@@ -125,13 +125,13 @@ One-line definitions, grouped by domain. Each entry links to the in-depth page w
 :   Netlab's default provider (`provider: clab`); pulls vendor NOS containers and wires them.
 
 **[FRR](https://frrouting.org/)**
-:   Open-source software router; the default `device:` in most topologies. See [Vendor setup → FRR](../40-deployment/40-vendor-setup.md#frrouting-device-frr).
+:   Open-source software router; the default `device:` in most topologies. See [Vendor setup](../40-deployment/40-vendor-setup.md) (FRR tab).
 
 **[Nokia SR Linux](https://learn.srlinux.dev/)**
-:   Container-native vendor NOS, free under Nokia EULA. See [Vendor setup → Nokia SR Linux](../40-deployment/40-vendor-setup.md#nokia-sr-linux-device-srlinux).
+:   Container-native vendor NOS, free under Nokia EULA. See [Vendor setup](../40-deployment/40-vendor-setup.md) (Nokia SR Linux tab).
 
 **[Cisco IOL](https://netlab.tools/platforms/cisco_iol/)**
-:   IOS-on-Linux, license required. See [Vendor setup → Cisco IOL](../40-deployment/40-vendor-setup.md#cisco-iol-device-cisco_iol-license-required).
+:   IOS-on-Linux, license required. See [Vendor setup](../40-deployment/40-vendor-setup.md) (Cisco IOL tab).
 
 **[Headscale](https://headscale.net/)**
 :   Self-hosted Tailscale control plane; the recommended enclosure for the no-auth lab service. See [Headscale VPN](../40-deployment/20-headscale-quick-setup.md).
