@@ -200,6 +200,10 @@ Per-topology selection works the same as for any other Netlab device:
 - **Boot time is ~30 s per node.** Significantly faster than IOL or
   vMX, slower than FRR (which is seconds). For large topologies use
   Netlab's parallelism and the Remote Lab's `reuse_lab=True` to amortize.
+  When several CI jobs hit the same topology under contention, reuse is
+  the single biggest queue-collapse lever — see
+  [CI integration → Queue contention](../30-server/40-ci-integration.md#queue-contention-in-shared-ci)
+  for the math.
 
 ### Verify Netlab sees the image
 

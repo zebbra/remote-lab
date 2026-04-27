@@ -17,8 +17,9 @@ environment to a passing test in about ten minutes.
 
 | Guide | What you'll learn |
 |---|---|
-| [Quickstart](10-quickstart.md) | Install `neops-remote-lab`, set `REMOTE_LAB_URL`, write a minimal topology, declare a `remote_lab_fixture`, and run pytest against a real lab. |
+| [Quickstart](10-quickstart.md) | Install `neops-remote-lab`, set `REMOTE_LAB_URL`, write a minimal topology, declare a `remote_lab_fixture`, and run pytest against a real lab. The Python-first onramp; if you're driving from another stack, see the REST quickstart below. |
 | [Local development server](20-local-server.md) | Don't have a remote VM yet? Install the prerequisites on Ubuntu, run the server on `localhost:8000`, and point your tests at it. The on-ramp for OSS readers and zebbra-internal devs alike. |
+| [REST quickstart](30-rest-quickstart.md) | Drive the lab end-to-end with cURL — create a session, upload a topology, inspect devices, release. The cURL-first onramp for any HTTP-capable stack. The pytest fixture and Python client wrap exactly this lifecycle. |
 
 ## What to read next
 

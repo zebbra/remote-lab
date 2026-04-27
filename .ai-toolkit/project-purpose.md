@@ -36,6 +36,15 @@ Python engineers on the zebbra team modifying the `neops-remote-lab` codebase it
 - **What they don't know (until they read):** the invariants around queue / session / filelock / atexit / `_run_blocking()`; which Netlab invocation paths are allowed; which dependencies carry CVE pins.
 - **What they expect from docs:** an invariants reference and contribution-flow content inside the docs tree, not only in AGENTS.md. They may arrive via the user-facing docs as well as AGENTS.md.
 
+### 4. External API user (any stack)
+
+Network-automation engineer at a non-neops organization, mid-to-senior, who reaches the project through OSS channels (a SwiNOG-style conference talk, GitHub discovery, a colleague's recommendation, a search for "Netlab as a service" / "remote lab broker" / "lab-as-a-service") and wants to drive a real Netlab topology from whatever automation harness they already run — possibly Python without pytest, possibly Go, possibly shell, possibly Robot Framework. Test/QA engineers and platform/DevX engineers also self-identify here. Existing three audiences keep their primary positions; this audience is appended, not promoted.
+
+- **Arrival context:** cold-start. No neops context, no familiarity with `neops-worker-sdk-py`, possibly no familiarity with pytest patterns. Found the project, read the README, wants to evaluate whether the HTTP surface fits their existing pipeline.
+- **What they know walking in:** networking deeply (BGP, OSPF, vendor configs, the difference between FRR and a real NOS); Netlab and Containerlab as concepts; HTTP/REST APIs at general competence; at least one of Python / Go / shell at scripting depth; their own CI tooling (Jenkins, GitLab CI, GitHub Actions, Drone, etc.).
+- **What they don't know:** the neops worker-SDK and function-block model (and don't need to); the session-queue / heartbeat semantics (need to learn); the SHA-256 content-hash topology identity rule; the `.yml` extension trap; the no-auth security posture and why a VPN is non-negotiable.
+- **What they expect from docs:** a landing page that reads value-prop-first without forcing them through neops vocabulary; the REST API treated as a first-class consumer surface, not just an internal mechanism; concrete examples in shapes other than pytest (cURL minimum; light pointers to "any HTTP client works"); a quickstart they can complete in their stack of choice without installing the Python client; CI integration guidance (pipeline examples, queue tuning) for when they wire it into their existing harness; a debugging reference they can grep when something breaks.
+
 ## Job-to-be-done
 
 The three audiences have genuinely different JTBDs. Writers must pick the frame that matches the page.
@@ -45,6 +54,8 @@ The three audiences have genuinely different JTBDs. Writers must pick the frame 
 **Operator** runs a Remote Lab host smoothly, maintains it, debugs it when something breaks, and handles the surrounding VPN / Netlab plumbing. **Outer motivator: provide remote-lab as reliable team-scoped infrastructure** so SDK consumers and CI can actually run their tests, and so the operator is not the bottleneck during incidents.
 
 **Contributor** extends or fixes remote-lab without breaking (a) the SDK consumer's `remote_lab_fixture` contract or (b) the stability operators depend on. **Outer motivator: keep remote-lab trustworthy as the SDK's test substrate.**
+
+**External API user** wants exclusive, programmatic access to a real Netlab topology over HTTP, callable from whatever automation harness they already run. The framing is plural by design — this audience came in via a SwiNOG-style talk where the room contained "make integration tests routine in CI", "centralize per-developer Netlab installs", "pre-deploy config validation", and "general lab-as-a-service" all at once. **Outer motivator: get real-network behavior into their existing automation pipeline without standing up and operating Netlab themselves.**
 
 ## Role in neops
 
@@ -101,6 +112,11 @@ Eight journeys. Three per primary audience, two for contributors. Consumer and o
 - **Trigger:** CVE alert or scheduled dep bump.
 - **Steps:** Identify pin reason (`# CVE-*` comments in `pyproject.toml`) → bump to a version that preserves the fix → regenerate `uv.lock` → `make audit` → `make check`.
 - **Success signal:** Pin comments preserved or updated, `make audit` clean, no behavior regression.
+
+### I. Driving a remote lab from a non-Python automation harness (External API user)
+- **Trigger:** Existing CI/CD or test harness in Go, Bash, Robot Framework, Ansible, or another stack needs exclusive access to a Netlab topology.
+- **Steps:** Find/stand up a Remote Lab Manager → set the base URL → POST /session → poll until ACTIVE → POST /lab with a topology → drive the devices → POST /lab/release → DELETE /session.
+- **Success signal:** Their existing pipeline gets a fresh-or-shared lab on every run; teardown is automatic; they never imported a Python package.
 
 ## Non-obvious truths
 
@@ -165,6 +181,12 @@ Invariants and gotchas that are not obvious from code or a README skim. Classifi
 - **Add async code to the `atexit` cleanup path** — deadlock at exit.
 - **Drop the `*Dto` suffix on Pydantic request/response models**.
 - **Remove `# CVE-*` comments on dep upgrades** — preserve or replace with a newer safe version and re-run `make audit`.
+
+### External API user — don't
+- **Skip the heartbeat in long-running clients** — a 5-minute pause without polling/heartbeat means the session goes stale and the lab gets reaped from under you.
+- **Talk to the service over a public network** — there's no auth; the `X-Session-ID` is not a secret. Internal-trust only; deploy behind a VPN or trusted network.
+- **Treat `reuse=true` as cheap when your test mutates device configs** — reuse means another caller may attach to the same lab and see your mutations.
+- **Hardcode the SHA-256 topology hash anywhere** — it's a server-side identity; clients never need to compute or send it.
 
 ## Voice and tone
 

@@ -1,6 +1,6 @@
 ---
 title: Remote Lab
-description: FastAPI service plus pytest11 plugin that gives integration tests exclusive access to a real Netlab topology via a FIFO queue.
+description: FastAPI service exposing exclusive, queue-brokered access to a real Netlab topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.
 tags: [concept, overview]
 crosslink_defines: [remote-lab]
 crosslink_references: []
@@ -8,7 +8,7 @@ crosslink_references: []
 
 # Neops Remote Lab
 
-*A FastAPI service and pytest11 plugin that gives your tests exclusive access to a real [Netlab](https://netlab.tools/) topology — without stepping on anyone else's.*
+*A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.*
 
 Network-automation tests want real devices, not mocks. But [Netlab](https://netlab.tools/) only lets
 one topology run per host, so a shared lab host turns into a collision
@@ -140,6 +140,17 @@ SHA-256-keyed reuse counting is covered in
 
     [Open AGENTS.md on GitHub →](https://github.com/zebbra/neops-remote-lab/blob/develop/AGENTS.md)
 
+-   **External API users** — you want exclusive lab access from any HTTP-capable stack
+
+    ---
+
+    Drive the lab from cURL, Go, Robot Framework, your CI shell pipeline,
+    or any other tool that speaks HTTP. The Python client and pytest fixture
+    are convenience layers; the REST API is the universal surface and is
+    fully documented.
+
+    [Open the REST quickstart →](getting-started/30-rest-quickstart.md)
+
 </div>
 
 ## Reading paths
@@ -168,6 +179,13 @@ Pick the route that matches your current question.
     [Pytest fixtures](20-client/10-pytest-fixtures.md).
     The API reference is authoritative; the Python client is a thin
     wrapper over it; the fixture is the stable consumer surface.
+
+!!! info "Driving from a non-Python stack — you are integrating into an existing harness"
+    [REST quickstart](getting-started/30-rest-quickstart.md) →
+    [CI integration](30-server/40-ci-integration.md) →
+    [Debugging](30-server/50-debugging.md).
+    Stand up a session and a lab end-to-end with cURL, then wire it into
+    your CI runner of choice.
 
 ## External references
 

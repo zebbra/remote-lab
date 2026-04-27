@@ -12,6 +12,7 @@ nav:
       - getting-started/index.md
       - getting-started/10-quickstart.md
       - getting-started/20-local-server.md
+      - getting-started/30-rest-quickstart.md
   - Concepts:
       - 10-concepts/index.md
       - 10-concepts/10-architecture.md
@@ -27,6 +28,8 @@ nav:
       - 30-server/10-rest-api.md
       - 30-server/20-configuration.md
       - 30-server/30-administration.md
+      - 30-server/40-ci-integration.md
+      - 30-server/50-debugging.md
   - Deployment:
       - 40-deployment/index.md
       - 40-deployment/10-netlab-host-setup.md
@@ -36,6 +39,9 @@ nav:
       - 50-contributing/index.md
       - 50-contributing/10-dev-setup.md
       - 50-contributing/20-invariants.md
+  - Appendix:
+      - 99-appendix/index.md
+      - 99-appendix/glossary.md
 #  - Dummy Project: '!include ./submodules/zebbra-mkdocs-dummyproject/mkdocs_custom.yml'
 
 

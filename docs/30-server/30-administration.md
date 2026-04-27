@@ -320,6 +320,11 @@ Remember: **only one operator should be doing this at a time**. The Netlab
 
 ## Troubleshooting
 
+!!! info "Looking for client-side debugging or HTTP error codes?"
+    This troubleshooting table is for operators of the lab host. For
+    client-side debugging, log patterns, and the HTTP-error-code
+    reference, see [Debugging](50-debugging.md).
+
 | Symptom | Likely cause | Recovery |
 |---|---|---|
 | `Another Remote Lab Manager instance is already running.` on startup | Filelock held by another (possibly dead) process | Inspect `/tmp/neops_remote_lab_server.meta.json`; if PID is not alive, delete the lock + meta file and retry. See [Stale-lock recovery](#stale-lock-recovery). |

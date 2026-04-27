@@ -19,6 +19,8 @@ through knobs (Configuration) to runbook (Administration).
 | [REST API](10-rest-api.md) | Every endpoint the service exposes: request schema, response DTOs, error codes, the `X-Session-ID` contract, and end-to-end cURL walkthroughs. |
 | [Configuration](20-configuration.md) | Client environment variables, the one server environment variable (`NEOPS_NETLAB_STREAM_OUTPUT`), server CLI flags, and the defaults you should almost never change. |
 | [Administration](30-administration.md) | Install via `pipx`, run under `systemd`, recover a stale filelock, handle a stuck lab, and the security posture you sign up for (the service has no authentication). |
+| [CI integration](40-ci-integration.md) | Pipeline-step examples for GitHub Actions, GitLab CI, and Jenkins. Timeout coordination, queue-contention math, parallelism trade-offs, and VPN-runner notes. The reference for wiring Remote Lab into your existing CI. |
+| [Debugging](50-debugging.md) | Quick-reference symptom/cause/fix table; common HTTP error codes; client-log + server-log pattern tables; the `/debug/health` endpoint; stale-state recovery. The page to grep when something breaks. |
 
 ## What to read next
 
