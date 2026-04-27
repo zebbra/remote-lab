@@ -50,6 +50,7 @@ Read it next.
 
 ## See also
 
+- **[With Worker SDK](../20-client/15-worker-sdk.md)** — the Remote-Lab-side notes for Worker SDK consumers (which topology kinds, multi-vendor recipes, where fixtures go in the worker test layout).
 - **[Pytest fixtures](../20-client/10-pytest-fixtures.md)** — the public API the Worker SDK imports.
 - **[Worker SDK → Function blocks](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/)** — the unit of automation work whose tests this fixture serves.
 - **[Neops ecosystem](../99-appendix/neops-ecosystem.md)** — how Remote Lab fits with the rest of the platform.

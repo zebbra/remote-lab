@@ -45,6 +45,7 @@ nav:
   - Use from Python:
       - "Use from Python": 20-client/index.md
       - "Pytest fixtures": 20-client/10-pytest-fixtures.md
+      - "With Worker SDK": 20-client/15-worker-sdk.md
       - "Python client": 20-client/20-python-client.md
       - "Client config": 20-client/30-configuration.md
   - Run the service:

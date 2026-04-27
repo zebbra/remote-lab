@@ -6,28 +6,70 @@ crosslink_defines: []
 crosslink_references: []
 ---
 
-# Pytest Fixtures
+# Pytest fixtures
 
-`remote_lab_fixture` is the **stable public API** of this project.
+*`remote_lab_fixture` is the stable public API. Three lines of test code; the queue, the lifecycle, and teardown disappear into the fixture.*
 
-It is imported directly by the
-[Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) to give
-[function-block](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/)
-tests a real Netlab topology to run against
-([integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)).
-Its signature is part of that contract — *changes are breaking and
-require a major version bump*.
+!!! tip "Using this from the Worker SDK?"
+    The [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) imports `remote_lab_fixture` directly. Read [With Worker SDK](15-worker-sdk.md) and the SDK's [Remote lab testing guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/) for the function-block-test patterns.
 
-If you are writing tests, this is the page you want. If you need to drive
-the server from a script instead, see the
-[RemoteLabClient reference](20-python-client.md)
-instead.
+## Happy path: three tests, one running lab
+
+The shape you'll write 90% of the time — `reuse_lab=True` so a fleet of small assertions against the same topology pays the `netlab up` cost **once**:
+
+```python title="tests/conftest.py"
+from neops_remote_lab.testing.fixture import remote_lab_fixture
+
+# One topology, shared across every test that requests `simple_lab`.
+simple_lab = remote_lab_fixture(
+    "tests/topologies/simple_frr.yml",
+    reuse_lab=True,  # (1)!
+)
+```
+
+1. With `reuse_lab=True`, the second test that requests `simple_lab` finds the lab already running and just bumps the reference count. Without it, the first test's teardown tears the lab down — the second pays the boot cost again.
+
+```python title="tests/test_frr_routing.py"
+def test_two_routers_present(simple_lab):
+    assert len(simple_lab) == 2
+
+def test_devices_have_names(simple_lab):
+    assert {d.name for d in simple_lab} == {"r1", "r2"}
+
+def test_device_metadata_is_a_dict(simple_lab):
+    for d in simple_lab:
+        assert isinstance(d.raw, dict)
+```
+
+```bash
+export REMOTE_LAB_URL="http://$LAB_HOST:8000"
+pytest tests/ -v
+```
+
+!!! success "What you'll see"
+
+    ```text
+    tests/test_frr_routing.py::test_two_routers_present
+    [INFO] Created session 4b8c... at queue position 0
+    [INFO] Session 4b8c... is active after 0.3s
+    [INFO] Lab acquired successfully (reused=False)
+    PASSED
+
+    tests/test_frr_routing.py::test_devices_have_names
+    [INFO] Lab acquired successfully (reused=True)
+    PASSED
+
+    tests/test_frr_routing.py::test_device_metadata_is_a_dict
+    [INFO] Lab acquired successfully (reused=True)
+    PASSED
+
+    [INFO] Releasing remote lab for simple_frr.yml
+    ```
+
+Three tests; one boot; three reuses. The final `release` drops the refcount to zero — the lab idles until the pytest session ends, then `atexit` cleans it up.
 
 !!! info "How the plugin loads"
-    Installing `neops-remote-lab` registers a pytest plugin via the package's
-    entry points. You do not add anything to `conftest.py` to enable it; you
-    only need to import `remote_lab_fixture` at module scope where you want
-    a fixture.
+    Installing `neops-remote-lab` registers a pytest plugin via the package's entry points. You do not add anything to `conftest.py` to enable it; you only need to import `remote_lab_fixture` at module scope where you want a fixture.
 
 ---
 
