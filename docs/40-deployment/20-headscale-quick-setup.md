@@ -8,7 +8,7 @@ crosslink_references: []
 
 # Headscale VPN — Quick setup
 
-The lab service ships [without HTTP authentication](../30-server/40-security.md), so deployment lives or dies on the network boundary. This page is the five-command happy path: a [Headscale](https://headscale.net/) control plane, the [Headplane](https://github.com/tale/headplane) UI, the lab host as a subnet router, and one client peer that can reach the lab subnet. For ACLs, OIDC, and troubleshooting tables, see [Headscale VPN — Reference](30-headscale-reference.md).
+The lab service ships [without HTTP authentication](../30-server/30-security.md), so deployment lives or dies on the network boundary. This page is the five-command happy path: a [Headscale](https://headscale.net/) control plane, the [Headplane](https://github.com/tale/headplane) UI, the lab host as a subnet router, and one client peer that can reach the lab subnet. For ACLs, OIDC, and troubleshooting tables, see [Headscale VPN — Reference](30-headscale-reference.md).
 
 !!! info "Placeholder convention"
     Substitute `$HEADSCALE_HOST` with your Headscale server's IP or DNS name (`export HEADSCALE_HOST=lab.example.com`) and `$LAB_SUBNET` with the IPv4 CIDR of the lab network (`export LAB_SUBNET=192.168.121.0/24`). The libvirt default is `192.168.121.0/24`; a Containerlab-only host typically uses a `172.20.20.0/24` management bridge.
@@ -126,5 +126,5 @@ curl -fsS "http://<lab-host-tailnet-ip>:8000/healthz" && echo OK
 ## What to do next
 
 - **[Headscale VPN — Reference](30-headscale-reference.md)** — ACLs, user management, system settings, troubleshooting.
-- **[Administration](../30-server/30-administration.md)** — install the lab service itself behind the tailnet you just stood up.
-- **[Security model](../30-server/40-security.md)** — what the tailnet is protecting against, and what it isn't.
+- **[Administration](../30-server/10-administration.md)** — install the lab service itself behind the tailnet you just stood up.
+- **[Security model](../30-server/30-security.md)** — what the tailnet is protecting against, and what it isn't.

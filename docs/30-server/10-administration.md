@@ -60,7 +60,7 @@ installer you used.
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](40-security.md) for the full posture.
+    [Security model](30-security.md) for the full posture.
 
 !!! info "Before you start"
     Netlab CLI must already be on `PATH` — the launcher refuses to start without it. <!-- trace: neops_remote_lab/__main__.py:206 --> If the host is fresh, run [Netlab host setup](../40-deployment/10-netlab-host-setup.md) first. You'll also want shell access with permission to read `/tmp`, kill processes, and restart the service.
@@ -219,7 +219,7 @@ curl -s "http://$LAB_HOST:8000/debug/health" | jq .
 ```
 
 Returns uptime, queue length, and session count. Intended for debugging only —
-see the note in the [REST API reference](10-rest-api.md#endpoints-not-documented-here).
+see the note in the [REST API reference](40-rest-api.md#endpoints-not-documented-here).
 
 ### Log monitoring
 
@@ -282,9 +282,9 @@ Remember: **only one operator should be doing this at a time**. The Netlab
 
 ## See also
 
-- [REST API](10-rest-api.md) — endpoint reference for operator scripting
+- [REST API](40-rest-api.md) — endpoint reference for operator scripting
 - [Configuration](20-configuration.md) — flags and environment variables
-- [Security model](40-security.md) — the threat model the operational guidance above is built on top of
+- [Security model](30-security.md) — the threat model the operational guidance above is built on top of
 - [Architecture](../10-concepts/10-architecture.md) — where the single-instance + one-lab invariants come from
 - [Session Queue](../10-concepts/20-session-queue.md) — FIFO semantics and 423 Locked flow
 - [Headscale VPN — Quick setup](../40-deployment/20-headscale-quick-setup.md) — the recommended VPN enclosure

@@ -131,7 +131,7 @@ An ACTIVE session must heartbeat — see [Session Queue → The heartbeat](20-se
 <!-- trace: neops_remote_lab/netlab/lab_manager.py:125 -->
 Before starting any new lab, `_start` forcibly runs `netlab down --instance default --cleanup` to reclaim a stale default instance left over from a crashed prior job. The call is made with `expected_failure=True`, so when no default instance exists it's a silent no-op.
 
-For the operator's view of the same cleanup at server startup time, see [Administration → Starting the server](../30-server/30-administration.md#starting-the-server).
+For the operator's view of the same cleanup at server startup time, see [Administration → Starting the server](../30-server/10-administration.md#starting-the-server).
 
 ## Where to go next
 

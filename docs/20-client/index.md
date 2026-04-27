@@ -37,7 +37,7 @@ notebook, or any non-pytest context.
   sits relative to the server and `LabManager`.
 - **[Lab Lifecycle](../10-concepts/30-lab-lifecycle.md)** — reference
   counting and reuse semantics that `reuse_lab=True` opts into.
-- **[REST API](../30-server/10-rest-api.md)** — the authoritative endpoint
+- **[REST API](../30-server/40-rest-api.md)** — the authoritative endpoint
   reference the Python client wraps.
 - **[CI quickstart](../getting-started/40-ci.md)** — wire the
   same env vars into GitHub Actions, GitLab CI, or Jenkins pipelines.

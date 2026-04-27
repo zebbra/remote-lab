@@ -88,7 +88,7 @@ address, and the command that started it — then exits with status 1.
     and probing whether the recorded PID is still alive; when the PID is gone
     it clears the stale metadata and proceeds. If both are stuck (live PID for a
     process that is actually hung), kill the PID manually. See
-    [Administration](../30-server/30-administration.md).
+    [Administration](../30-server/10-administration.md).
 
 ## The one-lab-per-host guard
 
@@ -130,7 +130,7 @@ cleanup attempts.
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](../30-server/40-security.md) for the full posture.
+    [Security model](../30-server/30-security.md) for the full posture.
 
 ## Where to go next
 

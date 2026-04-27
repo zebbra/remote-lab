@@ -8,13 +8,13 @@ crosslink_references: []
 
 # Debugging
 
-Grep this page when something breaks — for any client, in any language. Symptom-first table below; underlying mechanisms and log patterns expand each row further down. For operator-side runbook entries (stuck filelocks, port conflicts, server startup), see [Administration → Troubleshooting](30-administration.md#troubleshooting).
+Grep this page when something breaks — for any client, in any language. Symptom-first table below; underlying mechanisms and log patterns expand each row further down. For operator-side runbook entries (stuck filelocks, port conflicts, server startup), see [Administration → Troubleshooting](10-administration.md#troubleshooting).
 
 !!! danger "No HTTP authentication"
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](40-security.md) for the full posture.
+    [Security model](30-security.md) for the full posture.
 
 ## Quick reference
 
@@ -25,13 +25,13 @@ Grep this page when something breaks — for any client, in any language. Sympto
 | `423 Locked` on every `/lab/*` call | Your session is `WAITING`, not `ACTIVE` | Poll `GET /session/{id}` until status is `active`. If it stays `waiting`, another session is ahead of you in the queue. |
 | `423 Locked` on `POST /lab` only | Lab is busy with a different topology | The client retries every 5 s automatically. If you cannot wait, see "Lab stuck busy" below. |
 | `404 Not Found` on `GET /session/{id}` | Session expired (heartbeat or queue timeout) | Create a new session. See [Stale-session eviction](../10-concepts/20-session-queue.md#stale-session-eviction) for the timeouts. |
-| Lab stuck busy on every request | A previous session did not release | Force-destroy with `DELETE /lab?force=true` using an active `X-Session-ID`, or restart the server. See [Administration → Forced cleanup](30-administration.md#forced-cleanup-of-a-stuck-lab). |
+| Lab stuck busy on every request | A previous session did not release | Force-destroy with `DELETE /lab?force=true` using an active `X-Session-ID`, or restart the server. See [Administration → Forced cleanup](10-administration.md#forced-cleanup-of-a-stuck-lab). |
 | Containers unreachable from the test | VPN or routing problem | Confirm Tailscale/Headscale is up; check `network_mode: host` in the topology; review firewall rules. See [Headscale VPN](../40-deployment/20-headscale-quick-setup.md). |
 | Connection refused on `$REMOTE_LAB_URL` | Server not running, wrong host, or VPN down | `curl $REMOTE_LAB_URL/healthz` should return 204. If it errors, fix transport before continuing. |
 
 For the operator's view of the same symptom space (stale filelocks, port
 conflicts, `netlab` not installed), see
-[Administration → Troubleshooting](30-administration.md#troubleshooting).
+[Administration → Troubleshooting](10-administration.md#troubleshooting).
 
 ---
 
@@ -128,7 +128,7 @@ and diagnostic scripts.
 
 When `RemoteLabClient` or your own code hits the REST API, these status
 codes indicate specific conditions. The full status-code matrix per
-endpoint is in [REST API](10-rest-api.md).
+endpoint is in [REST API](40-rest-api.md).
 
 | Code | Endpoint(s) | Meaning | What to do |
 |------|-------------|---------|------------|
@@ -141,7 +141,7 @@ endpoint is in [REST API](10-rest-api.md).
 
 `DELETE /lab` returns `204 No Content` (not `404`) when the session is
 `ACTIVE` but no lab is running — there is nothing to destroy. See
-[REST API → `DELETE /lab`](10-rest-api.md#delete-lab-destroy-the-lab)
+[REST API → `DELETE /lab`](40-rest-api.md#delete-lab-destroy-the-lab)
 for the full matrix.
 
 ---
@@ -225,7 +225,7 @@ netlab down --cleanup
 
 For stale lock files (`/tmp/neops_remote_lab_server.lock` or
 `/tmp/netlab_pytest.lock`), follow the recovery procedure in
-[Administration → Stale-lock recovery](30-administration.md#stale-lock-recovery)
+[Administration → Stale-lock recovery](10-administration.md#stale-lock-recovery)
 — do not just delete them blindly. A stale lock is a signal that a
 prior process crashed; investigate before clearing.
 
@@ -244,9 +244,9 @@ curl -s -X DELETE "$REMOTE_LAB_URL/session/<orphaned-session-id>"
 
 ## Where to go next
 
-- **[REST API](10-rest-api.md)** — endpoint-by-endpoint reference. The
+- **[REST API](40-rest-api.md)** — endpoint-by-endpoint reference. The
   authoritative source for status codes and response DTOs.
-- **[Administration](30-administration.md)** — operator-side runbook
+- **[Administration](10-administration.md)** — operator-side runbook
   (stale filelocks, port conflicts, `netlab` startup checks).
 - **[Session queue](../10-concepts/20-session-queue.md)** — the FIFO
   state machine behind every queue-related symptom on this page.

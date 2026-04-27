@@ -24,7 +24,7 @@ One-line definitions, grouped by domain. Each entry links to the in-depth page w
 :   `POST /session/heartbeat` — refreshes `last_seen_at` so the server does not evict the session as stale. See [Session queue → The heartbeat](../10-concepts/20-session-queue.md#the-heartbeat).
 
 **`X-Session-ID`**
-:   The HTTP header that gates `/lab/*`; **the only access boundary on the lab surface**. See [REST API → The X-Session-ID contract](../30-server/10-rest-api.md#the-x-session-id-contract).
+:   The HTTP header that gates `/lab/*`; **the only access boundary on the lab surface**. See [REST API → The X-Session-ID contract](../30-server/40-rest-api.md#the-x-session-id-contract).
 
 ---
 

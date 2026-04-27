@@ -37,5 +37,5 @@ Material that does not belong to a single section but is referenced from many.
 ## What to read next
 
 - **[Start](../index.md)** — the landing page and reading paths.
-- **[REST API](../30-server/10-rest-api.md)** — endpoint-by-endpoint reference.
+- **[REST API](../30-server/40-rest-api.md)** — endpoint-by-endpoint reference.
 - **[Invariants](../50-contributing/20-invariants.md)** — the eight load-bearing rules behind the terminology.

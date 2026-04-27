@@ -14,7 +14,7 @@ Every endpoint the Remote Lab Manager exposes for direct consumer use, with **sc
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](40-security.md) for the full posture.
+    [Security model](30-security.md) for the full posture.
 
 ## The X-Session-ID contract
 
@@ -375,4 +375,4 @@ contract can be promoted.
 - [Session queue](../10-concepts/20-session-queue.md) — FIFO semantics, stale-sweep timeouts, and 423 responses
 - [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting, SHA identity, and teardown
 - [Configuration](20-configuration.md) — environment variables and CLI flags for client and server
-- [Administration](30-administration.md) — operator runbook and security posture
+- [Administration](10-administration.md) — operator runbook and security posture

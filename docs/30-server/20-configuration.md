@@ -14,7 +14,7 @@ Server-side knobs only: a handful of CLI flags on the `neops-remote-lab` entry p
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](40-security.md) for the full posture.
+    [Security model](30-security.md) for the full posture.
 
 ## Server CLI flags
 
@@ -22,7 +22,7 @@ The `neops-remote-lab` entry point is defined in `neops_remote_lab/__main__.py:m
 
 | Flag | Default | Description |
 |---|---|---|
-| `--host <addr>` | `0.0.0.0` | Interface to bind. The default binds on all interfaces — only appropriate on trusted networks (see [Security model](40-security.md)). |
+| `--host <addr>` | `0.0.0.0` | Interface to bind. The default binds on all interfaces — only appropriate on trusted networks (see [Security model](30-security.md)). |
 | `--port <int>` | `8000` | TCP port. |
 | `--log-level <level>` | `INFO` | Python logging level applied to the remote-lab loggers. Case-insensitive (`DEBUG`, `INFO`, `WARNING`, `ERROR`). |
 | `--log-config <path>` | `logging_config.yaml` | Path to a YAML logging config. If the path does not exist, the packaged default is used (`neops_remote_lab/logging_config.yaml`). |
@@ -91,7 +91,7 @@ The server sets this automatically when you launch it with `--debug`. Export it 
 
 The entry point performs two pre-flight checks before binding the HTTP port:
 
-- **Single-instance lock** — see [Administration → Single-instance filelock](30-administration.md#single-instance-filelock).
+- **Single-instance lock** — see [Administration → Single-instance filelock](10-administration.md#single-instance-filelock).
 - **Netlab CLI on PATH** — if `shutil.which("netlab")` returns `None` the server logs the install URL and exits with `SystemExit(1)` before starting. <!-- trace: neops_remote_lab/__main__.py:206 --> Install Netlab on the host before starting the server — see [Netlab host setup](../40-deployment/10-netlab-host-setup.md).
 
 ## What you almost never need to change
@@ -107,7 +107,7 @@ Client environment variables (`REMOTE_LAB_URL` plus the three timeout overrides)
 
 ## See also
 
-- [REST API](10-rest-api.md) — endpoints served on `--host`:`--port`
-- [Administration](30-administration.md) — operator runbook
-- [Security model](40-security.md) — the threat model the `--host` recommendation above is built on top of
+- [REST API](40-rest-api.md) — endpoints served on `--host`:`--port`
+- [Administration](10-administration.md) — operator runbook
+- [Security model](30-security.md) — the threat model the `--host` recommendation above is built on top of
 - [Use from Python → Configuration](../20-client/30-configuration.md) — client environment variables

@@ -53,10 +53,10 @@ to add a new device kind.
 
 ## What to read next
 
-- **[Administration](../30-server/30-administration.md)** — install the
+- **[Administration](../30-server/10-administration.md)** — install the
   `neops-remote-lab` service itself once the host is ready, including
   the recommended `systemd` unit and the stale-lock recovery runbook.
 - **[Configuration](../30-server/20-configuration.md)** — server CLI flags
   (`--host`, `--port`, `--debug`) and client environment variables.
-- **[REST API](../30-server/10-rest-api.md)** — the HTTP surface now
+- **[REST API](../30-server/40-rest-api.md)** — the HTTP surface now
   protected by the tailnet.

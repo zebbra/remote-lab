@@ -25,7 +25,7 @@ A `204 No Content` on `/healthz` is the liveness signal. Anything else — a con
 !!! info "Before you start"
     - **A reachable Remote Lab Manager** — `BASE_URL` above. If you are running it locally, that is `http://localhost:8000` (see [Local development server](20-local.md)).
     - **`curl`** and **`jq`** on your `PATH`. `apt install jq` / `brew install jq`.
-    - **VPN connectivity to the lab host.** The service has no HTTP authentication — see [Security model](../30-server/40-security.md).
+    - **VPN connectivity to the lab host.** The service has no HTTP authentication — see [Security model](../30-server/30-security.md).
 
 !!! tip "Wrong page?"
     On a Python path? The pytest-flavored [Quickstart](10-pytest.md) is shorter. Wiring this into CI? See [CI quickstart](40-ci.md).
@@ -306,7 +306,7 @@ layers over exactly this lifecycle. Two short sketches:
   lifecycle into GitHub Actions, GitLab CI, or Jenkins. Threads out to
   the queue-contention math for sizing concurrency against a single lab
   host.
-- **[REST API](../30-server/10-rest-api.md)** — the authoritative
+- **[REST API](../30-server/40-rest-api.md)** — the authoritative
   endpoint reference: every status code, every response DTO, every
   edge case `/debug/health` and `/active-session` cover.
 - **[Debugging](../30-server/50-debugging.md)** — the page to grep when

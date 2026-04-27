@@ -201,4 +201,4 @@ Curious what just happened? [Runtime walk-through](../10-concepts/10-architectur
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](../30-server/40-security.md) for the full posture.
+    [Security model](../30-server/30-security.md) for the full posture.

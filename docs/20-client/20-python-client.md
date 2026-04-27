@@ -21,7 +21,7 @@ the stable contract consumed by the
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](../30-server/40-security.md) for the full posture.
+    [Security model](../30-server/30-security.md) for the full posture.
 
 ---
 
@@ -285,4 +285,4 @@ Constructor arguments default to the corresponding env vars: `base_url` falls ba
 - [Configuration](30-configuration.md) — environment variables that drive the constructor's defaults via the fixture.
 - [Session Queue](../10-concepts/20-session-queue.md) — the FIFO model that `_wait_for_active_session` polls.
 - [Lab Lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting, SHA identity, reuse semantics.
-- [REST API](../30-server/10-rest-api.md) — every endpoint the client wraps, plus a few it doesn't.
+- [REST API](../30-server/40-rest-api.md) — every endpoint the client wraps, plus a few it doesn't.

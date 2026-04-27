@@ -23,7 +23,7 @@ The entrypoint takes a non-blocking `FileLock` at a fixed path under the system 
 |---|---|
 | What breaks | Concurrent `netlab up`/`netlab down` from two processes; orphaned containers; queue corruption. |
 
-Stale-lock recovery procedure: [Administration → Stale-lock recovery](../30-server/30-administration.md#stale-lock-recovery).
+Stale-lock recovery procedure: [Administration → Stale-lock recovery](../30-server/10-administration.md#stale-lock-recovery).
 
 ---
 
@@ -75,7 +75,7 @@ There is no Bearer token, no mTLS, no tenant header. The `/lab/*` endpoints gate
 |---|---|
 | What breaks | Adding any other auth path (Bearer, mTLS, header magic) without removing this one creates a confused threat model: callers get to choose which boundary to bypass. |
 
-Full posture: [Security model](../30-server/40-security.md).
+Full posture: [Security model](../30-server/30-security.md).
 
 ---
 

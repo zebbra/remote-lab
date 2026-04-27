@@ -49,10 +49,11 @@ nav:
       - "Client config": 20-client/30-configuration.md
   - Run the service:
       - "Run the service": 30-server/index.md
-      - "REST API": 30-server/10-rest-api.md
+      - "Start it": 30-server/05-start.md
+      - "Operator runbook": 30-server/10-administration.md
       - "Server config": 30-server/20-configuration.md
-      - "Operator runbook": 30-server/30-administration.md
-      - "Security model": 30-server/40-security.md
+      - "Security model": 30-server/30-security.md
+      - "REST API": 30-server/40-rest-api.md
       - "Debugging": 30-server/50-debugging.md
   - Deploy & Operate:
       - "Deploy & Operate": 40-deployment/index.md

@@ -11,7 +11,7 @@ crosslink_references: [remote-lab]
 Run the Remote Lab Manager on your laptop on `localhost:8000`. Foreground process; install once, start when you want a lab, `Ctrl+C` when you don't.
 
 !!! tip "Wrong page?"
-    Already have a Remote Lab Manager you can reach? Skip this and use [Quickstart](10-pytest.md) directly. Standing up a multi-user shared host? Jump to [Administration](../30-server/30-administration.md).
+    Already have a Remote Lab Manager you can reach? Skip this and use [Quickstart](10-pytest.md) directly. Standing up a multi-user shared host? Jump to [Administration](../30-server/10-administration.md).
 
 !!! info "Before you start"
     - **Ubuntu 22.04+** (or another Linux with rootless Docker). macOS works for the *client* side but not the *server* — Containerlab and Netlab need Linux.
@@ -106,7 +106,7 @@ INFO     | remote-lab-server | Uvicorn running on http://0.0.0.0:8000
 
 If you see `Another Remote Lab Manager instance is already running.`
 instead, a previous server is still holding the singleton lock — see
-[Administration → Stale-lock recovery](../30-server/30-administration.md#stale-lock-recovery).
+[Administration → Stale-lock recovery](../30-server/10-administration.md#stale-lock-recovery).
 
 Confirm the server is reachable from a second terminal:
 
@@ -177,7 +177,7 @@ netlab status default     # "No active lab instance"
 
 If a container, lockfile, or netlab default instance is still alive, the
 server didn't tear down cleanly — see
-[Administration → Forced cleanup of a stuck lab](../30-server/30-administration.md#forced-cleanup-of-a-stuck-lab).
+[Administration → Forced cleanup of a stuck lab](../30-server/10-administration.md#forced-cleanup-of-a-stuck-lab).
 
 ---
 
@@ -192,7 +192,7 @@ quickly, exploring topology shapes. It's the wrong shape when:
   in front of it) is the multi-user shape.
 - **You need the lab to outlive your shell session.** Local-dev assumes
   you stop the server when you stop working. A long-lived service belongs
-  under [systemd on a dedicated host](../30-server/30-administration.md#running-as-a-system-service).
+  under [systemd on a dedicated host](../30-server/10-administration.md#running-as-a-system-service).
 - **Test runs are heavy enough to interfere with your laptop.** Containerlab
   is greedy with CPU and RAM during `netlab up`; offloading to a
   dedicated VM keeps your editor responsive.
@@ -211,7 +211,7 @@ change on the consumer side.
 - **[Architecture](../10-concepts/10-architecture.md)** — the high-level
   picture of how the local server is structured (it's the same server you
   would run on a shared host; only the network topology differs).
-- **[Administration](../30-server/30-administration.md)** — the operator
+- **[Administration](../30-server/10-administration.md)** — the operator
   reference, including stale-lock recovery, the security posture you sign
   up for, and the systemd unit if you want the server to come back after
   reboot.

@@ -121,7 +121,7 @@ sequenceDiagram
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](30-server/40-security.md) for the full posture.
+    [Security model](30-server/30-security.md) for the full posture.
     <!-- trace: neops_remote_lab/server.py:488 -->
 
 ## Reading paths
@@ -135,10 +135,10 @@ Pick the route that matches your current question.
     [Architecture](10-concepts/10-architecture.md) → [Session Queue](10-concepts/20-session-queue.md) → [Lab Lifecycle](10-concepts/30-lab-lifecycle.md) → [Topology Format](10-concepts/40-topology-format.md). Every invariant the system enforces and why.
 
 !!! info "Standing up the host — you are deploying the service"
-    [Netlab host setup](40-deployment/10-netlab-host-setup.md) → [Headscale VPN — Quick setup](40-deployment/20-headscale-quick-setup.md) → [Administration](30-server/30-administration.md) → [Configuration](30-server/20-configuration.md). Install Netlab, enclose the host in a private tailnet, configure and operate the server.
+    [Netlab host setup](40-deployment/10-netlab-host-setup.md) → [Headscale VPN — Quick setup](40-deployment/20-headscale-quick-setup.md) → [Administration](30-server/10-administration.md) → [Configuration](30-server/20-configuration.md). Install Netlab, enclose the host in a private tailnet, configure and operate the server.
 
 !!! info "Wiring in a new client — you are integrating a consumer"
-    [REST API](30-server/10-rest-api.md) → [Python Client](20-client/20-python-client.md) → [Pytest Fixtures](20-client/10-pytest-fixtures.md). The API reference is authoritative; the Python client is a thin wrapper; the fixture is the stable consumer surface.
+    [REST API](30-server/40-rest-api.md) → [Python Client](20-client/20-python-client.md) → [Pytest Fixtures](20-client/10-pytest-fixtures.md). The API reference is authoritative; the Python client is a thin wrapper; the fixture is the stable consumer surface.
 
 !!! info "Driving from a non-Python stack — you are integrating into an existing harness"
     [REST quickstart](getting-started/30-curl.md) → [CI quickstart](getting-started/40-ci.md) → [Debugging](30-server/50-debugging.md). Stand up a session and a lab end-to-end with cURL, then wire it into your CI runner of choice.

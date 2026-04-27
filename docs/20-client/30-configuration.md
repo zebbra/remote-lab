@@ -14,7 +14,7 @@ Four environment variables. One required (`REMOTE_LAB_URL`); three optional time
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](../30-server/40-security.md) for the full posture.
+    [Security model](../30-server/30-security.md) for the full posture.
 
 ## The variables
 
@@ -65,7 +65,7 @@ When to raise each:
 
 ## Not wired: `REMOTE_LAB_TOKEN`
 
-The variable is **not consumed** by either the client or the server. Setting it has no effect; do not rely on it as an access boundary. The service has no HTTP authentication — see [Security model](../30-server/40-security.md).
+The variable is **not consumed** by either the client or the server. Setting it has no effect; do not rely on it as an access boundary. The service has no HTTP authentication — see [Security model](../30-server/30-security.md).
 
 ## See also
 

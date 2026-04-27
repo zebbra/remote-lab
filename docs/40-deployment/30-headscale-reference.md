@@ -157,7 +157,7 @@ TS_ALLOW_INSECURE=1 tailscale up --login-server http://$HEADSCALE_HOST:8080 --ac
 ## See also
 
 - **[Headscale VPN — Quick setup](20-headscale-quick-setup.md)** — the five-command happy path.
-- **[Security model](../30-server/40-security.md)** — what the tailnet is and isn't protecting against.
-- **[Administration](../30-server/30-administration.md)** — install the lab service itself behind the tailnet.
+- **[Security model](../30-server/30-security.md)** — what the tailnet is and isn't protecting against.
+- **[Administration](../30-server/10-administration.md)** — install the lab service itself behind the tailnet.
 - **[Headscale upstream](https://headscale.net/)** — authoritative reference for the control plane.
 - **[Tailscale subnet router docs](https://tailscale.com/kb/1019/subnets)** — what `--advertise-routes` actually does on the wire.

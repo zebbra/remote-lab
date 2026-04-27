@@ -79,7 +79,7 @@ Before starting any lab, `_start` calls `_terminate_default_netlab_instance` to 
 
 This is unconditional — every server startup probes for stale state. The cost is one extra subprocess call per startup; the value is a service that recovers from operator mistakes (`Ctrl+C` mid-run, `kill -9` while a lab was up) without manual intervention.
 
-The companion stale-lock recovery for the singleton filelock — the *server-instance* lock, not the lab lock above — is in [Administration → Stale-lock recovery](../30-server/30-administration.md#stale-lock-recovery).
+The companion stale-lock recovery for the singleton filelock — the *server-instance* lock, not the lab lock above — is in [Administration → Stale-lock recovery](../30-server/10-administration.md#stale-lock-recovery).
 
 ## See also
 
