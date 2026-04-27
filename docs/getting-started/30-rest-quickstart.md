@@ -8,20 +8,30 @@ crosslink_references: []
 
 # REST quickstart (cURL)
 
-You came in from a SwiNOG talk, a GitHub README, or someone's
-recommendation, and you want exclusive access to a real
-[Netlab](https://netlab.tools/) topology — driven from whatever
-automation harness you already run, not necessarily Python and not
-necessarily pytest. This page walks the full lifecycle in cURL: create a
-session, wait for the queue, upload a topology, list devices, release,
-end the session. By the end you will have done the same four things the
-Python client and pytest fixture automate, with nothing installed on
-your laptop besides `curl` and `jq`.
+You found this from a SwiNOG talk, a GitHub README, or a colleague's
+recommendation, and you want **exclusive access to a real
+[Netlab](https://netlab.tools/) topology** — driven from whatever
+automation harness you already run. *Not necessarily Python. Not
+necessarily pytest.*
 
-If you already know you want the Python path, the
-[Quickstart](10-quickstart.md) is shorter; if you have not stood up a
-Remote Lab Manager yet, [Local development server](20-local-server.md)
-gets one running on `localhost:8000` in about ten minutes.
+This page walks the **full lifecycle in cURL**:
+
+1. create a session,
+2. wait for the queue,
+3. upload a topology,
+4. list devices,
+5. release,
+6. end the session.
+
+By the end you will have done the same things the Python client and
+pytest fixture automate — with nothing on your laptop besides `curl`
+and `jq`.
+
+!!! tip "Already on a Python path?"
+    The pytest-flavored [Quickstart](10-quickstart.md) is shorter. If you
+    have not stood up a Remote Lab Manager yet,
+    [Local development server](20-local-server.md) gets one running on
+    `localhost:8000` in about ten minutes.
 
 !!! info "Before you start"
     You need three things:

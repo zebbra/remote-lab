@@ -8,11 +8,15 @@ crosslink_references: []
 
 # Concepts
 
-Four invariants shape every decision in the Remote Lab Manager: one lab
-per host, strict FIFO queueing, SHA-256 topology identity, and
-reference-counted reuse. Read these four pages in order if you want to
-reason about edge cases before they hit you — especially the ones the
-HTTP surface papers over.
+Four invariants shape every decision in the Remote Lab Manager:
+
+- **one lab per host**,
+- **strict FIFO queueing**,
+- **SHA-256 topology identity**, and
+- **reference-counted reuse**.
+
+Read these four pages in order if you want to reason about edge cases
+*before* they hit you — especially the ones the HTTP surface papers over.
 
 ## In this section
 

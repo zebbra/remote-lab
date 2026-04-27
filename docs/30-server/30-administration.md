@@ -8,9 +8,14 @@ crosslink_references: []
 
 # Administration
 
-Operator runbook for keeping the Remote Lab Manager healthy on a shared host.
-Read the [Security posture](#security-posture) section before exposing the
-server on any network you do not fully control.
+**Operator runbook** for keeping the Remote Lab Manager healthy on a
+shared host. Install, run under `systemd`, recover from a stale lock,
+unstick a wedged lab, and the security posture you sign up for.
+
+!!! warning "Read the security posture first"
+    The server has **no HTTP authentication**. Read the
+    [Security posture](#security-posture) section *before* exposing the
+    server on any network you do not fully control.
 
 !!! info "Prerequisites"
     - Familiarity with the [architecture](../10-concepts/10-architecture.md) and [REST API](10-rest-api.md).

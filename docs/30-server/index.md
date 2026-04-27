@@ -8,9 +8,10 @@ crosslink_references: []
 
 # Server
 
-Everything you need to understand, configure, and run the Remote Lab
-Manager service. The three pages below move from contract (REST API)
-through knobs (Configuration) to runbook (Administration).
+Everything you need to **understand, configure, and run** the Remote Lab
+Manager service. The pages below move from **contract** (REST API)
+through **knobs** (Configuration) to **runbook** (Administration), then
+out to **CI integration** and **debugging** for the day-to-day surfaces.
 
 ## In this section
 

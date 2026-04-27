@@ -8,7 +8,15 @@ crosslink_references: [remote-lab]
 
 # Rootless Netlab + Containerlab on Ubuntu
 
-*A concise, CI-ready installation and configuration guide*
+*A concise, CI-ready installation and configuration guide.*
+
+The Remote Lab Manager refuses to start without `netlab` on `PATH`. This
+page is the **prerequisite for everything else in deployment**: install
+[Netlab](https://netlab.tools/) and [Containerlab](https://containerlab.dev/)
+rootless on Ubuntu, validate the install with `netlab test clab`, then
+move on to [Vendors & images](30-vendor-images.md) (which device kinds
+to ship) and [Headscale VPN](20-headscale-vpn.md) (how clients reach
+the lab).
 
 ---
 

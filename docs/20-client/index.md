@@ -8,18 +8,20 @@ crosslink_references: []
 
 # Client
 
-The Remote Lab Manager is reached from test code and scripts via two
-Python surfaces, both installed by `pip install neops-remote-lab`.
+Two Python surfaces reach the Remote Lab Manager. Both ship in the same
+package — `pip install neops-remote-lab` — and you choose which to use
+based on context.
 
-`remote_lab_fixture` is the **stable public API**. It is imported
-directly by the [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/)
+**`remote_lab_fixture`** — the **stable public API**.
+Imported directly by the
+[Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/)
 ([integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/));
 its signature is part of a contract that survives minor and patch
-releases. If you are writing tests, this is the surface you want.
+releases. *If you are writing tests, this is the surface you want.*
 
-`RemoteLabClient` is the **lower-level HTTP client** that the fixture
-wraps. Use it when you need to drive a lab from a script, a notebook,
-or any non-pytest context.
+**`RemoteLabClient`** — the **lower-level HTTP client** the fixture
+wraps. Use it directly when you need to drive a lab from a script, a
+notebook, or any non-pytest context.
 
 ## In this section
 

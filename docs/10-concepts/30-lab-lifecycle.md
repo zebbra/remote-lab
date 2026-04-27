@@ -8,10 +8,15 @@ crosslink_references: []
 
 # Lab Lifecycle
 
-When a test asks for a lab, four things have to happen in the right order:
-identify the topology, decide whether an existing lab can be reused, either
-reuse it or start a fresh one, and count the acquisition so nothing tears the
-lab down while it's still in use. `LabManager` encapsulates that bookkeeping.
+When a test asks for a lab, four things happen in order:
+
+1. **Identify** the topology (by content hash, not filename).
+2. **Decide** whether an existing lab can be reused.
+3. **Reuse** the running lab or **start a fresh one**.
+4. **Count** the acquisition so nothing tears the lab down while it's
+   still in use.
+
+`LabManager` encapsulates that bookkeeping.
 
 > **Why reference counting?** Many tests need the *same* topology. Spinning
 > it up once and letting several clients share it turns a 5-minute Netlab

@@ -8,15 +8,17 @@ crosslink_references: []
 
 # Quickstart
 
-You have a pytest suite that needs a real router — not a mock, not a container
-hand-rolled per test, but a [Netlab](https://netlab.tools/) topology reachable
-from your local machine with the same identity every time. This guide takes
-you from nothing to a passing lab-backed test against a running Remote Lab
-Manager.
+You have a **pytest suite** that needs a real router — not a mock, not a
+hand-rolled per-test container, but a [Netlab](https://netlab.tools/)
+topology reachable from your laptop with the **same identity every time**.
 
-By the end you will have installed the client package, pointed it at a server,
-written a minimal topology, and run a pytest that acquires a lab, lists its
-devices, and tears it down cleanly — all with three lines of test code.
+By the end of this page you will have:
+
+- installed the client package,
+- pointed it at a Remote Lab Manager,
+- written a minimal topology, and
+- run a pytest that acquires a lab, lists its devices, and tears it down
+  cleanly — all in **three lines of test code**.
 
 !!! info "Before you start"
     You need three things:

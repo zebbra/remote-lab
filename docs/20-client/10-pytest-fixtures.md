@@ -8,16 +8,19 @@ crosslink_references: []
 
 # Pytest Fixtures
 
-`remote_lab_fixture` is the stable public API of this project. It is imported
-directly by the [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/)
-to give [function-block](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/)
-tests a real Netlab topology to run against
-([integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)),
-and its signature is part of that contract — changes are considered
-breaking and require a major version bump.
+`remote_lab_fixture` is the **stable public API** of this project.
 
-If you are writing tests, this is the page you want. If you need to drive the
-server from a script, see the [RemoteLabClient reference](20-python-client.md)
+It is imported directly by the
+[Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) to give
+[function-block](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/)
+tests a real Netlab topology to run against
+([integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)).
+Its signature is part of that contract — *changes are breaking and
+require a major version bump*.
+
+If you are writing tests, this is the page you want. If you need to drive
+the server from a script instead, see the
+[RemoteLabClient reference](20-python-client.md)
 instead.
 
 !!! info "How the plugin loads"

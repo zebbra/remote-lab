@@ -8,9 +8,10 @@ crosslink_references: []
 
 # REST API Reference
 
-The Remote Lab Manager exposes a small HTTP surface for session management and
-lab lifecycle. This page documents every endpoint that callers are expected to
-use directly, together with its schema, error codes, and an example invocation.
+The Remote Lab Manager exposes a **small HTTP surface** for session
+management and lab lifecycle. This page documents every endpoint callers
+are expected to use directly, with its **schema**, **error codes**, and
+an **example invocation** for each.
 
 !!! danger "No HTTP authentication"
     The service ships **without** bearer-token, OAuth, or mTLS authentication.
