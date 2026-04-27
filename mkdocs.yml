@@ -49,14 +49,9 @@ markdown_extensions:
 - pymdownx.smartsymbols
 - pymdownx.magiclink
 - pymdownx.betterem
-- pymdownx.keys
 - pymdownx.tasklist:
     custom_checkbox: true
 - abbr
-- footnotes
-- pymdownx.tilde
-- pymdownx.caret
-- pymdownx.mark
 nav:
 - Start: index.md
 - Get started:

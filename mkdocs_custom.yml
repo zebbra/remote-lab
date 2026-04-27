@@ -5,11 +5,8 @@ site_name: Neops Remote Lab
 # Interaction:
 #   - pymdownx.tabbed: content tabs (`=== "Label"`) — install/runner/vendor walkthroughs.
 #   - def_list: term/definition lists — glossary, REST endpoint fields.
-#   - pymdownx.keys: keyboard shortcuts (++ctrl+c++ → kbd).
 #   - pymdownx.tasklist: visible checklists in test plans / first-PR.
 #   - abbr: abbreviation tooltips (REST, FIFO, ACL, NOS, ...).
-#   - footnotes: edge-case caveats that don't deserve admonition weight.
-#   - pymdownx.tilde / caret / mark: ~~strike~~ / ^^superscript^^ / ==highlight==.
 #
 # Typographic refinement (the elegance layer):
 #   - smarty: curly quotes, em-dashes (---), en-dashes (--), ellipses (...).
@@ -24,14 +21,9 @@ markdown_extensions:
   - pymdownx.smartsymbols
   - pymdownx.magiclink
   - pymdownx.betterem
-  - pymdownx.keys
   - pymdownx.tasklist:
       custom_checkbox: true
   - abbr
-  - footnotes
-  - pymdownx.tilde
-  - pymdownx.caret
-  - pymdownx.mark
 
 nav:
   - Start: index.md
