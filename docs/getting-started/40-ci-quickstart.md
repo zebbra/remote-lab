@@ -10,6 +10,9 @@ crosslink_references: []
 
 Wire `neops-remote-lab` into your CI in any runner — the env-var setup and pipeline tabs are below; deeper concerns thread out.
 
+!!! tip "Wrong page?"
+    Writing your first lab-backed test? Start at the [Quickstart](10-quickstart.md). Driving from a non-Python stack? See the [REST quickstart](30-rest-quickstart.md). Sizing concurrency against a single lab host? See [Session Queue → Queue contention](../10-concepts/20-session-queue.md#queue-contention-under-ci-load).
+
 !!! danger "No HTTP authentication"
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the

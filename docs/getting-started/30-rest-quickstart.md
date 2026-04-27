@@ -27,8 +27,8 @@ A `204 No Content` on `/healthz` is the liveness signal. Anything else — a con
     - **`curl`** and **`jq`** on your `PATH`. `apt install jq` / `brew install jq`.
     - **VPN connectivity to the lab host.** The service has no HTTP authentication — see [Security model](../30-server/40-security.md).
 
-!!! tip "Already on a Python path?"
-    The pytest-flavored [Quickstart](10-quickstart.md) is shorter.
+!!! tip "Wrong page?"
+    On a Python path? The pytest-flavored [Quickstart](10-quickstart.md) is shorter. Wiring this into CI? See [CI quickstart](40-ci-quickstart.md).
 
 The lifecycle, top-to-bottom: **create a session → wait for the queue → upload a topology → list devices → release → end the session.** The pytest fixture and `RemoteLabClient` automate exactly these six calls.
 

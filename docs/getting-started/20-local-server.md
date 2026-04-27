@@ -8,7 +8,10 @@ crosslink_references: [remote-lab]
 
 # Local development server
 
-Run the Remote Lab Manager on your laptop on `localhost:8000`. Foreground process; install once, start when you want a lab, `Ctrl+C` when you don't. For a remote VM you already manage, skip this page and use [Quickstart](10-quickstart.md) directly. For a multi-user shared host, jump to [Administration](../30-server/30-administration.md).
+Run the Remote Lab Manager on your laptop on `localhost:8000`. Foreground process; install once, start when you want a lab, `Ctrl+C` when you don't.
+
+!!! tip "Wrong page?"
+    Already have a Remote Lab Manager you can reach? Skip this and use [Quickstart](10-quickstart.md) directly. Standing up a multi-user shared host? Jump to [Administration](../30-server/30-administration.md).
 
 !!! info "Before you start"
     - **Ubuntu 22.04+** (or another Linux with rootless Docker). macOS works for the *client* side but not the *server* — Containerlab and Netlab need Linux.
