@@ -38,12 +38,42 @@ markdown_extensions:
 - pymdownx.emoji:
     emoji_generator: !!python/name:material.extensions.emoji.to_svg
     emoji_index: !!python/name:material.extensions.emoji.twemoji
+- pymdownx.tabbed:
+    alternate_style: true
 - attr_list
 - md_in_html
+- pymdownx.tabbed:
+    alternate_style: true
 nav:
 - Start: index.md
-- Connectivity: headscale_headplane.md
-- Netlab: netlab_configuration.md
+- Getting Started:
+  - getting-started/index.md
+  - getting-started/10-quickstart.md
+  - getting-started/20-local-server.md
+- Concepts:
+  - 10-concepts/index.md
+  - 10-concepts/10-architecture.md
+  - 10-concepts/20-session-queue.md
+  - 10-concepts/30-lab-lifecycle.md
+  - 10-concepts/40-topology-format.md
+- Client:
+  - 20-client/index.md
+  - 20-client/10-pytest-fixtures.md
+  - 20-client/20-python-client.md
+- Server:
+  - 30-server/index.md
+  - 30-server/10-rest-api.md
+  - 30-server/20-configuration.md
+  - 30-server/30-administration.md
+- Deployment:
+  - 40-deployment/index.md
+  - 40-deployment/10-netlab-host-setup.md
+  - 40-deployment/20-headscale-vpn.md
+  - 40-deployment/30-vendor-images.md
+- Contributing:
+  - 50-contributing/index.md
+  - 50-contributing/10-dev-setup.md
+  - 50-contributing/20-invariants.md
 plugins:
 - search
 - include_dir_to_nav
@@ -59,7 +89,7 @@ plugins:
     - '**/.venv/*'
     regex:
     - .*\.(tmp|bin|tar)$
-repo_url: https://github.com/zebbra/neops
+repo_url: https://github.com/zebbra/neops-remote-lab
 site_name: Neops Remote Lab
 theme:
   custom_dir: docs/override

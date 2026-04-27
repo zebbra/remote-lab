@@ -29,7 +29,7 @@ headscale:
 
   # Optional, public URL if they differ
   # This affects certain parts of the web UI
-  public_url: "http://91.99.184.46:8080"
+  public_url: "http://CHANGE-ME.example:8080"  # MUST match server_url in headscale/config/config.yaml
 
   # Path to the Headscale configuration file
   # This is optional, but HIGHLY recommended for the best experience

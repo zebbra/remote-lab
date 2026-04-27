@@ -63,3 +63,11 @@ site/
 **/__pycache__/
 
 site
+
+# Documentation toolkit ephemeral artifacts
+.ai-toolkit/*
+!.ai-toolkit/project-purpose.md
+
+# AI-toolkit build artifacts (project-purpose.md is kept; docs-state is build-only)
+docs-state.json
+.ai-toolkit/docs-state.json
