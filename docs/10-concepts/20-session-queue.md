@@ -6,9 +6,9 @@ crosslink_defines: []
 crosslink_references: []
 ---
 
-# Session Queue
+# Session queue
 
-FIFO. That's the whole queue. New sessions go to the tail; the head is whoever can talk to Netlab right now; everyone else polls until promotion. The state machine, the heartbeats, and the eviction timeouts below are all implementations of that one rule.
+*FIFO. That's the whole queue.* New sessions go to the tail; the head is whoever can talk to Netlab right now; everyone else polls until promotion. The state machine, the heartbeats, and the eviction timeouts below are all implementations of that one rule.
 
 ## The state machine
 

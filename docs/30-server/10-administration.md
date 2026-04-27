@@ -6,9 +6,9 @@ crosslink_defines: []
 crosslink_references: []
 ---
 
-# Administration
+# Operator runbook
 
-Operator runbook. Install, run under `systemd`, recover from a stale lock, unstick a wedged lab.
+*Install, run under `systemd`, recover from a stale lock, unstick a wedged lab. The day-1 and day-N operator handbook for a shared host.*
 
 === "uv (recommended)"
 

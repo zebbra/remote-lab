@@ -8,7 +8,9 @@ crosslink_references: []
 
 # Architecture
 
-**Only one Netlab topology can run on a host at a time.** Multiple developers and CI jobs need a queue, a heartbeat, and someone to tear the lab down when the last test walks away. `neops-remote-lab` is that queue.
+*The three components and the two guards. **One server per host, one lab per host** — everything else falls out of those two rules.*
+
+Multiple developers and CI jobs need a queue, a heartbeat, and someone to tear the lab down when the last test walks away. `neops-remote-lab` is that queue.
 
 ## Three components, one process per host
 

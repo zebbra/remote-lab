@@ -6,7 +6,9 @@ crosslink_defines: []
 crosslink_references: []
 ---
 
-# Lab Lifecycle
+# Lab lifecycle
+
+*Identify, decide, reuse-or-start, count. The bookkeeping that makes "many tests, one lab" work.*
 
 When a test asks for a lab, four things happen in order:
 

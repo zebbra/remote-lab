@@ -8,7 +8,9 @@ crosslink_references: []
 
 # Security model
 
-`neops-remote-lab` ships **without** HTTP authentication. Every other security control on this page builds on a single fact: the only access boundary on `/lab/*` is the `X-Session-ID` header of an ACTIVE session. Everything else — the VPN enclosure, the firewall rules, the operational guidance — is a fence around that fact.
+*The threat model for an internal-trust service. **No HTTP authentication.** Every control on this page is a fence around that single fact.*
+
+`neops-remote-lab` ships without bearer-token, OAuth, or mTLS. Every other security control on this page builds on a single fact: the only access boundary on `/lab/*` is the `X-Session-ID` header of an ACTIVE session. Everything else — the VPN enclosure, the firewall rules, the operational guidance — is a fence around that fact.
 
 If you don't have time to read the rest of the page, the short version is: **deploy behind a VPN, treat any caller able to complete the session handshake as authorized, and don't expose port 8000 to anything broader than a known network.**
 

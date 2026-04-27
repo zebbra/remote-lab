@@ -8,7 +8,9 @@ crosslink_references: []
 
 # Invariants
 
-Eight rules. A change cannot break any of them without coordinating with every consumer of the surface area. Each entry: what the rule is, **why** it exists, and **what breaks** if it goes away.
+*Eight rules a PR cannot violate. Each is short. Re-read the relevant one **before** any non-trivial change to `server.py`, `lab_manager.py`, or `connector.py`.*
+
+A change cannot break any of these without coordinating with every consumer of the surface area. Each entry: what the rule is, **why** it exists, and **what breaks** if it goes away.
 
 The mechanics that *enforce* these rules — `_run_blocking`, the `LabManager` singleton, atexit teardown, the test-stubbing pattern — live in their own pages under [Internals](30-internals-async.md). Before touching `server.py`, `lab_manager.py`, or `netlab/connector.py`, read both this page and the relevant Internals page.
 

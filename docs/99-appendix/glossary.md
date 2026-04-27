@@ -8,7 +8,9 @@ crosslink_references: []
 
 # Glossary
 
-One-line definitions, grouped by domain. Each entry links to the in-depth page where the concept lives. For peer-project terminology (Function Block, Worker, Workflow, Provider, Blackboard, Context), see [How Remote Lab fits with neops](neops-ecosystem.md).
+*Every term the docs use, in one place. One-line definitions; each entry links to the in-depth page where the concept actually lives.*
+
+For peer-project terminology (Function Block, Worker, Workflow, Provider, Blackboard, Context), see [Neops ecosystem](neops-ecosystem.md).
 
 ---
 

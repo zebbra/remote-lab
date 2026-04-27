@@ -6,7 +6,7 @@ crosslink_defines: [topology]
 crosslink_references: []
 ---
 
-# Topology Format
+# Topology format
 
 A **topology** is a single YAML file (`.yml` or `.yaml` — both are
 accepted, case-insensitive) that tells Netlab what network to build:
