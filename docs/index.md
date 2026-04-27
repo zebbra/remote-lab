@@ -19,17 +19,17 @@ crosslink_references: []
 
 <div class="grid cards" markdown>
 
--   :material-test-tube:{ .lg .middle } &nbsp; **Neops SDK consumers**
+-   :material-test-tube:{ .lg .middle } &nbsp; **Worker SDK developers**
 
     ---
 
-    *A pytest fixture that hands you a real device.*
+    *A real Netlab device for your function-block tests.*
 
-    - Three-line test setup
-    - `reuse_lab=True` collapses queue contention
-    - Worker SDK imports it as a stable API
+    - Install + `REMOTE_LAB_URL` — two steps, then the [Worker SDK testing guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/) takes over
+    - Multi-vendor topology patterns (FRR, Nokia SR Linux, Cisco IOL)
+    - The pytest fixture the Worker SDK imports as a stable API
 
-    [Get started :material-arrow-right:](getting-started/index.md)
+    [Plug into Worker SDK :material-arrow-right:](getting-started/15-worker-sdk.md)
 
 -   :material-server:{ .lg .middle } &nbsp; **Operators**
 
@@ -37,9 +37,9 @@ crosslink_references: []
 
     *Run the service on a shared host.*
 
-    - Single-instance filelock + stale-lock recovery
-    - Stuck-lab cleanup runbook
-    - [Headscale](https://headscale.net/) enclosure + security model
+    - 30-second foreground launch + `/healthz` sanity check
+    - Pick the deployment shape — laptop, VM, multi-tenant, or CI runner pool
+    - `systemd` unit, stale-lock recovery, stuck-lab cleanup runbook
 
     [Run the service :material-arrow-right:](30-server/index.md)
 
@@ -49,9 +49,9 @@ crosslink_references: []
 
     *Change the codebase safely.*
 
-    - Eight invariants every PR must preserve
-    - Four internals deep-dives (async, locking, atexit, stubbing)
-    - Anti-patterns table for code review
+    - The 30-minute path to your first PR
+    - Eight invariants every change must preserve
+    - Internals deep-dives (async, locking, atexit, test stubbing) and an anti-patterns grep target for review
 
     [Contribute :material-arrow-right:](50-contributing/index.md)
 
@@ -61,9 +61,9 @@ crosslink_references: []
 
     *Drive the lab from any HTTP-capable stack.*
 
-    - cURL, Go, Robot Framework, Ansible
-    - Six calls end-to-end
-    - Same lifecycle the Python client wraps
+    - Six cURL calls end-to-end — no Python required
+    - Full REST contract with per-endpoint examples
+    - Wire into GitHub Actions, GitLab CI, or Jenkins
 
     [Drive from cURL :material-arrow-right:](getting-started/30-curl.md)
 

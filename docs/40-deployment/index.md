@@ -37,7 +37,7 @@ to add a new device kind.
 
     Install `networklab` on Ubuntu 24.04+, configure rootless Containerlab with `clab_admins` + setuid, stop netlab from wrapping Containerlab in `sudo`, validate with `netlab test clab`.
 
--   :material-shield-network:{ .lg .middle } &nbsp; **[VPN: quick setup](20-headscale-quick-setup.md)**
+-   :material-shield-lock:{ .lg .middle } &nbsp; **[VPN: quick setup](20-headscale-quick-setup.md)**
 
     ---
 
