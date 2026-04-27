@@ -67,7 +67,7 @@ Install it as an isolated tool — the same shape used for the
     `netlab` CLI on `PATH`. Re-login (or source your shell's RC file)
     after the first `pipx ensurepath`.
 
-=== "pip (not recommended on Ubuntu 24.04+)"
+=== "pip (last resort)"
 
     ```bash
     python -m venv ~/.venvs/networklab

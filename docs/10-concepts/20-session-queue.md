@@ -8,14 +8,7 @@ crosslink_references: []
 
 # Session Queue
 
-Only one lab runs per host, so only one client can drive it at a time. The
-session queue is the mechanism that decides who goes next, and it is the only
-thing standing between well-behaved cooperation and a deadlocked test suite.
-
-> **Why a queue?** Netlab topologies take minutes to bring up. A queue lets a
-> waiting client poll for its turn at whatever cadence it likes — and lets the
-> server keep answering health checks and status requests for everyone else —
-> while only one client at a time actually drives Netlab.
+FIFO. That's the whole queue. New sessions go to the tail; the head is whoever can talk to Netlab right now; everyone else polls until promotion. The state machine, the heartbeats, and the eviction timeouts below are all implementations of that one rule.
 
 ## The state machine
 
