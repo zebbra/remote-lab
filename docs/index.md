@@ -19,48 +19,53 @@ crosslink_references: []
 
 <div class="grid cards" markdown>
 
--   **Neops SDK consumers** — you want a fixture that gives you a real device
+-   :material-test-tube:{ .lg .middle } &nbsp; **Neops SDK consumers**
 
     ---
 
-    Declare `remote_lab_fixture("path/to/topology.yml")` in `conftest.py`,
-    write your test, run `pytest`. Session, queue, and lifecycle disappear
-    into the fixture. When you want to drive the service from a script
-    instead, the same package ships a `RemoteLabClient` you can call directly.
+    *A pytest fixture that hands you a real device.*
 
-    [Open Getting Started →](getting-started/index.md)
+    - Three-line test setup
+    - `reuse_lab=True` collapses queue contention
+    - Worker SDK imports it as a stable API
 
--   **Operators** — you want to run this on a shared host
+    [Get started :material-arrow-right:](getting-started/index.md)
 
-    ---
-
-    Startup sequence, single-instance filelock recovery, stale-lab
-    cleanup, the [Headscale enclosure](40-deployment/20-headscale-quick-setup.md),
-    and the security posture you sign up for.
-
-    [Open Run the Service →](30-server/index.md)
-
--   **Contributors** — you want to change the codebase
+-   :material-server:{ .lg .middle } &nbsp; **Operators**
 
     ---
 
-    Invariants you must preserve, the conventions code review enforces
-    (`*Dto` suffix, `_run_blocking()` discipline, `connector.run_netlab()`
-    as the only Netlab path), the CVE-pinned dependencies, and the
-    branch-to-PR flow.
+    *Run the service on a shared host.*
 
-    [Open Contributing →](50-contributing/index.md)
+    - Single-instance filelock + stale-lock recovery
+    - Stuck-lab cleanup runbook
+    - [Headscale](https://headscale.net/) enclosure + security model
 
--   **External API users** — you want exclusive lab access from any HTTP-capable stack
+    [Run the service :material-arrow-right:](30-server/index.md)
+
+-   :material-source-branch:{ .lg .middle } &nbsp; **Contributors**
 
     ---
 
-    Drive the lab from cURL, Go, Robot Framework, your CI shell pipeline,
-    or any other tool that speaks HTTP. The Python client and pytest fixture
-    are convenience layers; the REST API is the universal surface and is
-    fully documented.
+    *Change the codebase safely.*
 
-    [Open the REST quickstart →](getting-started/30-rest-quickstart.md)
+    - Eight invariants every PR must preserve
+    - Four internals deep-dives (async, locking, atexit, stubbing)
+    - Anti-patterns table for code review
+
+    [Contribute :material-arrow-right:](50-contributing/index.md)
+
+-   :material-api:{ .lg .middle } &nbsp; **External API users**
+
+    ---
+
+    *Drive the lab from any HTTP-capable stack.*
+
+    - cURL, Go, Robot Framework, Ansible
+    - Six calls end-to-end
+    - Same lifecycle the Python client wraps
+
+    [Drive from cURL :material-arrow-right:](getting-started/30-curl.md)
 
 </div>
 
@@ -124,7 +129,7 @@ sequenceDiagram
 Pick the route that matches your current question.
 
 !!! tip "New to the project — you want your first passing test"
-    [Quickstart](getting-started/10-quickstart.md) → [Pytest Fixtures](20-client/10-pytest-fixtures.md) → [Topology Format](10-concepts/40-topology-format.md). Install, three-line test, see it pass.
+    [Quickstart](getting-started/10-pytest.md) → [Pytest Fixtures](20-client/10-pytest-fixtures.md) → [Topology Format](10-concepts/40-topology-format.md). Install, three-line test, see it pass.
 
 !!! info "Concepts first — you want to understand before you build"
     [Architecture](10-concepts/10-architecture.md) → [Session Queue](10-concepts/20-session-queue.md) → [Lab Lifecycle](10-concepts/30-lab-lifecycle.md) → [Topology Format](10-concepts/40-topology-format.md). Every invariant the system enforces and why.
@@ -136,7 +141,7 @@ Pick the route that matches your current question.
     [REST API](30-server/10-rest-api.md) → [Python Client](20-client/20-python-client.md) → [Pytest Fixtures](20-client/10-pytest-fixtures.md). The API reference is authoritative; the Python client is a thin wrapper; the fixture is the stable consumer surface.
 
 !!! info "Driving from a non-Python stack — you are integrating into an existing harness"
-    [REST quickstart](getting-started/30-rest-quickstart.md) → [CI quickstart](getting-started/40-ci-quickstart.md) → [Debugging](30-server/50-debugging.md). Stand up a session and a lab end-to-end with cURL, then wire it into your CI runner of choice.
+    [REST quickstart](getting-started/30-curl.md) → [CI quickstart](getting-started/40-ci.md) → [Debugging](30-server/50-debugging.md). Stand up a session and a lab end-to-end with cURL, then wire it into your CI runner of choice.
 
 !!! info "Looking for runnable examples"
     [Cookbook](99-appendix/cookbook.md). Pytest, Python (no-pytest), cURL, topology, and deployment recipes — every link goes to GitHub so the recipe survives docs-site rebuilds.

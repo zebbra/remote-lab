@@ -12,11 +12,27 @@ Material that does not belong to a single section but is referenced from many.
 
 ## In this section
 
-| Page | What you'll find |
-|---|---|
-| [Glossary](glossary.md) | Every term the docs use, grouped by domain (sessions, labs, locking, data models, testing, networking) and cross-linked to the in-depth page where the concept is fully explained. |
-| [Cookbook](cookbook.md) | Discovery surface for the runnable examples that ship with the repo — pytest, Python, cURL, topologies, and deployment artifacts. Every link is a GitHub permalink. |
-| [How Remote Lab fits with neops](neops-ecosystem.md) | Peer-project terminology bridge. Which neops concepts apply to Remote Lab, which don't, and how the pieces connect. For Neops devs and External API users alike. |
+<div class="grid cards" markdown>
+
+-   :material-book-alphabet:{ .lg .middle } &nbsp; **[Glossary](glossary.md)**
+
+    ---
+
+    Every term the docs use, grouped by domain (sessions, labs, locking, data models, testing, networking) and cross-linked to the in-depth page.
+
+-   :material-chef-hat:{ .lg .middle } &nbsp; **[Cookbook](cookbook.md)**
+
+    ---
+
+    Runnable examples that ship with the repo — pytest, Python, cURL, topologies, deployment artifacts. Every recipe expandable inline; CI keeps them honest.
+
+-   :material-graph:{ .lg .middle } &nbsp; **[Neops ecosystem](neops-ecosystem.md)**
+
+    ---
+
+    Peer-project terminology bridge. Which neops concepts apply to Remote Lab, which don't, and how the pieces connect. For Neops devs and External API users alike.
+
+</div>
 
 ## What to read next
 

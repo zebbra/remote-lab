@@ -39,5 +39,5 @@ notebook, or any non-pytest context.
   counting and reuse semantics that `reuse_lab=True` opts into.
 - **[REST API](../30-server/10-rest-api.md)** — the authoritative endpoint
   reference the Python client wraps.
-- **[CI quickstart](../getting-started/40-ci-quickstart.md)** — wire the
+- **[CI quickstart](../getting-started/40-ci.md)** — wire the
   same env vars into GitHub Actions, GitLab CI, or Jenkins pipelines.

@@ -64,7 +64,7 @@ promoted. <!-- trace: neops_remote_lab/server.py:488 --> See
 
 ## Runtime walk-through — what happens during a test {#runtime-walk-through-what-happens-during-a-test}
 
-The diagram above summarizes the wire flow. The narrative below animates the same sequence against a small pytest run, so a reader following the [Quickstart](../getting-started/10-quickstart.md) can map their actual log output back to the components.
+The diagram above summarizes the wire flow. The narrative below animates the same sequence against a small pytest run, so a reader following the [Quickstart](../getting-started/10-pytest.md) can map their actual log output back to the components.
 
 1. **pytest loads the plugin.** `neops_remote_lab.testing.pytest_order_plugin` registers the `remote_lab_fixture` factory and installs the collection-time guard that rejects tests with more than one lab fixture.
 2. **The `remote_lab_client` session-scoped fixture connects.** It reads `REMOTE_LAB_URL`, creates a session on the server, and waits for the session to reach ACTIVE state — joining a FIFO queue if someone else holds the host.

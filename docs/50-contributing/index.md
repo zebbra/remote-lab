@@ -10,19 +10,55 @@ crosslink_references: []
 
 Two readers. Most pages assume you are about to **change the codebase** — open a PR that fixes a bug, adds a capability, refactors internals, or bumps a dependency. The same pages double as the deep reference for a **senior consumer** who wants to understand why the system behaves the way it does before trusting it in production.
 
-What you will not find here: a "how to call the API" tutorial — that's the [Quickstart](../getting-started/10-quickstart.md) and the [Pytest Fixtures](../20-client/10-pytest-fixtures.md) reference. The [REST API](../30-server/10-rest-api.md) reference is authoritative for the HTTP surface.
+What you will not find here: a "how to call the API" tutorial — that's the [Quickstart](../getting-started/10-pytest.md) and the [Pytest Fixtures](../20-client/10-pytest-fixtures.md) reference. The [REST API](../30-server/10-rest-api.md) reference is authoritative for the HTTP surface.
 
 ## In this section
 
-| Page | What it covers |
-|---|---|
-| [Dev setup](10-dev-setup.md) | Cloning the repo, the `make check` pipeline, code style and type-check rules, the CVE-pinned dependency convention, the branch-to-PR flow. Run this once, then come back when CI surprises you. |
-| [Invariants](20-invariants.md) | The eight load-bearing rules a change cannot break. Each entry: rule, why, what breaks. Read before touching server, queue, or lab-manager code. |
-| [Internals: Async discipline](30-internals-async.md) | `_run_blocking`, the async/sync boundary, the single Netlab invocation path. The mechanics behind "long Netlab calls don't block the queue". |
-| [Internals: LabManager singleton + locking](40-internals-lab-manager.md) | The classmethod-only singleton, `try_acquire` vs `acquire`, GLOBAL_LOCK, stale-state recovery. The synchronous half of the codebase. |
-| [Internals: atexit + lifespan](50-internals-atexit.md) | The three teardown paths (lifespan, signal handlers, atexit), why they all stay synchronous, and what `silent=True` is protecting against. |
-| [Internals: CI test stubbing](60-internals-test-stubbing.md) | The `StubLabManager` pattern, the pytest plugin entry point, and why the singleton design makes both possible. |
-| [Anti-patterns](70-anti-patterns.md) | A grep target. Every load-bearing rule restated as a code-review trigger, with a link to the page that explains why. |
+<div class="grid cards" markdown>
+
+-   :material-tools:{ .lg .middle } &nbsp; **[Dev setup](10-dev-setup.md)**
+
+    ---
+
+    Clone, `make check`, code style + type-check rules, CVE-pinned dependency convention, branch-to-PR flow. Run once, return when CI surprises you.
+
+-   :material-shield-check:{ .lg .middle } &nbsp; **[Invariants](20-invariants.md)**
+
+    ---
+
+    The eight load-bearing rules a change cannot break. Each entry: rule, why, what breaks. Read before touching `server.py`, `lab_manager.py`, or `connector.py`.
+
+-   :material-sync:{ .lg .middle } &nbsp; **[Async discipline](30-internals-async.md)**
+
+    ---
+
+    `_run_blocking`, the async/sync boundary, the single Netlab invocation path. Mechanics behind "long Netlab calls don't block the queue".
+
+-   :material-cog:{ .lg .middle } &nbsp; **[LabManager](40-internals-lab-manager.md)**
+
+    ---
+
+    The classmethod-only singleton, `try_acquire` vs `acquire`, `GLOBAL_LOCK`, stale-state recovery. The synchronous half of the codebase.
+
+-   :material-power-plug-off:{ .lg .middle } &nbsp; **[atexit & lifespan](50-internals-atexit.md)**
+
+    ---
+
+    Three teardown paths (lifespan, signal handlers, atexit), why they all stay synchronous, and what `silent=True` is protecting against.
+
+-   :material-test-tube-empty:{ .lg .middle } &nbsp; **[Test stubbing](60-internals-test-stubbing.md)**
+
+    ---
+
+    The `StubLabManager` pattern, the pytest plugin entry point, and why the singleton design makes both possible.
+
+-   :material-alert-octagon:{ .lg .middle } &nbsp; **[Anti-patterns](70-anti-patterns.md)**
+
+    ---
+
+    A grep target for code review. Every load-bearing rule restated as a code-review trigger, linked to the page that explains why.
+
+</div>
 
 ## Where contributor knowledge lives
 

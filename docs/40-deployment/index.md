@@ -23,12 +23,33 @@ to add a new device kind.
 
 ## In this section
 
-| Guide | What you'll learn |
-|---|---|
-| [Netlab host setup](10-netlab-host-setup.md) | Install `networklab` on Ubuntu 24.04+, configure rootless Containerlab with `clab_admins` + setuid, stop netlab from wrapping Containerlab in `sudo`, enable VRF for FRR labs, and validate with `netlab test clab`. |
-| [Headscale VPN — Quick setup](20-headscale-quick-setup.md) | The five-command happy path — Headscale + Headplane via Docker Compose, the lab host as a subnet router, one client peer that can reach the lab subnet. |
-| [Headscale VPN — Reference](30-headscale-reference.md) | ACL configuration, user and pre-auth key management, system settings, troubleshooting, and the full command summary once the tailnet is up. |
-| [Vendor setup](40-vendor-setup.md) | Per-vendor install walkthroughs — FRR auto-pull, Nokia SR Linux image pin, Cisco IOL vrnetlab build, and the generic recipe for adding any other Netlab-supported platform. For decision-making, see [Topology Format → Vendor defaults](../10-concepts/40-topology-format.md#vendor-defaults-which-device-to-use). |
+<div class="grid cards" markdown>
+
+-   :material-server-network:{ .lg .middle } &nbsp; **[Netlab host](10-netlab-host-setup.md)**
+
+    ---
+
+    Install `networklab` on Ubuntu 24.04+, configure rootless Containerlab with `clab_admins` + setuid, stop netlab from wrapping Containerlab in `sudo`, validate with `netlab test clab`.
+
+-   :material-shield-network:{ .lg .middle } &nbsp; **[VPN: quick setup](20-headscale-quick-setup.md)**
+
+    ---
+
+    Five-command happy path — [Headscale](https://headscale.net/) + [Headplane](https://github.com/tale/headplane) via Docker Compose, the lab host as a subnet router, one client peer reaching the lab subnet.
+
+-   :material-network-pos:{ .lg .middle } &nbsp; **[VPN: reference](30-headscale-reference.md)**
+
+    ---
+
+    ACL configuration, user and pre-auth key management, system settings, troubleshooting, and the full command summary once the tailnet is up.
+
+-   :material-router-network:{ .lg .middle } &nbsp; **[Vendor setup](40-vendor-setup.md)**
+
+    ---
+
+    Per-vendor install walkthroughs — FRR auto-pull, Nokia SR Linux image pin, Cisco IOL [vrnetlab](https://github.com/hellt/vrnetlab) build. Decision tree lives in [Topology format](../10-concepts/40-topology-format.md#vendor-defaults-which-device-to-use).
+
+</div>
 
 ## What to read next
 

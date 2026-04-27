@@ -26,4 +26,4 @@ Everything to understand, configure, and run the Remote Lab Manager service. The
 - **[Session Queue](../10-concepts/20-session-queue.md)** — the FIFO model that the `X-Session-ID` access boundary enforces.
 - **[Netlab host setup](../40-deployment/10-netlab-host-setup.md)** — must be complete before the server will start; the launcher exits if `netlab` is not on `PATH`.
 - **[Headscale VPN — Quick setup](../40-deployment/20-headscale-quick-setup.md)** — the recommended enclosure for the internal-trust HTTP surface.
-- **[CI quickstart](../getting-started/40-ci-quickstart.md)** — wire the service into GitHub Actions, GitLab CI, or Jenkins.
+- **[CI quickstart](../getting-started/40-ci.md)** — wire the service into GitHub Actions, GitLab CI, or Jenkins.

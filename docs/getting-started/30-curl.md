@@ -23,12 +23,12 @@ curl -fsS "$BASE_URL/healthz" -o /dev/null -w "%{http_code}\n"
 A `204 No Content` on `/healthz` is the liveness signal. Anything else — a connection error, a `502`, a redirect — means your VPN is not up or the server is not running. Fix that first; the rest of this page assumes the healthz check passed.
 
 !!! info "Before you start"
-    - **A reachable Remote Lab Manager** — `BASE_URL` above. If you are running it locally, that is `http://localhost:8000` (see [Local development server](20-local-server.md)).
+    - **A reachable Remote Lab Manager** — `BASE_URL` above. If you are running it locally, that is `http://localhost:8000` (see [Local development server](20-local.md)).
     - **`curl`** and **`jq`** on your `PATH`. `apt install jq` / `brew install jq`.
     - **VPN connectivity to the lab host.** The service has no HTTP authentication — see [Security model](../30-server/40-security.md).
 
 !!! tip "Wrong page?"
-    On a Python path? The pytest-flavored [Quickstart](10-quickstart.md) is shorter. Wiring this into CI? See [CI quickstart](40-ci-quickstart.md).
+    On a Python path? The pytest-flavored [Quickstart](10-pytest.md) is shorter. Wiring this into CI? See [CI quickstart](40-ci.md).
 
 The lifecycle, top-to-bottom: **create a session → wait for the queue → upload a topology → list devices → release → end the session.** The pytest fixture and `RemoteLabClient` automate exactly these six calls.
 
@@ -302,7 +302,7 @@ layers over exactly this lifecycle. Two short sketches:
 
 ## Where to go next
 
-- **[CI quickstart](40-ci-quickstart.md)** — wire this
+- **[CI quickstart](40-ci.md)** — wire this
   lifecycle into GitHub Actions, GitLab CI, or Jenkins. Threads out to
   the queue-contention math for sizing concurrency against a single lab
   host.

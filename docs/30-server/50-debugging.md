@@ -20,7 +20,7 @@ Grep this page when something breaks — for any client, in any language. Sympto
 
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
-| `RuntimeError: REMOTE_LAB_URL not set` | The pytest fixture saw no `REMOTE_LAB_URL` in the environment | Export `REMOTE_LAB_URL` to point at your server. The fixture has no fallback to localhost — if you don't have a server, see [Local development server](../getting-started/20-local-server.md). |
+| `RuntimeError: REMOTE_LAB_URL not set` | The pytest fixture saw no `REMOTE_LAB_URL` in the environment | Export `REMOTE_LAB_URL` to point at your server. The fixture has no fallback to localhost — if you don't have a server, see [Local development server](../getting-started/20-local.md). |
 | Tests hang in queue | Server unreachable, or another session holds the lab | Verify `curl $REMOTE_LAB_URL/healthz` returns 204. Check `GET /active-session` for the holder. See [Session queue → Promotion order](../10-concepts/20-session-queue.md#promotion-order). |
 | `423 Locked` on every `/lab/*` call | Your session is `WAITING`, not `ACTIVE` | Poll `GET /session/{id}` until status is `active`. If it stays `waiting`, another session is ahead of you in the queue. |
 | `423 Locked` on `POST /lab` only | Lab is busy with a different topology | The client retries every 5 s automatically. If you cannot wait, see "Lab stuck busy" below. |
@@ -253,6 +253,6 @@ curl -s -X DELETE "$REMOTE_LAB_URL/session/<orphaned-session-id>"
 - **[Lab lifecycle](../10-concepts/30-lab-lifecycle.md)** — what
   `try_acquire` does internally; the reuse and teardown rules behind
   `423 Locked` and `Lab ... became idle`.
-- **[CI quickstart](../getting-started/40-ci-quickstart.md)** — runner-pipeline shapes
+- **[CI quickstart](../getting-started/40-ci.md)** — runner-pipeline shapes
   and the queue-tuning thread-out for the symptoms above when they recur
   under concurrency.

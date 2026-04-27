@@ -12,20 +12,48 @@ crosslink_references: []
 
 Answer one question: **what runs your tests today?**
 
-- **Pytest, against a Remote Lab Manager you can already reach** → [Quickstart](10-quickstart.md). Ten minutes, three lines of test code.
-- **Pytest, but you don't have a server to point at** → [Local development server](20-local-server.md), then return to [Quickstart](10-quickstart.md) from step 3.
-- **Anything else — Go, Robot Framework, shell, your own harness** → [REST quickstart](30-rest-quickstart.md). Six cURL calls end-to-end; no Python required.
-- **You're wiring this into CI** → [CI quickstart](40-ci-quickstart.md). Env vars, runner pipeline tabs, queue tuning.
-- **You operate the lab host (not just consume it)** → skip Getting Started. Start at [Netlab host setup](../40-deployment/10-netlab-host-setup.md).
+- **Pytest, against a Remote Lab Manager you can already reach** → [Run your first test](10-pytest.md). Ten minutes, three lines of test code.
+- **You're a Neops dev using the Worker SDK** → [Plug into Worker SDK](15-worker-sdk.md). Two-step setup, then the Worker SDK testing guide takes over.
+- **Pytest, but you don't have a server to point at** → [Run locally](20-local.md), then return to [Run your first test](10-pytest.md) from step 3.
+- **Anything else — Go, Robot Framework, shell, your own harness** → [Drive from cURL](30-curl.md). Six cURL calls end-to-end; no Python required.
+- **You're wiring this into CI** → [Wire into CI](40-ci.md). Env vars, runner pipeline tabs, queue tuning.
+- **You operate the lab host (not just consume it)** → skip Get started. Begin at [Netlab host setup](../40-deployment/10-netlab-host-setup.md).
 
 ## In this section
 
-| Guide | What you'll learn |
-|---|---|
-| [Quickstart](10-quickstart.md) | Install `neops-remote-lab`, set `REMOTE_LAB_URL`, write a minimal topology, declare a `remote_lab_fixture`, and run pytest against a real lab. |
-| [Local development server](20-local-server.md) | Don't have a remote VM yet? Install the prerequisites on Ubuntu, run the server on `localhost:8000`, point your tests at it. |
-| [REST quickstart](30-rest-quickstart.md) | Drive the lab end-to-end with cURL — six calls, any HTTP-capable stack. The pytest fixture and Python client wrap exactly this lifecycle. |
-| [CI quickstart](40-ci-quickstart.md) | Wire the lab into GitHub Actions, GitLab CI, or Jenkins — env-var setup, runner pipeline tabs, VPN connectivity, queue-tuning pointers. |
+<div class="grid cards" markdown>
+
+-   :material-test-tube:{ .lg .middle } &nbsp; **[Run your first test](10-pytest.md)**
+
+    ---
+
+    Install `neops-remote-lab`, set `REMOTE_LAB_URL`, write a minimal topology, declare a `remote_lab_fixture`, run pytest. Ten minutes, three lines of test code.
+
+-   :material-puzzle:{ .lg .middle } &nbsp; **[Plug into Worker SDK](15-worker-sdk.md)**
+
+    ---
+
+    For Neops dev teams using the Worker SDK. Two-step setup, then the Worker SDK [testing guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/) takes over with function-block-test patterns.
+
+-   :material-laptop:{ .lg .middle } &nbsp; **[Run locally](20-local.md)**
+
+    ---
+
+    Don't have a remote VM yet? Install Netlab + Containerlab rootless on Ubuntu and run the server on `localhost:8000`. Point your tests at it; resume the test guide.
+
+-   :material-bash:{ .lg .middle } &nbsp; **[Drive from cURL](30-curl.md)**
+
+    ---
+
+    Drive the lab end-to-end with cURL — six calls, any HTTP-capable stack. The pytest fixture and Python client wrap exactly this lifecycle.
+
+-   :material-cog-sync:{ .lg .middle } &nbsp; **[Wire into CI](40-ci.md)**
+
+    ---
+
+    Wire the lab into GitHub Actions, GitLab CI, or Jenkins — env-var setup, runner pipeline tabs, VPN connectivity, queue-tuning pointers.
+
+</div>
 
 ## What to read next
 

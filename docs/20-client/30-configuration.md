@@ -71,5 +71,5 @@ The variable is **not consumed** by either the client or the server. Setting it 
 
 - **[Pytest Fixtures](10-pytest-fixtures.md)** — the consumer that drives these variables in test setup.
 - **[Python Client](20-python-client.md)** — the constructor arguments that mirror these variables and which take precedence when you instantiate the client directly.
-- **[CI quickstart](../getting-started/40-ci-quickstart.md)** — how the same variables wire into GitHub Actions, GitLab CI, and Jenkins pipelines.
+- **[CI quickstart](../getting-started/40-ci.md)** — how the same variables wire into GitHub Actions, GitLab CI, and Jenkins pipelines.
 - **[Server-side configuration](../30-server/20-configuration.md)** — the CLI flags and the one server env var (`NEOPS_NETLAB_STREAM_OUTPUT`).

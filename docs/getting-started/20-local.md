@@ -11,7 +11,7 @@ crosslink_references: [remote-lab]
 Run the Remote Lab Manager on your laptop on `localhost:8000`. Foreground process; install once, start when you want a lab, `Ctrl+C` when you don't.
 
 !!! tip "Wrong page?"
-    Already have a Remote Lab Manager you can reach? Skip this and use [Quickstart](10-quickstart.md) directly. Standing up a multi-user shared host? Jump to [Administration](../30-server/30-administration.md).
+    Already have a Remote Lab Manager you can reach? Skip this and use [Quickstart](10-pytest.md) directly. Standing up a multi-user shared host? Jump to [Administration](../30-server/30-administration.md).
 
 !!! info "Before you start"
     - **Ubuntu 22.04+** (or another Linux with rootless Docker). macOS works for the *client* side but not the *server* — Containerlab and Netlab need Linux.
@@ -145,8 +145,8 @@ fails fast at session setup if it's missing. <!-- trace: neops_remote_lab/testin
 Drop it into a `.env` if you load one with `python-dotenv` or `direnv`,
 so you don't have to remember the export each session.
 
-From here, follow the [Quickstart](10-quickstart.md) from
-[step 3 (Write a minimal topology)](10-quickstart.md#3-write-a-minimal-topology)
+From here, follow the [Quickstart](10-pytest.md) from
+[step 3 (Write a minimal topology)](10-pytest.md#3-write-a-minimal-topology)
 onward. The test code is identical to the remote case — `pytest` doesn't
 know or care whether the server is on the same host or across the
 network.
@@ -206,7 +206,7 @@ change on the consumer side.
 
 ## Where to go next
 
-- **[Quickstart](10-quickstart.md)** — write your first test against the
+- **[Quickstart](10-pytest.md)** — write your first test against the
   server you just started.
 - **[Architecture](../10-concepts/10-architecture.md)** — the high-level
   picture of how the local server is structured (it's the same server you

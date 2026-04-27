@@ -50,7 +50,7 @@ Pointers to runnable examples in the repo. Every link goes to GitHub so the reci
 
 Recipes that don't exist yet but would help. Open a PR if you have a good one:
 
-- **Complete GitHub Actions workflow file** as a runnable artifact. The [CI quickstart](../getting-started/40-ci-quickstart.md) shows the env-var block; a full workflow with checkout, setup, retry policy, and timeout coordination would be more directly useful.
+- **Complete GitHub Actions workflow file** as a runnable artifact. The [CI quickstart](../getting-started/40-ci.md) shows the env-var block; a full workflow with checkout, setup, retry policy, and timeout coordination would be more directly useful.
 - **Advanced shared-topology pytest pattern** demonstrating fixture-rank ordering across multiple test modules. The current example covers one module; a multi-module example would clarify how the ordering plugin reorders across files.
 
 ## How CI keeps these honest
@@ -61,6 +61,6 @@ Recipes that don't exist yet but would help. Open a PR if you have a good one:
 
 - **[Pytest Fixtures](../20-client/10-pytest-fixtures.md)** — the API the pytest recipes consume.
 - **[Python Client](../20-client/20-python-client.md)** — the API the Python (no-pytest) recipes consume.
-- **[REST quickstart](../getting-started/30-rest-quickstart.md)** — the cURL recipes are alternate entry points to the same six-call lifecycle this page narrates.
+- **[REST quickstart](../getting-started/30-curl.md)** — the cURL recipes are alternate entry points to the same six-call lifecycle this page narrates.
 - **[Topology Format](../10-concepts/40-topology-format.md)** — the YAML shape the topology recipes follow.
 - **[Vendor setup](../40-deployment/40-vendor-setup.md)** — the per-vendor install walkthroughs the topology recipes assume.

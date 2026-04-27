@@ -61,10 +61,11 @@ nav:
 - Start: index.md
 - Get started:
   - Get started: getting-started/index.md
-  - Run your first test: getting-started/10-quickstart.md
-  - Run locally: getting-started/20-local-server.md
-  - Drive from cURL: getting-started/30-rest-quickstart.md
-  - Wire into CI: getting-started/40-ci-quickstart.md
+  - Run your first test: getting-started/10-pytest.md
+  - Plug into Worker SDK: getting-started/15-worker-sdk.md
+  - Run locally: getting-started/20-local.md
+  - Drive from cURL: getting-started/30-curl.md
+  - Wire into CI: getting-started/40-ci.md
 - Use from Python:
   - Use from Python: 20-client/index.md
   - Pytest fixtures: 20-client/10-pytest-fixtures.md

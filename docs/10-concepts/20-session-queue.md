@@ -196,7 +196,7 @@ If multiple CI jobs target the **same** topology with `reuse=true`, they do **no
 
 ### Per-request timeout, not wall-clock
 
-`REMOTE_LAB_ACQUISITION_TIMEOUT` is passed as the `timeout=` kwarg on each individual `POST /lab` call (`client.py:192`); it is **not** a wall-clock bound on the `while True:` 423-retry loop. A loaded server that returns `423 Locked` quickly will make the client spin forever at 5-second intervals. To fail fast, wrap the acquire in a pytest-level timeout or use CI-level job timeouts (see [CI quickstart](../getting-started/40-ci-quickstart.md)).
+`REMOTE_LAB_ACQUISITION_TIMEOUT` is passed as the `timeout=` kwarg on each individual `POST /lab` call (`client.py:192`); it is **not** a wall-clock bound on the `while True:` 423-retry loop. A loaded server that returns `423 Locked` quickly will make the client spin forever at 5-second intervals. To fail fast, wrap the acquire in a pytest-level timeout or use CI-level job timeouts (see [CI quickstart](../getting-started/40-ci.md)).
 
 ## Common pitfalls
 
