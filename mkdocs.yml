@@ -67,6 +67,7 @@ nav:
   - 40-deployment/index.md
   - 40-deployment/10-netlab-host-setup.md
   - 40-deployment/20-headscale-vpn.md
+  - 40-deployment/30-vendor-images.md
 - Contributing:
   - 50-contributing/index.md
   - 50-contributing/10-dev-setup.md

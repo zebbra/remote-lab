@@ -27,18 +27,43 @@ server on any network you do not fully control.
     [Netlab host setup](../40-deployment/10-netlab-host-setup.md) first — the server
     launcher will refuse to start without `netlab` on `PATH`. <!-- trace: neops_remote_lab/__main__.py:206 -->
 
-The server ships as the `neops-remote-lab` Python distribution. The
-recommended install is [pipx](https://pipx.pypa.io/) so the CLI lands on
-`PATH` in its own virtualenv without polluting the system Python:
+The server ships as the `neops-remote-lab` Python distribution. Install
+it as an isolated tool so the CLI lands on `PATH` without polluting the
+system Python (Python 3.12+ required). The distribution declares a
+`neops-remote-lab` console script that points at
+`neops_remote_lab.__main__:main`. <!-- trace: pyproject.toml:34 -->
 
-```bash
-# Requires Python 3.12+
-pipx install neops-remote-lab
-```
+=== "uv (recommended)"
 
-The distribution declares a `neops-remote-lab` console script that points
-at `neops_remote_lab.__main__:main`, so `pipx install` puts the server
-CLI directly on `PATH`. <!-- trace: pyproject.toml:34 -->
+    ```bash
+    uv tool install neops-remote-lab
+    ```
+
+    [`uv tool install`](https://docs.astral.sh/uv/concepts/tools/) drops
+    the CLI in `~/.local/bin` (or `uv tool dir`) inside an isolated
+    environment that uv manages.
+
+=== "pipx"
+
+    ```bash
+    pipx install neops-remote-lab
+    pipx ensurepath  # only needed once
+    ```
+
+    [pipx](https://pipx.pypa.io/) installs into a per-app virtualenv
+    under `~/.local/pipx/venvs/`. After the first install, run
+    `pipx ensurepath` and re-login so `~/.local/bin` is on `PATH`.
+
+=== "pip (last resort)"
+
+    ```bash
+    python -m venv ~/.venvs/neops-remote-lab
+    ~/.venvs/neops-remote-lab/bin/pip install neops-remote-lab
+    ln -s ~/.venvs/neops-remote-lab/bin/neops-remote-lab ~/.local/bin/
+    ```
+
+    Manual virtualenv plus a symlink. Prefer `uv tool install` or `pipx`
+    unless you have a hard reason not to.
 
 Verify the CLI is reachable and can print its help:
 
@@ -49,10 +74,10 @@ neops-remote-lab --help
 
 The help output lists the complete server CLI surface: `--debug`,
 `--host`, `--port`, `--log-level`, `--log-config`, and `--version`. <!-- trace: neops_remote_lab/__main__.py:149 -->
-If `neops-remote-lab --help` errors with `command not found`, run
-`pipx ensurepath` and re-login, or place `<INSTALL_PATH>/bin` on `PATH`
-manually (replace `<INSTALL_PATH>` with the pipx venv path —
-`pipx environment --value PIPX_LOCAL_VENVS` gives the default).
+If `neops-remote-lab --help` errors with `command not found`, your
+tool's `bin` directory is not on `PATH` — run `uv tool update-shell`,
+`pipx ensurepath`, or add the symlink target manually depending on which
+installer you used.
 
 Once the CLI is reachable, continue with [Starting the server](#starting-the-server)
 for a one-shot foreground run, or [Running as a system service](#running-as-a-system-service)

@@ -28,11 +28,50 @@ to keep tests host-agnostic. See
 ```bash
 git clone git@github.com:zebbra/neops-remote-lab.git
 cd neops-remote-lab
-uv sync --group dev
 ```
 
-The `--group dev` group brings in `ruff`, `pyrefly`, `pytest`, `pytest-asyncio`,
-`httpx`, `pip-audit`, and the type stubs that `make check` needs.
+Then bring in the dependencies. The project declares its dev tooling under
+`[dependency-groups]` (PEP 735) in `pyproject.toml`; **uv is the supported
+path** and the one CI uses. Two alternatives exist for environments where
+uv is unavailable.
+
+=== "uv (recommended, what CI uses)"
+
+    ```bash
+    uv sync --group dev
+    ```
+
+    Brings in `ruff`, `pyrefly`, `pytest`, `pytest-asyncio`, `httpx`,
+    `pip-audit`, and the type stubs `make check` needs. Locks them in
+    `uv.lock`. See the
+    [uv dependency-groups docs](https://docs.astral.sh/uv/concepts/projects/dependencies/#dependency-groups).
+
+=== "pip 25+"
+
+    ```bash
+    python -m venv .venv && source .venv/bin/activate
+    pip install --group dev .
+    ```
+
+    [pip 25.0+ supports `--group`](https://pip.pypa.io/en/stable/cli/pip_install/#cmdoption-group)
+    natively for PEP 735. You won't get the lockfile that uv produces;
+    rely on `pyproject.toml` for reproducibility.
+
+=== "Poetry (caveat)"
+
+    Poetry does not natively read `[dependency-groups]` (it uses its own
+    `[tool.poetry.group.<name>.dependencies]` format). To work with this
+    repo, install the runtime deps via `poetry install` and add the dev
+    tools manually:
+
+    ```bash
+    poetry install
+    poetry add --group dev ruff pyrefly pytest pytest-asyncio httpx \
+        pip-audit fastapi[standard] types-requests
+    ```
+
+    This is the highest-friction option. **If you can install uv, do
+    that instead** — `make check` and CI will agree with you.
 
 ## The `make check` pipeline
 

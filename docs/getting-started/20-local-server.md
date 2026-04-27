@@ -61,17 +61,42 @@ modules are happy, then tears down. If it fails, fix Netlab first —
 
 ## 1. Install the server
 
-The server ships as the `neops-remote-lab` Python distribution. The
-recommended install is [pipx](https://pipx.pypa.io/) — the CLI lands on
-`PATH` in its own virtualenv, isolated from your project's environment:
+The server ships as the `neops-remote-lab` Python distribution. Install it
+as a tool — isolated from your project's environment, on your shell's
+`PATH`. The package declares a `neops-remote-lab` console script that
+points at `neops_remote_lab.__main__:main`. <!-- trace: pyproject.toml:34 -->
 
-```bash
-pipx install neops-remote-lab
-```
+=== "uv (recommended)"
 
-The package declares a `neops-remote-lab` console script that points at
-`neops_remote_lab.__main__:main`, so `pipx install` puts the CLI directly
-on your shell's `PATH`. <!-- trace: pyproject.toml:34 -->
+    ```bash
+    uv tool install neops-remote-lab
+    ```
+
+    [`uv tool install`](https://docs.astral.sh/uv/concepts/tools/) drops
+    the CLI in `~/.local/bin` (or `uv tool dir`) inside an isolated
+    environment that uv manages.
+
+=== "pipx"
+
+    ```bash
+    pipx install neops-remote-lab
+    pipx ensurepath  # only needed once
+    ```
+
+    [pipx](https://pipx.pypa.io/) installs into a per-app virtualenv
+    under `~/.local/pipx/venvs/`. `pipx ensurepath` puts
+    `~/.local/bin` on `PATH`; re-login afterward.
+
+=== "pip (last resort)"
+
+    ```bash
+    python -m venv ~/.venvs/neops-remote-lab
+    ~/.venvs/neops-remote-lab/bin/pip install neops-remote-lab
+    ln -s ~/.venvs/neops-remote-lab/bin/neops-remote-lab ~/.local/bin/
+    ```
+
+    Manual virtualenv plus a symlink. Use `uv tool install` or `pipx`
+    instead unless you have a hard reason not to.
 
 Verify:
 

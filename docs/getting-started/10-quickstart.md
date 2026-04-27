@@ -9,9 +9,10 @@ crosslink_references: []
 # Quickstart
 
 You have a pytest suite that needs a real router — not a mock, not a container
-hand-rolled per test, but a Netlab topology reachable from your local machine
-with the same identity every time. This guide takes you from nothing to a
-passing lab-backed test against a running Remote Lab Manager.
+hand-rolled per test, but a [Netlab](https://netlab.tools/) topology reachable
+from your local machine with the same identity every time. This guide takes
+you from nothing to a passing lab-backed test against a running Remote Lab
+Manager.
 
 By the end you will have installed the client package, pointed it at a server,
 written a minimal topology, and run a pytest that acquires a lab, lists its
@@ -39,11 +40,35 @@ devices, and tears it down cleanly — all with three lines of test code.
 Install `neops-remote-lab` into the same environment as your tests. The package
 ships both the pytest plugin and the HTTP client; no separate install is needed.
 
-```bash title="Install via pip"
-pip install neops-remote-lab
-```
+=== "uv (recommended)"
 
-!!! success "Expected output"
+    ```bash
+    uv add neops-remote-lab
+    ```
+
+    Adds the package to your `pyproject.toml` and locks it in `uv.lock`.
+    See the [uv docs](https://docs.astral.sh/uv/concepts/projects/dependencies/)
+    for project workflows.
+
+=== "Poetry"
+
+    ```bash
+    poetry add neops-remote-lab
+    ```
+
+    Adds the package to your `pyproject.toml` `[tool.poetry.dependencies]`
+    and locks it in `poetry.lock`.
+
+=== "pip"
+
+    ```bash
+    pip install neops-remote-lab
+    ```
+
+    Installs into the active virtualenv. Pin in `requirements.txt` (or
+    your equivalent) for reproducibility.
+
+!!! success "Expected output (any of the three)"
     ```
     Successfully installed neops-remote-lab-<version>
     ```

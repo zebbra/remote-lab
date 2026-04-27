@@ -26,26 +26,51 @@ crosslink_references: [remote-lab]
 ### Installation Steps
 
 This guide assumes you are using **Ubuntu 24.04+** and is based on the
-netlab [installation guide](https://netlab.tools/install/ubuntu/).
-
+upstream [netlab installation guide](https://netlab.tools/install/ubuntu/).
 The PyPI package is `networklab`; the installed CLI is `netlab`.
 
-```bash
-# Step 1-a: Install system prerequisites and pipx
-sudo apt-get update
-sudo apt-get install -y pipx
+Install it as an isolated tool — the same shape used for the
+`neops-remote-lab` server CLI, so both binaries cohabit cleanly.
 
-# Step 1-b: Install netlab via pipx
-pipx install networklab
-pipx ensurepath
-```
+=== "uv (recommended)"
 
-!!! warning "Ubuntu 24.04+"
-    Ubuntu 24.04 marks the system Python as [PEP 668](https://peps.python.org/pep-0668/)
-    *externally managed*; plain `pip install` into the system interpreter fails with
-    `error: externally-managed-environment`. `pipx` sidesteps this by installing
-    `networklab` into its own isolated venv under `~/.local/pipx/venvs/networklab`
-    and exposing the `netlab` CLI on `PATH` via `pipx ensurepath`.
+    ```bash
+    # Install uv first if you don't have it
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+
+    # Install the netlab CLI as an isolated tool
+    uv tool install networklab
+    ```
+
+    [`uv tool install`](https://docs.astral.sh/uv/concepts/tools/) drops
+    the CLI in `~/.local/bin` (or `uv tool dir`) inside an isolated
+    environment that uv manages. No system-Python contamination.
+
+=== "pipx"
+
+    ```bash
+    sudo apt-get update
+    sudo apt-get install -y pipx
+    pipx install networklab
+    pipx ensurepath
+    ```
+
+    Installs into `~/.local/pipx/venvs/networklab` and exposes the
+    `netlab` CLI on `PATH`. Re-login (or source your shell's RC file)
+    after the first `pipx ensurepath`.
+
+=== "pip (not recommended on Ubuntu 24.04+)"
+
+    ```bash
+    python -m venv ~/.venvs/networklab
+    ~/.venvs/networklab/bin/pip install networklab
+    ln -s ~/.venvs/networklab/bin/netlab ~/.local/bin/
+    ```
+
+    Manual virtualenv plus a symlink. On Ubuntu 24.04+ a plain
+    `pip install networklab` fails with `error: externally-managed-environment`
+    ([PEP 668](https://peps.python.org/pep-0668/)) — that's why uv or
+    pipx is preferred.
 
 ```bash
 # Step 1-c: Install all backend tooling (Ansible, libvirt, Docker, Containerlab)
@@ -182,126 +207,22 @@ No `sudo`, no password prompt — ideal for CI.
 
 ---
 
-## 4. – Cisco IOL images (optional, license required)
+## 4. – Pick a router/switch image to run
 
-`netlab` supports [Cisco IOL (IOS on Linux)](https://github.com/hellt/vrnetlab/tree/master/cisco/iol)
-via Containerlab. These images run fast and light — ideal for
-routing/switching labs that need IOS-style CLI semantics — but they are
-**not freely distributable**.
+Once `netlab test clab` passes, you have a working lab host that can boot
+the open-source [FRR](https://netlab.tools/platforms/frr/) image out of
+the box. For everything else — open-source vendor stacks like
+[Nokia SR Linux](https://netlab.tools/platforms/srlinux/), licensed
+images like [Cisco IOL](https://netlab.tools/platforms/cisco_iol/), or
+adding any other Netlab-supported platform — see the dedicated
+[Vendors & images](30-vendor-images.md) guide.
 
-!!! danger "You need a Cisco IOL license — and the binaries — before this step works"
-    Cisco IOL binaries are licensed software. Cisco distributes them only
-    under specific commercial agreements (Cisco Modeling Labs subscription,
-    EFT/CCO program access, partner agreements). **This guide does not
-    distribute the binaries and cannot help you obtain them.** Acquire them
-    from your Cisco contact, then continue.
-
-    The two binaries you will need:
-
-    - `x86_64_crb_linux-adventerprisek9-ms.iol` — L3 router image
-    - `x86_64_crb_linux-adventerprisek9-ms-l2.iol` — L2 switch image
-
-    The exact filenames depend on the Cisco release you receive. Treat the
-    versions in the example commands below (`17.15.01`, `L2-17.15.01`) as
-    placeholders for whatever your binaries report.
-
-If you do not have IOL access, **stick with FRR** for the rest of this
-guide and the [Quickstart](../getting-started/10-quickstart.md). FRR is
-fully open-source, requires no license, and covers most routing-protocol
-test scenarios.
-
-### Build the IOL container images
-
-The community [`vrnetlab` fork by hellt](https://github.com/hellt/vrnetlab/)
-wraps the Cisco binaries in a Containerlab-compatible Docker image. Make
-sure to use the **fork** — the original `vrnetlab` upstream is not
-Containerlab-compatible.
-
-```bash
-# 1. Clone the vrnetlab fork
-git clone https://github.com/hellt/vrnetlab.git
-
-# 2. Place your Cisco IOL binaries into the build directory
-#    (replace the source paths with the location of your licensed binaries;
-#    keep the .bin extension — the build expects it)
-cp /path/to/your/x86_64_crb_linux-adventerprisek9-ms.iol \
-   vrnetlab/cisco/iol/cisco_iol-17.15.01.bin
-
-cp /path/to/your/x86_64_crb_linux-adventerprisek9-ms-l2.iol \
-   vrnetlab/cisco/iol/cisco_iol-L2-17.15.01.bin
-
-# 3. Build the Docker images
-cd vrnetlab/cisco/iol
-make docker-image
-```
-
-!!! note "The `.bin` extension is required"
-    The vrnetlab build expects `.bin`. If your Cisco-supplied file has a
-    different extension, copy or symlink it to `.bin` before running
-    `make docker-image`.
-
-### Verify the images are present
-
-```bash
-docker images --format '{{.Repository}}:{{.Tag}}' | grep cisco_iol
-```
-
-Expected output (versions reflect what you built):
-
-```text
-vrnetlab/cisco_iol:17.15.01
-vrnetlab/cisco_iol:L2-17.15.01
-```
-
-### Tell Netlab which IOL image to use
-
-Point Netlab at the images you just built by writing your defaults to
-`~/.netlab.yml`:
-
-```bash
-cat > ~/.netlab.yml << 'EOF'
----
-device: iol
-devices.iol:
-  clab.image: "vrnetlab/cisco_iol:17.15.01"
-devices.ioll2:
-  clab.image: "vrnetlab/cisco_iol:L2-17.15.01"
-EOF
-```
-
-!!! note "Setting `device: iol` is optional"
-    The top-level `device: iol` makes IOL the default device type for
-    topologies that don't specify one. Omit it if you'd rather pick the
-    device per topology.
-
-### Verify Netlab sees the images
-
-```bash
-netlab show images
-```
-
-You should see:
-
-```text
-iol     → vrnetlab/cisco_iol:17.15.01
-ioll2   → vrnetlab/cisco_iol:L2-17.15.01
-```
+The vendor page covers when each platform is the right call, the FRR
+limitations to know about before you commit, the SR Linux setup (free,
+public registry, no license), the Cisco IOL build path (license
+required), and a generic recipe for adding any other Netlab platform.
 
 ---
-
-### Test your IOL lab
-
-Create a simple IOL lab file `topology.yml` in a directory of your choice, e.g., `~/iol-lab/`:
-
-```yaml
----
-provider: clab
-defaults.device: iol
-module: [ ospf ]
-
-nodes: [ r1, r2 ]
-links: [ r1, r2, r1-r2 ]
-```
 
 ## Troubleshooting Cheatsheet
 
