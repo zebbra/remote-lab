@@ -10,50 +10,50 @@ markdown_extensions:
 
 nav:
   - Start: index.md
-  - Getting Started:
-      - getting-started/index.md
-      - getting-started/10-quickstart.md
-      - getting-started/20-local-server.md
-      - getting-started/30-rest-quickstart.md
-      - getting-started/40-ci-quickstart.md
-  - Concepts:
-      - 10-concepts/index.md
-      - 10-concepts/10-architecture.md
-      - 10-concepts/20-session-queue.md
-      - 10-concepts/30-lab-lifecycle.md
-      - 10-concepts/40-topology-format.md
+  - Get started:
+      - "Get started": getting-started/index.md
+      - "Run your first test": getting-started/10-quickstart.md
+      - "Run locally": getting-started/20-local-server.md
+      - "Drive from cURL": getting-started/30-rest-quickstart.md
+      - "Wire into CI": getting-started/40-ci-quickstart.md
   - Use from Python:
-      - 20-client/index.md
-      - 20-client/10-pytest-fixtures.md
-      - 20-client/20-python-client.md
-      - 20-client/30-configuration.md
-  - Run the Service:
-      - 30-server/index.md
-      - 30-server/10-rest-api.md
-      - 30-server/20-configuration.md
-      - 30-server/30-administration.md
-      - 30-server/40-security.md
-      - 30-server/50-debugging.md
+      - "Use from Python": 20-client/index.md
+      - "Pytest fixtures": 20-client/10-pytest-fixtures.md
+      - "Python client": 20-client/20-python-client.md
+      - "Client config": 20-client/30-configuration.md
+  - Run the service:
+      - "Run the service": 30-server/index.md
+      - "REST API": 30-server/10-rest-api.md
+      - "Server config": 30-server/20-configuration.md
+      - "Operator runbook": 30-server/30-administration.md
+      - "Security model": 30-server/40-security.md
+      - "Debugging": 30-server/50-debugging.md
   - Deploy & Operate:
-      - 40-deployment/index.md
-      - 40-deployment/10-netlab-host-setup.md
-      - 40-deployment/20-headscale-quick-setup.md
-      - 40-deployment/30-headscale-reference.md
-      - 40-deployment/40-vendor-setup.md
+      - "Deploy & Operate": 40-deployment/index.md
+      - "Netlab host": 40-deployment/10-netlab-host-setup.md
+      - "VPN: quick setup": 40-deployment/20-headscale-quick-setup.md
+      - "VPN: reference": 40-deployment/30-headscale-reference.md
+      - "Vendor setup": 40-deployment/40-vendor-setup.md
+  - Concepts:
+      - "Concepts": 10-concepts/index.md
+      - "Architecture": 10-concepts/10-architecture.md
+      - "Session queue": 10-concepts/20-session-queue.md
+      - "Lab lifecycle": 10-concepts/30-lab-lifecycle.md
+      - "Topology format": 10-concepts/40-topology-format.md
   - Contributing:
-      - 50-contributing/index.md
-      - 50-contributing/10-dev-setup.md
-      - 50-contributing/20-invariants.md
-      - 50-contributing/30-internals-async.md
-      - 50-contributing/40-internals-lab-manager.md
-      - 50-contributing/50-internals-atexit.md
-      - 50-contributing/60-internals-test-stubbing.md
-      - 50-contributing/70-anti-patterns.md
+      - "Contributing": 50-contributing/index.md
+      - "Dev setup": 50-contributing/10-dev-setup.md
+      - "Invariants": 50-contributing/20-invariants.md
+      - "Async discipline": 50-contributing/30-internals-async.md
+      - "LabManager": 50-contributing/40-internals-lab-manager.md
+      - "atexit & lifespan": 50-contributing/50-internals-atexit.md
+      - "Test stubbing": 50-contributing/60-internals-test-stubbing.md
+      - "Anti-patterns": 50-contributing/70-anti-patterns.md
   - Appendix:
-      - 99-appendix/index.md
-      - 99-appendix/glossary.md
-      - 99-appendix/cookbook.md
-      - 99-appendix/neops-ecosystem.md
+      - "Appendix": 99-appendix/index.md
+      - "Glossary": 99-appendix/glossary.md
+      - "Cookbook": 99-appendix/cookbook.md
+      - "Neops ecosystem": 99-appendix/neops-ecosystem.md
 #  - Dummy Project: '!include ./submodules/zebbra-mkdocs-dummyproject/mkdocs_custom.yml'
 
 
