@@ -182,72 +182,81 @@ No `sudo`, no password prompt — ideal for CI.
 
 ---
 
-## 4. – Cisco IOL images (optional)
+## 4. – Cisco IOL images (optional, license required)
 
-`netlab` supports [Cisco IOL (IOS on Linux)](https://github.com/hellt/vrnetlab/tree/master/cisco/iol) via
-Containerlab. These images run fast and light — ideal for routing/switching labs.
+`netlab` supports [Cisco IOL (IOS on Linux)](https://github.com/hellt/vrnetlab/tree/master/cisco/iol)
+via Containerlab. These images run fast and light — ideal for
+routing/switching labs that need IOS-style CLI semantics — but they are
+**not freely distributable**.
 
-!!! warning "License restriction"
-    You need to provide the Cisco IOL binary files yourself, as they are not freely distributable.
+!!! danger "You need a Cisco IOL license — and the binaries — before this step works"
+    Cisco IOL binaries are licensed software. Cisco distributes them only
+    under specific commercial agreements (Cisco Modeling Labs subscription,
+    EFT/CCO program access, partner agreements). **This guide does not
+    distribute the binaries and cannot help you obtain them.** Acquire them
+    from your Cisco contact, then continue.
 
-### Images in zebbra quay.io
+    The two binaries you will need:
 
-On the [zebbra quay.io registry](https://quay.io/repository/zebbra/neops-labs/cisco_iol) you can find the cisco_iol images.
+    - `x86_64_crb_linux-adventerprisek9-ms.iol` — L3 router image
+    - `x86_64_crb_linux-adventerprisek9-ms-l2.iol` — L2 switch image
 
-To clone them to your local machine, run:
+    The exact filenames depend on the Cisco release you receive. Treat the
+    versions in the example commands below (`17.15.01`, `L2-17.15.01`) as
+    placeholders for whatever your binaries report.
+
+If you do not have IOL access, **stick with FRR** for the rest of this
+guide and the [Quickstart](../getting-started/10-quickstart.md). FRR is
+fully open-source, requires no license, and covers most routing-protocol
+test scenarios.
+
+### Build the IOL container images
+
+The community [`vrnetlab` fork by hellt](https://github.com/hellt/vrnetlab/)
+wraps the Cisco binaries in a Containerlab-compatible Docker image. Make
+sure to use the **fork** — the original `vrnetlab` upstream is not
+Containerlab-compatible.
 
 ```bash
-docker pull quay.io/zebbra/neops-labs/cisco_iol:17.15.01
-docker pull quay.io/zebbra/neops-labs/cisco_iol:L2-17.15.01
-```
+# 1. Clone the vrnetlab fork
+git clone https://github.com/hellt/vrnetlab.git
 
-!!! note
-    These images are built from the same source as the `vrnetlab` images, but are pre-built and ready to use.
-
-### Build the images
-
-First clone vrnetlab.
-
-!!! note
-    Make sure to use the [fork](https://github.com/hellt/vrnetlab/) compatible with containerlabs and not the original repo.
-
-```bash
-# 1. Clone the vrnetlab repository
-git clone ssh://github.com/hellt/vrnetlab.git
-
-# 2. Place Cisco IOL binary in build directory
-cp x86_64_crb_linux-adventerprisek9-ms.iol \
+# 2. Place your Cisco IOL binaries into the build directory
+#    (replace the source paths with the location of your licensed binaries;
+#    keep the .bin extension — the build expects it)
+cp /path/to/your/x86_64_crb_linux-adventerprisek9-ms.iol \
    vrnetlab/cisco/iol/cisco_iol-17.15.01.bin
 
-cp x86_64_crb_linux-adventerprisek9-ms-l2.iol \
+cp /path/to/your/x86_64_crb_linux-adventerprisek9-ms-l2.iol \
    vrnetlab/cisco/iol/cisco_iol-L2-17.15.01.bin
-```
 
-!!! note
-    The `.bin` extension is required.
-
-```bash
 # 3. Build the Docker images
 cd vrnetlab/cisco/iol
 make docker-image
 ```
 
-### Check the images
+!!! note "The `.bin` extension is required"
+    The vrnetlab build expects `.bin`. If your Cisco-supplied file has a
+    different extension, copy or symlink it to `.bin` before running
+    `make docker-image`.
+
+### Verify the images are present
 
 ```bash
-docker images --format '{{.Repository}}:{{.Tag}}'
+docker images --format '{{.Repository}}:{{.Tag}}' | grep cisco_iol
 ```
 
-Expected output:
+Expected output (versions reflect what you built):
 
 ```text
 vrnetlab/cisco_iol:17.15.01
 vrnetlab/cisco_iol:L2-17.15.01
 ```
 
----
+### Tell Netlab which IOL image to use
 
-### Set image defaults in Netlab
+Point Netlab at the images you just built by writing your defaults to
+`~/.netlab.yml`:
 
 ```bash
 cat > ~/.netlab.yml << 'EOF'
@@ -260,11 +269,12 @@ devices.ioll2:
 EOF
 ```
 
-!!! note
-    Setting `device: iol` makes it the **default device type** — **optional**.
-    You can override this per-topology.
+!!! note "Setting `device: iol` is optional"
+    The top-level `device: iol` makes IOL the default device type for
+    topologies that don't specify one. Omit it if you'd rather pick the
+    device per topology.
 
-### Verify image config
+### Verify Netlab sees the images
 
 ```bash
 netlab show images
@@ -301,7 +311,6 @@ links: [ r1, r2, r1-r2 ]
 | Wrong or missing image             | `netlab show images`                                                        |
 | `netlab up` asks for sudo password | Ensure `containerlab` runs without sudo, and you're in the right groups     |
 | `pip install` errors with `externally-managed-environment` | PEP 668 is blocking system pip on Ubuntu 24.04+; install via `pipx install networklab` instead (see §1 pipx warning) |
-| Forward link to `testing-framework.md` is broken | The old page was split into [Pytest fixtures](../20-client/10-pytest-fixtures.md) and [Quickstart](../getting-started/10-quickstart.md); update references to point at those |
 
 You now have a **fully rootless, scriptable Netlab setup** that works cleanly in CI and without passwords or privilege
 escalation.

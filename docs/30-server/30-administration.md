@@ -68,26 +68,7 @@ unit file looks like this — save it at
 `/etc/systemd/system/neops-remote-lab.service`:
 
 ```ini title="/etc/systemd/system/neops-remote-lab.service"
-[Unit]
-Description=neops-remote-lab Manager
-After=network-online.target docker.service
-Wants=network-online.target
-
-[Service]
-Type=simple
-User=<SERVICE_USER>
-Group=<SERVICE_USER>
-# <INSTALL_PATH> is the pipx venv or virtualenv where neops-remote-lab was installed.
-# With the default pipx layout, that is typically /home/<SERVICE_USER>/.local/pipx/venvs/neops-remote-lab.
-ExecStart=<INSTALL_PATH>/bin/neops-remote-lab --host 0.0.0.0 --port 8000 --log-level INFO
-Restart=on-failure
-RestartSec=5
-# Logs land in the journal by default (stdout/stderr). Override with --log-config to redirect.
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=multi-user.target
+--8<-- "examples/systemd/neops-remote-lab.service"
 ```
 
 Install, enable, and start it:
@@ -296,19 +277,8 @@ If a lab is stuck (`netlab up` failed partway through, or a client crashed
 without releasing), take the lab down via the REST API using any ACTIVE
 session:
 
-```bash
-SESSION_ID=$(curl -s -X POST "http://$LAB_HOST:8000/session" | jq -r .session_id)
-
-# Wait for ACTIVE
-while [[ "$(curl -s "http://$LAB_HOST:8000/session/$SESSION_ID" | jq -r .status)" != "active" ]]; do
-  sleep 2
-done
-
-# Force destroy
-curl -s -X DELETE "http://$LAB_HOST:8000/lab?force=true" \
-  -H "X-Session-ID: $SESSION_ID"
-
-curl -s -X DELETE "http://$LAB_HOST:8000/session/$SESSION_ID"
+```bash title="examples/scripts/force_cleanup.sh"
+--8<-- "examples/scripts/force_cleanup.sh"
 ```
 
 As a last resort (server unreachable or wedged), clean up Netlab directly on

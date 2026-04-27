@@ -47,6 +47,7 @@ nav:
 - Getting Started:
   - getting-started/index.md
   - getting-started/10-quickstart.md
+  - getting-started/20-local-server.md
 - Concepts:
   - 10-concepts/index.md
   - 10-concepts/10-architecture.md
@@ -66,6 +67,10 @@ nav:
   - 40-deployment/index.md
   - 40-deployment/10-netlab-host-setup.md
   - 40-deployment/20-headscale-vpn.md
+- Contributing:
+  - 50-contributing/index.md
+  - 50-contributing/10-dev-setup.md
+  - 50-contributing/20-invariants.md
 plugins:
 - search
 - include_dir_to_nav

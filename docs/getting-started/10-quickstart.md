@@ -110,16 +110,7 @@ file `.yml` even though the HTTP surface accepts both.
 Create `tests/topologies/demo.yml`:
 
 ```yaml title="tests/topologies/demo.yml" linenums="1"
-provider: clab                  # (1)
-defaults:
-  device: frr                   # (2)
-nodes:
-  r1:
-    module: [ospf]
-  r2:
-    module: [ospf]
-links:
-  - r1-r2                       # (3)
+--8<-- "examples/quickstart/demo.yml"
 ```
 
 1. `clab` selects Containerlab as the underlying launcher. This project is a
@@ -144,9 +135,7 @@ to use it. Keep them separate — the factory call belongs at module scope so
 pytest can discover the fixture name before collection runs.
 
 ```python title="tests/conftest.py" linenums="1"
-from neops_remote_lab.testing.fixture import remote_lab_fixture  # (1)
-
-demo_lab = remote_lab_fixture("tests/topologies/demo.yml")  # (2)
+--8<-- "examples/quickstart/conftest.py"
 ```
 
 1. The package registers its pytest plugin on install, so `remote_lab_fixture`
@@ -156,9 +145,7 @@ demo_lab = remote_lab_fixture("tests/topologies/demo.yml")  # (2)
    at import time — you find the typo before a single test runs. <!-- trace: neops_remote_lab/testing/fixture.py:72 -->
 
 ```python title="tests/test_demo.py" linenums="1"
-def test_demo_lab_has_two_devices(demo_lab):  # (1)
-    names = sorted(d.name for d in demo_lab)  # (2)
-    assert names == ["r1", "r2"]
+--8<-- "examples/quickstart/test_demo.py"
 ```
 
 1. The fixture name `demo_lab` matches the variable in `conftest.py`.

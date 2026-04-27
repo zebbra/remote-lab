@@ -157,14 +157,8 @@ HTTP/1.1 204 No Content
 
 ## Polling from a client's perspective
 
-```bash
-SESSION=$(curl -s -X POST http://$LAB_HOST:8000/session | jq -r .session_id)
-
-while true; do
-    STATUS=$(curl -s "http://$LAB_HOST:8000/session/$SESSION" | jq -r .status)
-    [[ $STATUS == "active" ]] && break
-    sleep 5
-done
+```bash title="examples/curl/poll_until_active.sh"
+--8<-- "examples/curl/poll_until_active.sh"
 ```
 
 Expected sequence during a busy queue:

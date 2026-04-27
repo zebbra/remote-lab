@@ -368,28 +368,8 @@ Shortcut to the device list without returning the full lab status. Useful after
 
 Combine the endpoints above into a full session:
 
-```bash
-# 1. Create a session (blocks only if the queue is non-empty on the server)
-SESSION_ID=$(curl -s -X POST "$BASE_URL/session" | jq -r .session_id)
-
-# 2. Wait for ACTIVE
-while true; do
-  STATUS=$(curl -s "$BASE_URL/session/$SESSION_ID" | jq -r .status)
-  [[ "$STATUS" == "active" ]] && break
-  sleep 2
-done
-
-# 3. Acquire the lab
-curl -s -X POST "$BASE_URL/lab" \
-  -H "X-Session-ID: $SESSION_ID" \
-  -F "topology=@tests/topologies/simple_frr.yml" \
-  -F "reuse=true" | jq .
-
-# 4. Run your automation against the devices listed in the response...
-
-# 5. Release the ref-count, then end the session
-curl -s -X POST "$BASE_URL/lab/release" -H "X-Session-ID: $SESSION_ID"
-curl -s -X DELETE "$BASE_URL/session/$SESSION_ID"
+```bash title="examples/curl/end_to_end_session.sh"
+--8<-- "examples/curl/end_to_end_session.sh"
 ```
 
 ---
