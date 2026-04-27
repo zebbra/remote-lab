@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Concepts
 
+*Four invariants shape every decision in the Remote Lab Manager — one lab per host, FIFO queueing, content-hash topology identity, reference-counted reuse.*
+
 Four invariants shape every decision in the Remote Lab Manager:
 
 - **one lab per host**,

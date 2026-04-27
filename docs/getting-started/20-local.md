@@ -8,6 +8,8 @@ crosslink_references: [remote-lab]
 
 # Local development server
 
+*Run the Remote Lab Manager on your laptop on `localhost:8000`. Foreground process; install once, start when you want a lab, `Ctrl+C` when you don't.*
+
 Run the Remote Lab Manager on your laptop on `localhost:8000`. Foreground process; install once, start when you want a lab, `Ctrl+C` when you don't.
 
 !!! tip "Wrong page?"

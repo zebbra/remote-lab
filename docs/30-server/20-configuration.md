@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Configuration
 
+*Server-side knobs only. CLI flags on the entry point and one environment variable. Client config lives under [Use from Python](../20-client/30-configuration.md).*
+
 Server-side knobs only: a handful of CLI flags on the `neops-remote-lab` entry point and a single environment variable that toggles Netlab subprocess streaming. Client-side configuration (`REMOTE_LAB_URL` plus the three timeouts) lives on its own page under [Use from Python → Configuration](../20-client/30-configuration.md).
 
 ## Server CLI flags

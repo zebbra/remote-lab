@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Contributing
 
+*Two readers — contributors changing the codebase and senior consumers reading for depth. Both meet here.*
+
 Two readers. Most pages assume you are about to **change the codebase** — open a PR that fixes a bug, adds a capability, refactors internals, or bumps a dependency. The same pages double as the deep reference for a **senior consumer** who wants to understand why the system behaves the way it does before trusting it in production.
 
 What you will not find here: a "how to call the API" tutorial — that's the [Quickstart](../getting-started/10-pytest.md) and the [Pytest Fixtures](../20-client/10-pytest-fixtures.md) reference. The [REST API](../30-server/40-rest-api.md) reference is authoritative for the HTTP surface.

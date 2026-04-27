@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Configuration
 
+*Four environment variables. One required (`REMOTE_LAB_URL`), three optional timeouts. The pytest fixture and `RemoteLabClient` both consume them.*
+
 Four environment variables. One required (`REMOTE_LAB_URL`); three optional timeouts. The pytest fixture reads them at session setup; `RemoteLabClient` reads them at construction. Setting them in CI is exactly the same shape as setting them locally.
 
 ## The variables

@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Internals: atexit + lifespan
 
+*Three teardown paths converge on `LabManager.cleanup` — the FastAPI lifespan, the signal handlers, the `atexit` hook. None run async.*
+
 Three teardown paths, in order of how late they fire: the FastAPI lifespan (clean shutdown), the signal handlers (SIGTERM/SIGINT), and `atexit` (the last safety net). All three converge on `LabManager.cleanup`. None of them runs async code.
 
 ## atexit teardown {#atexit-teardown}

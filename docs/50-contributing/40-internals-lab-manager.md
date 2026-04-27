@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Internals: LabManager singleton + locking
 
+*The synchronous half of the codebase. Owns the running lab, enforces one-lab-per-host, reference-counts reuse.*
+
 `LabManager` is the synchronous half of the codebase. It owns the running lab, enforces one-lab-per-host, and reference-counts reuse. Everything below the FastAPI layer goes through it.
 
 ## The singleton pattern

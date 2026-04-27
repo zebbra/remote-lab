@@ -8,6 +8,8 @@ crosslink_references: []
 
 # REST quickstart (cURL)
 
+*Drive a Remote Lab session end-to-end with cURL — six calls, any HTTP-capable stack, no Python required.*
+
 You came from a SwiNOG talk, a README, or a colleague who said *"yes, you can drive it from anything"*. This page is for you if you want exclusive access to a real Netlab topology from whatever harness you run — not necessarily Python, not necessarily pytest. Six cURL calls end-to-end.
 
 ```bash

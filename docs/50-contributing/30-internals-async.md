@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Internals: Async discipline {#async-and-blocking-discipline}
 
+*FastAPI runs on `asyncio`, but Netlab is blocking. The `_run_blocking` discipline is what keeps the queue responsive.*
+
 FastAPI runs on `asyncio`. `netlab up` is a blocking subprocess that takes minutes. Block the event loop on it and every other client polling `GET /session/{id}` stalls — no heartbeats land, sessions go stale, the queue corrupts.
 
 The bridge is `_run_blocking()` in `server.py`:

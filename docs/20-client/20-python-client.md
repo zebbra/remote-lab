@@ -8,6 +8,8 @@ crosslink_references: []
 
 # RemoteLabClient Reference
 
+*The lower-level HTTP client the pytest fixture wraps. Use it directly from scripts, notebooks, or any non-pytest context.*
+
 `RemoteLabClient` is the **Python interface** to the Remote Lab Manager
 HTTP API. Use it directly when you need to drive a lab from a script,
 a notebook, or any non-pytest context.

@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Appendix
 
+*Reference material that doesn't belong to one section but is referenced from many.*
+
 Material that does not belong to a single section but is referenced from many.
 
 ## In this section

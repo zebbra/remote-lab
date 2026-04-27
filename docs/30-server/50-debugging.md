@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Debugging
 
+*The page to grep when something breaks. Symptom-first table; underlying mechanisms and log patterns expand each row further down.*
+
 Grep this page when something breaks — for any client, in any language. Symptom-first table below; underlying mechanisms and log patterns expand each row further down. For operator-side runbook entries (stuck filelocks, port conflicts, server startup), see [Administration → Troubleshooting](10-administration.md#troubleshooting).
 
 ## Quick reference

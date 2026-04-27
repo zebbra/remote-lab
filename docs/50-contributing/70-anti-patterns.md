@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Anti-patterns
 
+*A grep target for code review. Every load-bearing rule restated as a code-review trigger, with a link to the page that explains why.*
+
 A grep target. When reviewing a PR, scan for any of the patterns below and link the relevant row in your review. Each row links to the page with the full reasoning.
 
 | Don't | Why | See |

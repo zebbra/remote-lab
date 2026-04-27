@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Internals: CI test stubbing {#ci-test-stubbing}
 
+*How `LabManager` is shaped to make CI tests possible without a Netlab install — the `StubLabManager` pattern and the pytest plugin entry point.*
+
 CI runs on `ubuntu-latest` without `netlab` or Containerlab installed. The test suite stays useful because `LabManager` is a class with class-level state and only class methods — easy to subclass and override.
 
 ## The StubLabManager pattern

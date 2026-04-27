@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Deploy & Operate
 
+*Stand up the lab host plus the VPN enclosure around it. Three install guides plus a vendor-image walkthrough; pick the path that matches your scale.*
+
 Three bring-up guides cover a fresh Remote Lab host end-to-end: install
 and configure rootless [Netlab](https://netlab.tools/) +
 [Containerlab](https://containerlab.dev/), enclose the host in a

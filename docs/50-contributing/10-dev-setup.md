@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Dev setup
 
+*Get from a fresh clone to a green `make check` in five minutes. Skim once; come back when CI surprises you.*
+
 Get from a fresh clone to a green `make check` in five minutes. Then this page
 is what you come back to when CI flags something you didn't expect.
 

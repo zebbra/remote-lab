@@ -8,7 +8,9 @@ crosslink_references: []
 
 # Quickstart
 
-A pytest suite, a real Netlab topology, three lines of test code. By the end of this page: client installed, `REMOTE_LAB_URL` pointed at a server, a minimal topology booted, a test passing.
+*A pytest suite, a real Netlab topology, three lines of test code.*
+
+By the end of this page: client installed, `REMOTE_LAB_URL` pointed at a server, a minimal topology booted, a test passing.
 
 !!! tip "Wrong page?"
     Don't have a Remote Lab Manager to point at? [Local development server](20-local.md) installs Netlab + Containerlab rootless on Ubuntu and starts a server on `localhost:8000` — finish that and come back. Driving from a non-Python stack? See the [REST quickstart](30-curl.md). Wiring this into CI? See the [CI quickstart](40-ci.md).

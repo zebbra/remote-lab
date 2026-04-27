@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Headscale VPN — Reference
 
+*Configuration surface for a deployed Headscale tailnet — ACLs, OIDC, system settings, troubleshooting, full command summary.*
+
 For the five-command happy path, see [Headscale VPN — Quick setup](20-headscale-quick-setup.md). This page covers the configuration surface you reach for once the tailnet is running — ACLs, user management, the Compose+config layout, troubleshooting, and a quick command summary.
 
 ## Repository layout

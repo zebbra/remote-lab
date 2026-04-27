@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Headscale VPN — Quick setup
 
+*Five-command happy path — Headscale + Headplane via Docker Compose, the lab host as a subnet router, one client peer reaching the lab subnet.*
+
 The lab service ships [without HTTP authentication](../30-server/30-security.md), so deployment lives or dies on the network boundary. This page is the five-command happy path: a [Headscale](https://headscale.net/) control plane, the [Headplane](https://github.com/tale/headplane) UI, the lab host as a subnet router, and one client peer that can reach the lab subnet. For ACLs, OIDC, and troubleshooting tables, see [Headscale VPN — Reference](30-headscale-reference.md).
 
 !!! info "Placeholder convention"

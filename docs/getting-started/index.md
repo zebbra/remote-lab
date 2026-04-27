@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Getting Started
 
+*Five paths, pick one. Each routes you to a passing test, a running server, or both — without reading every page first.*
+
 ## Pick a path
 
 Answer one question: **what runs your tests today?**

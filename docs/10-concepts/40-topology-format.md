@@ -8,6 +8,8 @@ crosslink_references: []
 
 # Topology format
 
+*The Netlab YAML shape `neops-remote-lab` consumes — provider choice, node/link structure, vendor defaults, and the `extra_files` upload contract.*
+
 A **topology** is a single YAML file (`.yml` or `.yaml` — both are
 accepted, case-insensitive) that tells Netlab what network to build:
 which nodes, which links, which provider. `neops-remote-lab` accepts that

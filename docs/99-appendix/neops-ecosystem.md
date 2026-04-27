@@ -8,6 +8,8 @@ crosslink_references: []
 
 # How Remote Lab fits with neops
 
+*For Neops devs and External API users alike. Which neops concepts apply to Remote Lab, which don't, and how the pieces connect.*
+
 If you arrived here from a peer neops project, you'll have words like *function block*, *worker*, *workflow* in your mental model. **Most of them don't apply to Remote Lab itself.** Remote Lab is the test substrate the rest of the platform runs network-automation tests against; it doesn't run workflows, it doesn't host workers, it doesn't read the blackboard. This page maps the shared vocabulary so you don't trip on shape-mismatches.
 
 If you arrived from outside neops entirely, this page is a guided tour of the surrounding pieces — safely skippable if you only care about driving the lab.
