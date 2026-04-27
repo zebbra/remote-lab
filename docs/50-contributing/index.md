@@ -16,6 +16,12 @@ What you will not find here: a "how to call the API" tutorial — that's the [Qu
 
 <div class="grid cards" markdown>
 
+-   :material-source-pull:{ .lg .middle } &nbsp; **[Your first PR](05-first-pr.md)**
+
+    ---
+
+    The 30-minute path: clone, `make check` green, find a good-first-issue, ship it. Six checkboxes; everything else is for once you're past these.
+
 -   :material-tools:{ .lg .middle } &nbsp; **[Dev setup](10-dev-setup.md)**
 
     ---

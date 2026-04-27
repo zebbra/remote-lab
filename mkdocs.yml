@@ -82,6 +82,7 @@ nav:
   - Debugging: 30-server/50-debugging.md
 - Deploy & Operate:
   - Deploy & Operate: 40-deployment/index.md
+  - Pick a deployment: 40-deployment/05-pick-deployment.md
   - Netlab host: 40-deployment/10-netlab-host-setup.md
   - 'VPN: quick setup': 40-deployment/20-headscale-quick-setup.md
   - 'VPN: reference': 40-deployment/30-headscale-reference.md
@@ -95,6 +96,7 @@ nav:
   - Topology format: 10-concepts/40-topology-format.md
 - Contributing:
   - Contributing: 50-contributing/index.md
+  - Your first PR: 50-contributing/05-first-pr.md
   - Dev setup: 50-contributing/10-dev-setup.md
   - Invariants: 50-contributing/20-invariants.md
   - Async discipline: 50-contributing/30-internals-async.md

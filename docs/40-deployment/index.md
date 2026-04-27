@@ -25,6 +25,12 @@ to add a new device kind.
 
 <div class="grid cards" markdown>
 
+-   :material-map-marker-path:{ .lg .middle } &nbsp; **[Pick a deployment](05-pick-deployment.md)**
+
+    ---
+
+    Decision tree for the four deployment shapes — local laptop, single shared VM, multi-tenant lab, CI runner pool. Routes you to the right starting point.
+
 -   :material-server-network:{ .lg .middle } &nbsp; **[Netlab host](10-netlab-host-setup.md)**
 
     ---
