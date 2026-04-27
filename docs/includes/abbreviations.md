@@ -1,56 +1,43 @@
 *[ACL]: Access-Control List
-*[API]: Application Programming Interface
 *[BFD]: Bidirectional Forwarding Detection
 *[BGP]: Border Gateway Protocol
-*[CD]: Continuous Delivery
 *[CHR]: Cloud Hosted Router (MikroTik)
-*[CI]: Continuous Integration
-*[CLI]: Command-Line Interface
 *[CVE]: Common Vulnerabilities and Exposures
 *[DERP]: Designated Encrypted Relay for Packets (Tailscale)
-*[DNS]: Domain Name System
-*[DTO]: Data Transfer Object
+*[DTO]: Data Transfer Object — Pydantic request/response models in this codebase, suffixed `*Dto`
 *[EOS]: Extensible Operating System (Arista)
 *[EULA]: End-User License Agreement
 *[EVPN]: Ethernet VPN
-*[FB]: Function Block (Worker SDK term)
-*[FIFO]: First In, First Out
+*[FB]: Function Block — see Function Block tooltip
 *[FRR]: FRRouting
 *[GHCR]: GitHub Container Registry
 *[gNMI]: gRPC Network Management Interface
 *[GLBP]: Gateway Load Balancing Protocol (Cisco)
 *[HSRP]: Hot Standby Router Protocol (Cisco)
-*[HTTP]: Hypertext Transfer Protocol
-*[HTTPS]: HTTP over TLS
 *[IOL]: IOS On Linux (Cisco)
 *[IOS]: Internetwork Operating System (Cisco)
 *[IS-IS]: Intermediate System to Intermediate System
-*[JSON]: JavaScript Object Notation
-*[JWT]: JSON Web Token
-*[KVM]: Kernel-based Virtual Machine
-*[MPLS]: Multi-Protocol Label Switching
 *[mTLS]: mutual Transport Layer Security
+*[MPLS]: Multi-Protocol Label Switching
 *[NIC]: Network Interface Controller
 *[NOS]: Network Operating System
-*[OAuth]: Open Authorization
-*[OIDC]: OpenID Connect
 *[OSPF]: Open Shortest Path First
-*[PEP]: Python Enhancement Proposal
-*[PR]: Pull Request
-*[REST]: REpresentational State Transfer
-*[RFC]: Request For Comments
-*[SDK]: Software Development Kit
-*[SHA-256]: Secure Hash Algorithm 256-bit
 *[SR-MPLS]: Segment Routing over MPLS
 *[SR Linux]: Service Router Linux (Nokia)
 *[SRv6]: Segment Routing over IPv6
-*[SSH]: Secure Shell
-*[TCP]: Transmission Control Protocol
-*[TLS]: Transport Layer Security
-*[UI]: User Interface
-*[URL]: Uniform Resource Locator
-*[UUID]: Universally Unique Identifier
-*[VPN]: Virtual Private Network
 *[VRF]: Virtual Routing and Forwarding
-*[YAML]: YAML Ain't Markup Language
-*[YANG]: Yet Another Next Generation (data modeling)
+*[YANG]: data-modeling language used by gNMI / NETCONF for network device config
+
+[//]: # (Neops platform terms — what they mean across the wider neops ecosystem)
+*[Function Block]: A typed Python class implementing one unit of automation work — read configs, push templates, check compliance — orchestrated by the Worker SDK
+*[Worker]: A Python process that registers with the workflow engine, polls jobs from the blackboard, executes function blocks, returns results
+*[Workflow]: A versioned, declarative YAML description of an ordered sequence of automation operations on network entities
+*[Workflow Engine]: The NestJS service that schedules workflows and orchestrates worker execution via the blackboard
+*[Blackboard]: The shared job queue between the workflow engine and workers — engine writes jobs, workers read and return results
+*[Worker SDK]: neops-worker-sdk-py — the library you import to write function blocks; consumes Remote Lab's `remote_lab_fixture` for tests
+*[Remote Lab]: This project — exclusive, queue-brokered access to a real Netlab topology over HTTP
+*[LabManager]: The classmethod-only singleton that owns the running lab and enforces one-lab-per-host
+*[Netlab]: The upstream lab orchestrator (netlab.tools) this service wraps; manages one topology per host
+*[Containerlab]: The container runtime Netlab drives by default in this project (`provider: clab`)
+*[Topology]: A single Netlab YAML file declaring nodes, links, modules, and provider
+*[Headscale]: Self-hosted, Tailscale-compatible VPN coordination server — the recommended enclosure for the no-auth Remote Lab service
