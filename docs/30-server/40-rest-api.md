@@ -42,7 +42,7 @@ The server enforces the active-session check via a `_get_active_session` FastAPI
 
 ## Sessions
 
-??? abstract "**`POST /session`** — create a session"
+???+ abstract "**`POST /session`** — create a session"
 
     Creates a new session, appends it to the FIFO queue, and returns its id and initial queue position. <!-- trace: neops_remote_lab/server.py:292 --> If the queue was empty the new session is promoted to `ACTIVE` before the response returns, so single-client callers see `position: 0` immediately.
 
@@ -68,7 +68,7 @@ The server enforces the active-session check via a `_get_active_session` FastAPI
         {"session_id": "f8e7c1b2-...-...", "position": 0}
         ```
 
-??? abstract "**`GET /session/{session_id}`** — poll session status"
+???+ abstract "**`GET /session/{session_id}`** — poll session status"
 
     Returns the current state of a session. Polling itself refreshes `last_seen_at`, so it doubles as a weak keep-alive for waiting sessions. <!-- trace: neops_remote_lab/server.py:312 -->
 
@@ -100,7 +100,7 @@ The server enforces the active-session check via a `_get_active_session` FastAPI
         {"status": "waiting", "position": 2}
         ```
 
-??? abstract "**`DELETE /session/{session_id}`** — end a session"
+???+ abstract "**`DELETE /session/{session_id}`** — end a session"
 
     Removes the session from tracking structures. If the session was `ACTIVE` the server also tears down its lab and promotes the next waiting session to ACTIVE. <!-- trace: neops_remote_lab/server.py:348 -->
 
@@ -120,7 +120,7 @@ The server enforces the active-session check via a `_get_active_session` FastAPI
         curl -s -X DELETE "$BASE_URL/session/$SESSION_ID"
         ```
 
-??? abstract "**`POST /session/heartbeat`** — keep a session alive"
+???+ abstract "**`POST /session/heartbeat`** — keep a session alive"
 
     Refreshes `last_seen_at` for the session in the `X-Session-ID` header and returns `204` — or `404` if the session is unknown. The endpoint only checks that the session exists; it does **not** require the session to be ACTIVE, so both WAITING and ACTIVE sessions can heartbeat. <!-- trace: neops_remote_lab/server.py:488 -->
 
@@ -156,7 +156,7 @@ The server enforces the active-session check via a `_get_active_session` FastAPI
 
 All `/lab/*` endpoints require `X-Session-ID` for an ACTIVE session — see the contract table above.
 
-??? abstract "**`POST /lab`** — upload topology and acquire the lab"
+???+ abstract "**`POST /lab`** — upload topology and acquire the lab"
 
     The most complex endpoint. Accepts a `multipart/form-data` payload with the topology YAML, optional extra files, and a `reuse` flag. On success it starts Netlab (`netlab up`) for the topology, or attaches to a running lab when the content hashes match. <!-- trace: neops_remote_lab/server.py:396 -->
 
@@ -222,7 +222,7 @@ All `/lab/*` endpoints require `X-Session-ID` for an ACTIVE session — see the 
         }
         ```
 
-??? abstract "**`POST /lab/release`** — decrement the reference count"
+???+ abstract "**`POST /lab/release`** — decrement the reference count"
 
     Releases this session's claim on the lab. When the reference count drops to zero the lab becomes *idle* but keeps running, available for another session to attach via `POST /lab` with `reuse=true`. <!-- trace: neops_remote_lab/server.py:436 -->
 
@@ -243,7 +243,7 @@ All `/lab/*` endpoints require `X-Session-ID` for an ACTIVE session — see the 
           -H "X-Session-ID: $SESSION_ID"
         ```
 
-??? abstract "**`DELETE /lab`** — destroy the lab"
+???+ abstract "**`DELETE /lab`** — destroy the lab"
 
     Tears down the running lab regardless of its reference count by default. <!-- trace: neops_remote_lab/server.py:446 -->
 
@@ -281,7 +281,7 @@ All `/lab/*` endpoints require `X-Session-ID` for an ACTIVE session — see the 
           -H "X-Session-ID: $SESSION_ID"
         ```
 
-??? abstract "**`GET /lab/devices`** — list devices in the running lab"
+???+ abstract "**`GET /lab/devices`** — list devices in the running lab"
 
     Shortcut to the device list without returning the full lab status. Useful after `POST /lab` if the caller wants to re-fetch device info. <!-- trace: neops_remote_lab/server.py:462 -->
 

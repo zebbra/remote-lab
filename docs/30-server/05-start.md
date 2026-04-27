@@ -10,6 +10,9 @@ crosslink_references: []
 
 *Thirty seconds, two commands. Run the server in the foreground and confirm the liveness probe answers — every other page in this section assumes you've done this once.*
 
+!!! info "Have Netlab installed?"
+    The launcher refuses to start if `netlab` isn't on `PATH`. If your host is fresh, run [Netlab host setup](../40-deployment/10-netlab-host-setup.md) first — rootless Netlab + Containerlab on Ubuntu in about 20 minutes — then come straight back here.
+
 !!! danger "No HTTP authentication"
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
