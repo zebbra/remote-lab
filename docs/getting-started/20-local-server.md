@@ -8,44 +8,12 @@ crosslink_references: [remote-lab]
 
 # Local development server
 
-You don't need a remote VM to develop against `neops-remote-lab`. On Ubuntu
-(or any Linux host with rootless Docker), the server runs locally and your
-tests point at `http://localhost:8000`. This page is the on-ramp for that
-workflow — install once, then `neops-remote-lab` becomes a process you start
-when you want a lab and stop when you don't.
+Run the Remote Lab Manager on your laptop on `localhost:8000`. Foreground process; install once, start when you want a lab, `Ctrl+C` when you don't. For a remote VM you already manage, skip this page and use [Quickstart](10-quickstart.md) directly. For a multi-user shared host, jump to [Administration](../30-server/30-administration.md).
 
-If you already have a Remote Lab Manager reachable on a network you control
-(a shared zebbra VM, a colleague's host, anything that responds to
-`/healthz`), the [Quickstart](10-quickstart.md) is what you want — skip
-this page and set `REMOTE_LAB_URL` to the remote URL there.
-
-!!! info "What this page does and doesn't cover"
-    **Does cover:** installing the server, the Netlab + Containerlab
-    prerequisites, starting the server in the foreground, pointing
-    `REMOTE_LAB_URL` at it, tearing down between sessions.
-
-    **Doesn't cover:** running the server under `systemd` (that's
-    [Administration → Running as a system service](../30-server/30-administration.md#running-as-a-system-service)),
-    enclosing the host in a VPN (that's
-    [Headscale VPN](../40-deployment/20-headscale-quick-setup.md)), or the multi-user
-    operator runbook (that's
-    [Administration](../30-server/30-administration.md) end-to-end).
-
----
-
-## Prerequisites
-
-You need three things on the local host:
-
-- **Ubuntu 22.04+** (or another Linux with rootless Docker). macOS works
-  for the *client* side of `neops-remote-lab` but not for the *server* —
-  Containerlab and Netlab need Linux to spin up real network containers.
-- **Python 3.12+** with `pipx` available (`sudo apt install pipx` on
-  Ubuntu 24.04+; `pipx ensurepath` to put `~/.local/bin` on `PATH`).
-- **Netlab and Containerlab installed rootlessly.** This is non-trivial on
-  a fresh machine; the canonical walkthrough is
-  [Netlab host setup](../40-deployment/10-netlab-host-setup.md). Run that
-  page once, then come back here.
+!!! info "Before you start"
+    - **Ubuntu 22.04+** (or another Linux with rootless Docker). macOS works for the *client* side but not the *server* — Containerlab and Netlab need Linux.
+    - **Python 3.12+** with `pipx` available (`sudo apt install pipx` on Ubuntu 24.04+; `pipx ensurepath` to put `~/.local/bin` on `PATH`).
+    - **Netlab and Containerlab installed rootlessly.** Non-trivial on a fresh machine; the canonical walkthrough is [Netlab host setup](../40-deployment/10-netlab-host-setup.md). Run that page once, then come back.
 
 Verify Netlab is reachable before installing the server:
 

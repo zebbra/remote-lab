@@ -8,26 +8,13 @@ crosslink_references: []
 
 # Debugging
 
-The page to grep when something breaks — for any client, in any
-language. The quick-reference table covers the symptoms a user is most
-likely to hit; the rest of the page expands each one with the underlying
-mechanism, the log strings to grep for, and the recovery path. The
-log-pattern tables further down are the difference between *the test
-timed out* and *the session was evicted at second 305 because the
-heartbeat stopped landing*.
+Grep this page when something breaks — for any client, in any language. Symptom-first table below; underlying mechanisms and log patterns expand each row further down. For operator-side runbook entries (stuck filelocks, port conflicts, server startup), see [Administration → Troubleshooting](30-administration.md#troubleshooting).
 
 !!! danger "No HTTP authentication"
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
     [Security model](40-security.md) for the full posture.
-
-For operator-side runbook entries (stuck filelocks, port conflicts,
-`netlab` not on `PATH`, server startup failures), see
-[Administration → Troubleshooting](30-administration.md#troubleshooting).
-This page is the client- and API-side counterpart.
-
----
 
 ## Quick reference
 

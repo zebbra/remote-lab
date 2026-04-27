@@ -8,17 +8,7 @@ crosslink_references: []
 
 # Architecture
 
-**Only one Netlab topology can run on a host at any given time.** When
-several developers or CI jobs want to test against the same virtual
-network, they need three things: a **queue**, a **heartbeat**, and
-someone to tear the lab down when the last test walks away.
-
-`neops-remote-lab` is that queue.
-
-> **Why a server?** Netlab is a host-local tool. Running it inside each test
-> runner would mean one lab per runner — expensive, and it collides with the
-> one-lab-per-host rule anyway. A small HTTP service in front of Netlab lets
-> many clients share one lab host safely.
+**Only one Netlab topology can run on a host at a time.** Multiple developers and CI jobs need a queue, a heartbeat, and someone to tear the lab down when the last test walks away. `neops-remote-lab` is that queue.
 
 ## Three components, one process per host
 

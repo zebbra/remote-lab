@@ -8,36 +8,13 @@ crosslink_references: []
 
 # REST API Reference
 
-The Remote Lab Manager exposes a **small HTTP surface** for session
-management and lab lifecycle. This page documents every endpoint callers
-are expected to use directly, with its **schema**, **error codes**, and
-an **example invocation** for each.
+Every endpoint the Remote Lab Manager exposes for direct consumer use, with **schema**, **error codes**, and an **example invocation**. The contract table below is the load-bearing part — `X-Session-ID` is the only access boundary on `/lab/*`.
 
 !!! danger "No HTTP authentication"
     `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
     authentication. The only access boundary on `/lab/*` is the
     `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
     [Security model](40-security.md) for the full posture.
-
-## Conventions used below
-
-All examples assume:
-
-```bash
-export LAB_HOST="lab.internal:8000"        # your Remote Lab server
-export BASE_URL="http://$LAB_HOST"
-```
-
-- **Content types** — JSON bodies are `application/json`; `POST /lab` is the
-  only `multipart/form-data` endpoint.
-- **DTO suffix** — Pydantic 2 request/response models in the source are suffixed
-  `*Dto` (e.g., `CreateSessionResponseDto`). Field order below matches the
-  source models.
-- **Error envelope** — errors use `HTTPException(status.HTTP_*, detail=...)`
-  and are serialised as `{"detail": "<message>"}`. There is no custom error
-  hierarchy.
-
----
 
 ## The X-Session-ID contract
 
@@ -52,9 +29,7 @@ export BASE_URL="http://$LAB_HOST"
 | `DELETE /lab` | **yes** | 423 Locked if session not ACTIVE |
 | `GET /lab/devices` | **yes** | 423 Locked if session not ACTIVE |
 
-The server enforces the active-session check via a `_get_active_session`
-FastAPI dependency: unknown session ids raise 404, non-active sessions raise
-423 Locked. <!-- trace: neops_remote_lab/server.py:381 -->
+The server enforces the active-session check via a `_get_active_session` FastAPI dependency: unknown session ids raise 404, non-active sessions raise 423 Locked. <!-- trace: neops_remote_lab/server.py:381 -->
 
 ---
 
@@ -88,6 +63,13 @@ response is returned, so single-client callers see `position: 0` immediately.
     ```json
     {"session_id": "f8e7c1b2-...-...", "position": 0}
     ```
+
+??? info "Conventions used below"
+    All cURL examples assume `$BASE_URL` is exported (e.g. `export BASE_URL="http://lab.internal:8000"`).
+
+    - **Content types** — JSON bodies are `application/json`; `POST /lab` is the only `multipart/form-data` endpoint.
+    - **DTO suffix** — Pydantic 2 request/response models in the source are suffixed `*Dto` (e.g., `CreateSessionResponseDto`). Field order below matches the source models. See [Invariants → `*Dto` suffix](../50-contributing/20-invariants.md#dto-suffix).
+    - **Error envelope** — errors use `HTTPException(status.HTTP_*, detail=...)` and are serialised as `{"detail": "<message>"}`. There is no custom error hierarchy.
 
 ---
 

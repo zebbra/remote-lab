@@ -8,36 +8,7 @@ crosslink_references: []
 
 # Administration
 
-**Operator runbook** for keeping the Remote Lab Manager healthy on a
-shared host. Install, run under `systemd`, recover from a stale lock,
-unstick a wedged lab, and the security posture you sign up for.
-
-!!! danger "No HTTP authentication"
-    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
-    authentication. The only access boundary on `/lab/*` is the
-    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
-    [Security model](40-security.md) for the full posture.
-
-!!! info "Prerequisites"
-    - Familiarity with the [architecture](../10-concepts/10-architecture.md) and [REST API](10-rest-api.md).
-    - Shell access to the lab host with permission to read `/tmp`, kill processes, and restart the `neops-remote-lab` service.
-    - `netlab` CLI installed and on `PATH`. If it is missing, the server exits before binding the port. <!-- trace: neops_remote_lab/__main__.py:206 -->
-
----
-
-## Installing the server
-
-!!! note "Netlab host setup comes first"
-    This section assumes the Netlab CLI is already installed and runnable
-    on the lab host. If you are starting from a fresh VM, complete
-    [Netlab host setup](../40-deployment/10-netlab-host-setup.md) first — the server
-    launcher will refuse to start without `netlab` on `PATH`. <!-- trace: neops_remote_lab/__main__.py:206 -->
-
-The server ships as the `neops-remote-lab` Python distribution. Install
-it as an isolated tool so the CLI lands on `PATH` without polluting the
-system Python (Python 3.12+ required). The distribution declares a
-`neops-remote-lab` console script that points at
-`neops_remote_lab.__main__:main`. <!-- trace: pyproject.toml:34 -->
+Operator runbook. Install, run under `systemd`, recover from a stale lock, unstick a wedged lab.
 
 === "uv (recommended)"
 
@@ -84,6 +55,15 @@ If `neops-remote-lab --help` errors with `command not found`, your
 tool's `bin` directory is not on `PATH` — run `uv tool update-shell`,
 `pipx ensurepath`, or add the symlink target manually depending on which
 installer you used.
+
+!!! danger "No HTTP authentication"
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. The only access boundary on `/lab/*` is the
+    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
+    [Security model](40-security.md) for the full posture.
+
+!!! info "Before you start"
+    Netlab CLI must already be on `PATH` — the launcher refuses to start without it. <!-- trace: neops_remote_lab/__main__.py:206 --> If the host is fresh, run [Netlab host setup](../40-deployment/10-netlab-host-setup.md) first. You'll also want shell access with permission to read `/tmp`, kill processes, and restart the service.
 
 Once the CLI is reachable, continue with [Starting the server](#starting-the-server)
 for a one-shot foreground run, or [Running as a system service](#running-as-a-system-service)

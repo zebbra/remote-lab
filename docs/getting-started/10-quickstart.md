@@ -8,39 +8,19 @@ crosslink_references: []
 
 # Quickstart
 
-You have a **pytest suite** that needs a real router — not a mock, not a
-hand-rolled per-test container, but a [Netlab](https://netlab.tools/)
-topology reachable from your laptop with the **same identity every time**.
-
-By the end of this page you will have:
-
-- installed the client package,
-- pointed it at a Remote Lab Manager,
-- written a minimal topology, and
-- run a pytest that acquires a lab, lists its devices, and tears it down
-  cleanly — all in **three lines of test code**.
-
-!!! info "Before you start"
-    You need three things:
-
-    - **Ubuntu 22.04+** (or similar) with **Python 3.11+** and `pipx` available.
-    - **`pytest`** installed in your project's virtual environment.
-    - **A reachable Remote Lab Manager** — its base URL goes into the
-      `REMOTE_LAB_URL` environment variable in step 2.
+A pytest suite, a real Netlab topology, three lines of test code. By the end of this page: client installed, `REMOTE_LAB_URL` pointed at a server, a minimal topology booted, a test passing.
 
 !!! tip "Don't have a remote server yet?"
-    On Ubuntu you can run the server locally and point your tests at
-    `http://localhost:8000`. The deep-dive in
-    [Local development server](20-local-server.md) walks through the rootless
-    Netlab + Containerlab install and a one-command launch. You can finish
-    that page and come straight back here.
+    [Local development server](20-local-server.md) installs Netlab + Containerlab rootless on Ubuntu and starts the server on `localhost:8000`. Finish that page and come straight back.
 
 ---
 
 ## 1. Install the client package
 
-Install `neops-remote-lab` into the same environment as your tests. The package
-ships both the pytest plugin and the HTTP client; no separate install is needed.
+!!! info "Before you start"
+    Ubuntu 22.04+ (or similar) with Python 3.11+ and `pipx` available; `pytest` already in your project's virtualenv; a reachable Remote Lab Manager (its base URL is `REMOTE_LAB_URL` in step 2).
+
+Install `neops-remote-lab` into the same environment as your tests. The package ships both the pytest plugin and the HTTP client; no separate install is needed.
 
 === "uv (recommended)"
 
@@ -48,9 +28,7 @@ ships both the pytest plugin and the HTTP client; no separate install is needed.
     uv add neops-remote-lab
     ```
 
-    Adds the package to your `pyproject.toml` and locks it in `uv.lock`.
-    See the [uv docs](https://docs.astral.sh/uv/concepts/projects/dependencies/)
-    for project workflows.
+    Adds the package to your `pyproject.toml` and locks it in `uv.lock`. See the [uv docs](https://docs.astral.sh/uv/concepts/projects/dependencies/) for project workflows.
 
 === "Poetry"
 
@@ -58,8 +36,7 @@ ships both the pytest plugin and the HTTP client; no separate install is needed.
     poetry add neops-remote-lab
     ```
 
-    Adds the package to your `pyproject.toml` `[tool.poetry.dependencies]`
-    and locks it in `poetry.lock`.
+    Adds the package to your `pyproject.toml` `[tool.poetry.dependencies]` and locks it in `poetry.lock`.
 
 === "pip"
 
@@ -67,13 +44,7 @@ ships both the pytest plugin and the HTTP client; no separate install is needed.
     pip install neops-remote-lab
     ```
 
-    Installs into the active virtualenv. Pin in `requirements.txt` (or
-    your equivalent) for reproducibility.
-
-!!! success "Expected output (any of the three)"
-    ```
-    Successfully installed neops-remote-lab-<version>
-    ```
+    Installs into the active virtualenv. Pin in `requirements.txt` for reproducibility.
 
 Verify the package and fixture import cleanly:
 
@@ -83,13 +54,11 @@ python -c "from neops_remote_lab.testing.fixture import remote_lab_fixture; prin
 
 !!! success "Expected output"
     ```
+    Successfully installed neops-remote-lab-<version>
     OK
     ```
 
-A successful import means the pytest plugin's entry point is registered (the
-package's `[project.entry-points.pytest11]` declares `neops-remote-lab` →
-`neops_remote_lab.pytest_plugins`) and `remote_lab_fixture` is reachable from
-your test code.
+A successful import means the pytest plugin's entry point is registered (the package's `[project.entry-points.pytest11]` declares `neops-remote-lab` → `neops_remote_lab.pytest_plugins`) and `remote_lab_fixture` is reachable from your test code.
 
 ---
 

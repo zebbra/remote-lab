@@ -8,50 +8,10 @@ crosslink_references: []
 
 # REST quickstart (cURL)
 
-You found this from a SwiNOG talk, a GitHub README, or a colleague's
-recommendation, and you want **exclusive access to a real
-[Netlab](https://netlab.tools/) topology** — driven from whatever
-automation harness you already run. *Not necessarily Python. Not
-necessarily pytest.*
-
-This page walks the **full lifecycle in cURL**:
-
-1. create a session,
-2. wait for the queue,
-3. upload a topology,
-4. list devices,
-5. release,
-6. end the session.
-
-By the end you will have done the same things the Python client and
-pytest fixture automate — with nothing on your laptop besides `curl`
-and `jq`.
-
-!!! tip "Already on a Python path?"
-    The pytest-flavored [Quickstart](10-quickstart.md) is shorter. If you
-    have not stood up a Remote Lab Manager yet,
-    [Local development server](20-local-server.md) gets one running on
-    `localhost:8000` in about ten minutes.
-
-!!! info "Before you start"
-    You need three things:
-
-    - **A reachable Remote Lab Manager** — its base URL goes into
-      `BASE_URL` below. If you are running it locally, that is
-      `http://localhost:8000`.
-    - **`curl`** and **`jq`** on your `PATH`. Both ship with most
-      distributions; `apt install jq` on Debian/Ubuntu, `brew install jq`
-      on macOS.
-    - **VPN connectivity to the lab host.** The service has no
-      HTTP authentication — see [Security model](../30-server/40-security.md).
+You came from a SwiNOG talk, a README, or a colleague who said *"yes, you can drive it from anything"*. This page is for you if you want exclusive access to a real Netlab topology from whatever harness you run — not necessarily Python, not necessarily pytest. Six cURL calls end-to-end.
 
 ```bash
 export BASE_URL="http://lab.example.com:8000"   # your Remote Lab Manager
-```
-
-Confirm the server is reachable before you do anything else:
-
-```bash
 curl -fsS "$BASE_URL/healthz" -o /dev/null -w "%{http_code}\n"
 ```
 
@@ -60,10 +20,17 @@ curl -fsS "$BASE_URL/healthz" -o /dev/null -w "%{http_code}\n"
     204
     ```
 
-A `204 No Content` on `/healthz` is the liveness signal. Anything else —
-a connection error, a `502`, a redirect — means your VPN is not up or the
-server is not running. Fix that first; the rest of this page assumes the
-healthz check passed.
+A `204 No Content` on `/healthz` is the liveness signal. Anything else — a connection error, a `502`, a redirect — means your VPN is not up or the server is not running. Fix that first; the rest of this page assumes the healthz check passed.
+
+!!! info "Before you start"
+    - **A reachable Remote Lab Manager** — `BASE_URL` above. If you are running it locally, that is `http://localhost:8000` (see [Local development server](20-local-server.md)).
+    - **`curl`** and **`jq`** on your `PATH`. `apt install jq` / `brew install jq`.
+    - **VPN connectivity to the lab host.** The service has no HTTP authentication — see [Security model](../30-server/40-security.md).
+
+!!! tip "Already on a Python path?"
+    The pytest-flavored [Quickstart](10-quickstart.md) is shorter.
+
+The lifecycle, top-to-bottom: **create a session → wait for the queue → upload a topology → list devices → release → end the session.** The pytest fixture and `RemoteLabClient` automate exactly these six calls.
 
 ---
 
@@ -304,22 +271,7 @@ layers over exactly this lifecycle. Two short sketches:
 
 === "Python (no pytest)"
 
-    ```python
-    import httpx, time
-
-    base = "http://lab.example.com:8000"
-    sid = httpx.post(f"{base}/session").json()["session_id"]
-    while httpx.get(f"{base}/session/{sid}").json()["status"] != "active":
-        time.sleep(2)
-    httpx.post(f"{base}/lab", headers={"X-Session-ID": sid},
-               files={"topology": open("simple_frr.yml", "rb")},
-               data={"reuse": "true"}, timeout=600.0)
-    ```
-
-    For a fully wrapped client with retries, heartbeating, and timeout
-    coordination, use the bundled
-    [`RemoteLabClient`](../20-client/20-python-client.md) — the same
-    class the pytest fixture sits on top of.
+    Use the bundled [`RemoteLabClient`](../20-client/20-python-client.md) — it wraps the six calls above with retries, heartbeating, and timeout coordination. Or see [Cookbook → Python recipes](../99-appendix/cookbook.md#python-no-pytest-recipes) for runnable examples.
 
 === "Go"
 
