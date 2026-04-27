@@ -1,0 +1,20 @@
+[Unit]
+Description=neops-remote-lab Manager
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=<SERVICE_USER>
+Group=<SERVICE_USER>
+# <INSTALL_PATH> is the pipx venv or virtualenv where neops-remote-lab was installed.
+# With the default pipx layout, that is typically /home/<SERVICE_USER>/.local/pipx/venvs/neops-remote-lab.
+ExecStart=<INSTALL_PATH>/bin/neops-remote-lab --host 0.0.0.0 --port 8000 --log-level INFO
+Restart=on-failure
+RestartSec=5
+# Logs land in the journal by default (stdout/stderr). Override with --log-config to redirect.
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

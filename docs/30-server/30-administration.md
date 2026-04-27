@@ -13,7 +13,7 @@ Read the [Security posture](#security-posture) section before exposing the
 server on any network you do not fully control.
 
 !!! info "Prerequisites"
-    - Familiarity with the [architecture](../concepts/10-architecture.md) and [REST API](10-rest-api.md).
+    - Familiarity with the [architecture](../10-concepts/10-architecture.md) and [REST API](10-rest-api.md).
     - Shell access to the lab host with permission to read `/tmp`, kill processes, and restart the `neops-remote-lab` service.
     - `netlab` CLI installed and on `PATH`. If it is missing, the server exits before binding the port. <!-- trace: neops_remote_lab/__main__.py:206 -->
 
@@ -24,21 +24,46 @@ server on any network you do not fully control.
 !!! note "Netlab host setup comes first"
     This section assumes the Netlab CLI is already installed and runnable
     on the lab host. If you are starting from a fresh VM, complete
-    [Netlab host setup](../deployment/10-netlab-host-setup.md) first — the server
+    [Netlab host setup](../40-deployment/10-netlab-host-setup.md) first — the server
     launcher will refuse to start without `netlab` on `PATH`. <!-- trace: neops_remote_lab/__main__.py:206 -->
 
-The server ships as the `neops-remote-lab` Python distribution. The
-recommended install is [pipx](https://pipx.pypa.io/) so the CLI lands on
-`PATH` in its own virtualenv without polluting the system Python:
+The server ships as the `neops-remote-lab` Python distribution. Install
+it as an isolated tool so the CLI lands on `PATH` without polluting the
+system Python (Python 3.12+ required). The distribution declares a
+`neops-remote-lab` console script that points at
+`neops_remote_lab.__main__:main`. <!-- trace: pyproject.toml:34 -->
 
-```bash
-# Requires Python 3.12+
-pipx install neops-remote-lab
-```
+=== "uv (recommended)"
 
-The distribution declares a `neops-remote-lab` console script that points
-at `neops_remote_lab.__main__:main`, so `pipx install` puts the server
-CLI directly on `PATH`. <!-- trace: pyproject.toml:34 -->
+    ```bash
+    uv tool install neops-remote-lab
+    ```
+
+    [`uv tool install`](https://docs.astral.sh/uv/concepts/tools/) drops
+    the CLI in `~/.local/bin` (or `uv tool dir`) inside an isolated
+    environment that uv manages.
+
+=== "pipx"
+
+    ```bash
+    pipx install neops-remote-lab
+    pipx ensurepath  # only needed once
+    ```
+
+    [pipx](https://pipx.pypa.io/) installs into a per-app virtualenv
+    under `~/.local/pipx/venvs/`. After the first install, run
+    `pipx ensurepath` and re-login so `~/.local/bin` is on `PATH`.
+
+=== "pip (last resort)"
+
+    ```bash
+    python -m venv ~/.venvs/neops-remote-lab
+    ~/.venvs/neops-remote-lab/bin/pip install neops-remote-lab
+    ln -s ~/.venvs/neops-remote-lab/bin/neops-remote-lab ~/.local/bin/
+    ```
+
+    Manual virtualenv plus a symlink. Prefer `uv tool install` or `pipx`
+    unless you have a hard reason not to.
 
 Verify the CLI is reachable and can print its help:
 
@@ -49,10 +74,10 @@ neops-remote-lab --help
 
 The help output lists the complete server CLI surface: `--debug`,
 `--host`, `--port`, `--log-level`, `--log-config`, and `--version`. <!-- trace: neops_remote_lab/__main__.py:149 -->
-If `neops-remote-lab --help` errors with `command not found`, run
-`pipx ensurepath` and re-login, or place `<INSTALL_PATH>/bin` on `PATH`
-manually (replace `<INSTALL_PATH>` with the pipx venv path —
-`pipx environment --value PIPX_LOCAL_VENVS` gives the default).
+If `neops-remote-lab --help` errors with `command not found`, your
+tool's `bin` directory is not on `PATH` — run `uv tool update-shell`,
+`pipx ensurepath`, or add the symlink target manually depending on which
+installer you used.
 
 Once the CLI is reachable, continue with [Starting the server](#starting-the-server)
 for a one-shot foreground run, or [Running as a system service](#running-as-a-system-service)
@@ -68,26 +93,7 @@ unit file looks like this — save it at
 `/etc/systemd/system/neops-remote-lab.service`:
 
 ```ini title="/etc/systemd/system/neops-remote-lab.service"
-[Unit]
-Description=neops-remote-lab Manager
-After=network-online.target docker.service
-Wants=network-online.target
-
-[Service]
-Type=simple
-User=<SERVICE_USER>
-Group=<SERVICE_USER>
-# <INSTALL_PATH> is the pipx venv or virtualenv where neops-remote-lab was installed.
-# With the default pipx layout, that is typically /home/<SERVICE_USER>/.local/pipx/venvs/neops-remote-lab.
-ExecStart=<INSTALL_PATH>/bin/neops-remote-lab --host 0.0.0.0 --port 8000 --log-level INFO
-Restart=on-failure
-RestartSec=5
-# Logs land in the journal by default (stdout/stderr). Override with --log-config to redirect.
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=multi-user.target
+--8<-- "examples/systemd/neops-remote-lab.service"
 ```
 
 Install, enable, and start it:
@@ -214,9 +220,8 @@ neops-remote-lab --host 0.0.0.0 --port 8000
 ## Security posture
 
 !!! danger "The service has no authentication — treat it as internal-trust"
-    The `REMOTE_LAB_TOKEN` / Bearer-auth path in `RemoteLabClient` is
-    **commented out** and no endpoint in `server.py` enforces bearer
-    authentication. <!-- trace: neops_remote_lab/client.py:46 -->
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. No endpoint enforces an `Authorization` header.
 
 ### The only access boundary
 
@@ -297,19 +302,8 @@ If a lab is stuck (`netlab up` failed partway through, or a client crashed
 without releasing), take the lab down via the REST API using any ACTIVE
 session:
 
-```bash
-SESSION_ID=$(curl -s -X POST "http://$LAB_HOST:8000/session" | jq -r .session_id)
-
-# Wait for ACTIVE
-while [[ "$(curl -s "http://$LAB_HOST:8000/session/$SESSION_ID" | jq -r .status)" != "active" ]]; do
-  sleep 2
-done
-
-# Force destroy
-curl -s -X DELETE "http://$LAB_HOST:8000/lab?force=true" \
-  -H "X-Session-ID: $SESSION_ID"
-
-curl -s -X DELETE "http://$LAB_HOST:8000/session/$SESSION_ID"
+```bash title="examples/scripts/force_cleanup.sh"
+--8<-- "examples/scripts/force_cleanup.sh"
 ```
 
 As a last resort (server unreachable or wedged), clean up Netlab directly on
@@ -343,6 +337,6 @@ Remember: **only one operator should be doing this at a time**. The Netlab
 
 - [REST API](10-rest-api.md) — endpoint reference for operator scripting
 - [Configuration](20-configuration.md) — flags and environment variables
-- [Architecture](../concepts/10-architecture.md) — where the single-instance + one-lab invariants come from
-- [Session queue](../concepts/20-session-queue.md) — FIFO semantics and 423 Locked flow
-- [Headscale + Tailscale VPN setup](../deployment/20-headscale-vpn.md) — common deployment model for private reachability
+- [Architecture](../10-concepts/10-architecture.md) — where the single-instance + one-lab invariants come from
+- [Session queue](../10-concepts/20-session-queue.md) — FIFO semantics and 423 Locked flow
+- [Headscale + Tailscale VPN setup](../40-deployment/20-headscale-vpn.md) — common deployment model for private reachability

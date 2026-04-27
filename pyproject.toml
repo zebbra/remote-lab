@@ -51,7 +51,7 @@ dev = [
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
 asyncio_default_fixture_loop_scope = "function"
-addopts = ["--ignore=docs"]
+addopts = ["--ignore=docs", "--ignore=examples"]
 
 [tool.ruff]
 target-version = "py312"

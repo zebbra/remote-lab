@@ -14,12 +14,12 @@ non-pytest context. Inside tests you should use [`remote_lab_fixture`](10-pytest
 the fixture wraps this client, adds lifecycle hooks, and is the stable contract
 consumed by `neops-worker-sdk-py`.
 
-!!! warning "Authentication is not implemented"
-    The Bearer-token code path is commented out in the constructor, so the
-    client sends no `Authorization` header. <!-- trace: neops_remote_lab/client.py:46 -->
-    The server's only access boundary is the `X-Session-ID` header of an
-    active session; non-active sessions receive `423 Locked`. Treat the
-    Remote Lab Manager as internal-trust infrastructure.
+!!! warning "No HTTP authentication"
+    `neops-remote-lab` ships without HTTP authentication, so the client
+    sends no `Authorization` header. The server's only access boundary is
+    the `X-Session-ID` header of an active session; non-active sessions
+    receive `423 Locked`. Treat the Remote Lab Manager as internal-trust
+    infrastructure behind a VPN.
 
 ---
 
@@ -209,17 +209,7 @@ want to hit an endpoint the client does not wrap).
 your own `try`/`finally` or a small contextmanager:
 
 ```python title="A context manager wrapper you can copy" linenums="1"
-import contextlib
-from neops_remote_lab.client import RemoteLabClient
-
-
-@contextlib.contextmanager
-def remote_lab_client(**kwargs):
-    client = RemoteLabClient(**kwargs)
-    try:
-        yield client
-    finally:
-        client.close()
+--8<-- "examples/scripts/contextmanager_wrapper.py"
 ```
 
 Using this wrapper makes a script resilient to exceptions between acquire
@@ -263,33 +253,8 @@ Implication: `acquire()` (which POSTs) has its own explicit polling loop for
 
 ## End-to-end example
 
-```python title="scripts/smoke.py" linenums="1"
-import os
-import pathlib
-
-from neops_remote_lab.client import RemoteLabClient
-
-
-def main() -> None:
-    client = RemoteLabClient(
-        base_url=os.environ["REMOTE_LAB_URL"],
-        session_timeout=120,        # fail fast if queue is deep
-    )
-    try:
-        devices = client.acquire(
-            topology=pathlib.Path("topologies/demo.yml"),
-            reuse=False,
-        )
-        print(f"Acquired lab with {len(devices)} devices:")
-        for d in devices:
-            print(f"  {d.name}")
-        client.release()
-    finally:
-        client.close()
-
-
-if __name__ == "__main__":
-    main()
+```python title="examples/scripts/smoke.py" linenums="1"
+--8<-- "examples/scripts/smoke.py"
 ```
 
 Run with:
@@ -311,7 +276,7 @@ python scripts/smoke.py
 ## See also
 
 - [Pytest fixtures](10-pytest-fixtures.md) — the preferred interface for test code.
-- [Session queue](../concepts/20-session-queue.md) — the FIFO model that `_wait_for_active_session` polls.
-- [Lab lifecycle](../concepts/30-lab-lifecycle.md) — reference counting, SHA identity, reuse semantics.
-- [REST API](../server/10-rest-api.md) — every endpoint the client wraps, plus a few it doesn't.
-- [Configuration](../server/20-configuration.md) — environment variables that tune the constructor's defaults.
+- [Session queue](../10-concepts/20-session-queue.md) — the FIFO model that `_wait_for_active_session` polls.
+- [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting, SHA identity, reuse semantics.
+- [REST API](../30-server/10-rest-api.md) — every endpoint the client wraps, plus a few it doesn't.
+- [Configuration](../30-server/20-configuration.md) — environment variables that tune the constructor's defaults.

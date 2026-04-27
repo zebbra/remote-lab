@@ -18,18 +18,20 @@ environment to a passing test in about ten minutes.
 | Guide | What you'll learn |
 |---|---|
 | [Quickstart](10-quickstart.md) | Install `neops-remote-lab`, set `REMOTE_LAB_URL`, write a minimal topology, declare a `remote_lab_fixture`, and run pytest against a real lab. |
+| [Local development server](20-local-server.md) | Don't have a remote VM yet? Install the prerequisites on Ubuntu, run the server on `localhost:8000`, and point your tests at it. The on-ramp for OSS readers and zebbra-internal devs alike. |
 
 ## What to read next
 
-- **[Pytest Fixtures](../client/10-pytest-fixtures.md)** — the stable
+- **[Pytest Fixtures](../20-client/10-pytest-fixtures.md)** — the stable
   public API in full: factory arguments, the `remote_lab_client`
   session fixture, the one-fixture-per-test rule.
-- **[Architecture](../concepts/10-architecture.md)** — how the server,
+- **[Architecture](../10-concepts/10-architecture.md)** — how the server,
   `LabManager`, and client cooperate; useful before you start debugging
   queue or lifecycle behaviour.
-- **[Topology Format](../concepts/40-topology-format.md)** — the
+- **[Topology Format](../10-concepts/40-topology-format.md)** — the
   `.yml` extension rule and the `extra_files` multipart contract.
 
-If you are standing up the Remote Lab Manager host itself, start instead
-with [Netlab host setup](../deployment/10-netlab-host-setup.md) and
-[Headscale VPN](../deployment/20-headscale-vpn.md).
+If you are standing up a **production** Remote Lab Manager host (not just
+a local dev server), start instead with
+[Netlab host setup](../40-deployment/10-netlab-host-setup.md) and
+[Headscale VPN](../40-deployment/20-headscale-vpn.md).

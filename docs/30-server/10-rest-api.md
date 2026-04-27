@@ -12,9 +12,8 @@ The Remote Lab Manager exposes a small HTTP surface for session management and
 lab lifecycle. This page documents every endpoint that callers are expected to
 use directly, together with its schema, error codes, and an example invocation.
 
-!!! danger "No authentication is wired"
-    The service has **no bearer-token or OAuth authentication** — the
-    `REMOTE_LAB_TOKEN` path is commented out in `client.py`. <!-- trace: neops_remote_lab/client.py:46 -->
+!!! danger "No HTTP authentication"
+    The service ships **without** bearer-token, OAuth, or mTLS authentication.
     The only access boundary on `/lab/*` is the `X-Session-ID` header of an
     **ACTIVE** session; non-active sessions receive `423 Locked`. The
     `/session/heartbeat` endpoint is gated less tightly: it only requires
@@ -171,7 +170,7 @@ either and the server reaps the session, and (if ACTIVE) frees its lab. <!-- tra
 !!! info "The fixture does this for you"
     The session-scoped `remote_lab_client` fixture pings heartbeat in the
     background. You only need to send heartbeats explicitly when you use
-    [`RemoteLabClient`](../client/20-python-client.md) directly from non-pytest code.
+    [`RemoteLabClient`](../20-client/20-python-client.md) directly from non-pytest code.
 
 **Headers**:
 
@@ -220,7 +219,7 @@ content hashes match. <!-- trace: neops_remote_lab/server.py:396 -->
     The server identifies topologies by SHA-256 of file content, not filename.
     Two files with different names but identical content share the same lab
     when `reuse=true`. Reference counting drops the lab when the count hits
-    zero. See [Lab lifecycle](../concepts/30-lab-lifecycle.md).
+    zero. See [Lab lifecycle](../10-concepts/30-lab-lifecycle.md).
 
 **Response** — `200 OK`, `AcquireResponseDto`:
 
@@ -369,28 +368,8 @@ Shortcut to the device list without returning the full lab status. Useful after
 
 Combine the endpoints above into a full session:
 
-```bash
-# 1. Create a session (blocks only if the queue is non-empty on the server)
-SESSION_ID=$(curl -s -X POST "$BASE_URL/session" | jq -r .session_id)
-
-# 2. Wait for ACTIVE
-while true; do
-  STATUS=$(curl -s "$BASE_URL/session/$SESSION_ID" | jq -r .status)
-  [[ "$STATUS" == "active" ]] && break
-  sleep 2
-done
-
-# 3. Acquire the lab
-curl -s -X POST "$BASE_URL/lab" \
-  -H "X-Session-ID: $SESSION_ID" \
-  -F "topology=@tests/topologies/simple_frr.yml" \
-  -F "reuse=true" | jq .
-
-# 4. Run your automation against the devices listed in the response...
-
-# 5. Release the ref-count, then end the session
-curl -s -X POST "$BASE_URL/lab/release" -H "X-Session-ID: $SESSION_ID"
-curl -s -X DELETE "$BASE_URL/session/$SESSION_ID"
+```bash title="examples/curl/end_to_end_session.sh"
+--8<-- "examples/curl/end_to_end_session.sh"
 ```
 
 ---
@@ -416,7 +395,7 @@ contract can be promoted.
 
 ## See also
 
-- [Session queue](../concepts/20-session-queue.md) — FIFO semantics, stale-sweep timeouts, and 423 responses
-- [Lab lifecycle](../concepts/30-lab-lifecycle.md) — reference counting, SHA identity, and teardown
+- [Session queue](../10-concepts/20-session-queue.md) — FIFO semantics, stale-sweep timeouts, and 423 responses
+- [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting, SHA identity, and teardown
 - [Configuration](20-configuration.md) — environment variables and CLI flags for client and server
 - [Administration](30-administration.md) — operator runbook and security posture

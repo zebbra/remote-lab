@@ -8,9 +8,9 @@ crosslink_references: []
 
 # Architecture
 
-A Netlab topology can only run once per host. When several developers or CI jobs
-want to run integration tests against the same hardware-free network, they need
-a queue, a heartbeat, and someone to tear the lab down when the last test walks
+Only a single Netlab topology can run on a host at any given time. When several
+developers or CI jobs want to test against the same virtual network, they need a
+queue, a heartbeat, and someone to tear the lab down when the last test walks
 away. `neops-remote-lab` is that queue.
 
 > **Why a server?** Netlab is a host-local tool. Running it inside each test
@@ -68,7 +68,7 @@ the only way to skip ahead is to wait for the head to release or time out.
 exist (404 if unknown) and accepts heartbeats from both WAITING and ACTIVE
 sessions, which lets a queued client reset its WAITING timeout before it is
 promoted. <!-- trace: neops_remote_lab/server.py:488 --> See
-[session-queue.md](20-session-queue.md) for the promotion and timeout rules.
+[Session queue](20-session-queue.md) for the promotion and timeout rules.
 
 ## The one-server-per-host guard
 
@@ -84,7 +84,7 @@ address, and the command that started it — then exits with status 1.
     and probing whether the recorded PID is still alive; when the PID is gone
     it clears the stale metadata and proceeds. If both are stuck (live PID for a
     process that is actually hung), kill the PID manually. See
-    [administration.md](../server/30-administration.md) once it lands.
+    [Administration](../30-server/30-administration.md).
 
 ## The one-lab-per-host guard
 
@@ -98,24 +98,14 @@ additional Python processes (e.g. local tests running alongside the server).
 > racing. The `FileLock` prevents a developer from accidentally running a local
 > `netlab` process in parallel with the server on the same host.
 
-## The async discipline
+## Long Netlab calls don't block the queue
 
 Netlab commands take minutes: they build containers, boot routers, and install
-configurations. If the FastAPI event loop blocked on them, every other client
-polling `GET /session/{id}` would stall.
-
-<!-- trace: neops_remote_lab/server.py:163 -->
-The server funnels every Netlab-bound operation through `_run_blocking`, which
-dispatches the call to the default `asyncio` thread-pool executor. Only
-heavyweight operations (`LabManager.try_acquire`, `LabManager.cleanup`) go
-through this path; lightweight metadata reads like `LabManager.status()` stay
-synchronous to avoid thread-hop overhead.
-
-!!! danger "Do not add async code to the atexit teardown"
-    `LabManager` registers a synchronous `cleanup` on `atexit`. If you put
-    anything that awaits an event loop there, the interpreter deadlocks at
-    shutdown because the loop is already closed. Details in
-    [lab-lifecycle.md](30-lab-lifecycle.md).
+configurations. The server runs them off the event loop so the rest of the API
+— heartbeats, status polls from other sessions, health checks — keeps
+responding while a `netlab up` is in flight. The mechanics are documented for
+contributors in
+[Invariants & Internals](../50-contributing/20-invariants.md#async-and-blocking-discipline).
 
 ## How Netlab is invoked
 
@@ -162,24 +152,24 @@ flowchart LR
 `remote_lab_fixture` is the **stable public API**. Consumer repositories —
 notably [`neops-worker-sdk-py`](https://github.com/zebbra/neops-worker-sdk-py) — import it directly and treat its call signature
 as a contract. Changing its arguments is a breaking change. The REST surface
-and `RemoteLabClient` are lower-level and may evolve more freely, but in
-practice the fixture uses them both so any incompatible change ripples.
+and `RemoteLabClient` are lower-level and may evolve more freely, but the
+fixture uses them both, so any incompatible change is detected immediately by
+the fixture's own tests.
 
-!!! info "Authentication is not implemented"
+!!! info "No HTTP authentication"
     The `X-Session-ID` header is the only access boundary on `/lab/*`
     (ACTIVE sessions only; non-active sessions receive `423 Locked`).
     `/session/heartbeat` accepts any session that exists — WAITING or
-    ACTIVE — and is not part of the ACTIVE gate. Bearer-token scaffolding
-    exists in `client.py` but is commented out. Deploy this service on an
+    ACTIVE — and is not part of the ACTIVE gate. Deploy this service on an
     internal-trust network only — the Headscale/Tailscale setup under
-    [headscale_headplane.md](../deployment/20-headscale-vpn.md) is the expected
+    [Headscale VPN](../40-deployment/20-headscale-vpn.md) is the expected
     enclosure.
 
 ## Where to go next
 
-- [session-queue.md](20-session-queue.md) — FIFO promotion, heartbeats, and the
+- [Session queue](20-session-queue.md) — FIFO promotion, heartbeats, and the
   stale-session sweep that keeps a crashed client from blocking the queue.
-- [lab-lifecycle.md](30-lab-lifecycle.md) — SHA-based topology identity, reference
+- [Lab lifecycle](30-lab-lifecycle.md) — SHA-based topology identity, reference
   counting, the `try_acquire` vs `acquire` distinction, and `atexit` teardown.
-- [topology-format.md](40-topology-format.md) — the YAML shape and the `.yml`
+- [Topology format](40-topology-format.md) — the YAML shape and the `.yml`
   extension trap.

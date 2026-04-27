@@ -26,26 +26,51 @@ crosslink_references: [remote-lab]
 ### Installation Steps
 
 This guide assumes you are using **Ubuntu 24.04+** and is based on the
-netlab [installation guide](https://netlab.tools/install/ubuntu/).
-
+upstream [netlab installation guide](https://netlab.tools/install/ubuntu/).
 The PyPI package is `networklab`; the installed CLI is `netlab`.
 
-```bash
-# Step 1-a: Install system prerequisites and pipx
-sudo apt-get update
-sudo apt-get install -y pipx
+Install it as an isolated tool — the same shape used for the
+`neops-remote-lab` server CLI, so both binaries cohabit cleanly.
 
-# Step 1-b: Install netlab via pipx
-pipx install networklab
-pipx ensurepath
-```
+=== "uv (recommended)"
 
-!!! warning "Ubuntu 24.04+"
-    Ubuntu 24.04 marks the system Python as [PEP 668](https://peps.python.org/pep-0668/)
-    *externally managed*; plain `pip install` into the system interpreter fails with
-    `error: externally-managed-environment`. `pipx` sidesteps this by installing
-    `networklab` into its own isolated venv under `~/.local/pipx/venvs/networklab`
-    and exposing the `netlab` CLI on `PATH` via `pipx ensurepath`.
+    ```bash
+    # Install uv first if you don't have it
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+
+    # Install the netlab CLI as an isolated tool
+    uv tool install networklab
+    ```
+
+    [`uv tool install`](https://docs.astral.sh/uv/concepts/tools/) drops
+    the CLI in `~/.local/bin` (or `uv tool dir`) inside an isolated
+    environment that uv manages. No system-Python contamination.
+
+=== "pipx"
+
+    ```bash
+    sudo apt-get update
+    sudo apt-get install -y pipx
+    pipx install networklab
+    pipx ensurepath
+    ```
+
+    Installs into `~/.local/pipx/venvs/networklab` and exposes the
+    `netlab` CLI on `PATH`. Re-login (or source your shell's RC file)
+    after the first `pipx ensurepath`.
+
+=== "pip (not recommended on Ubuntu 24.04+)"
+
+    ```bash
+    python -m venv ~/.venvs/networklab
+    ~/.venvs/networklab/bin/pip install networklab
+    ln -s ~/.venvs/networklab/bin/netlab ~/.local/bin/
+    ```
+
+    Manual virtualenv plus a symlink. On Ubuntu 24.04+ a plain
+    `pip install networklab` fails with `error: externally-managed-environment`
+    ([PEP 668](https://peps.python.org/pep-0668/)) — that's why uv or
+    pipx is preferred.
 
 ```bash
 # Step 1-c: Install all backend tooling (Ansible, libvirt, Docker, Containerlab)
@@ -68,7 +93,7 @@ All systems (Ansible, Docker, libvirt, etc.) must pass.
 
 ---
 
-If you're authoring tests against Remote Lab, see [Pytest fixtures](../client/10-pytest-fixtures.md) for the public fixture API, or [Quickstart](../getting-started/10-quickstart.md) to run your first lab-backed test.
+If you're authoring tests against Remote Lab, see [Pytest fixtures](../20-client/10-pytest-fixtures.md) for the public fixture API, or [Quickstart](../getting-started/10-quickstart.md) to run your first lab-backed test.
 
 For consumers integrating via `neops-worker-sdk-py`, that repo owns the `remote_lab_fixture` consumer surface.
 
@@ -182,116 +207,22 @@ No `sudo`, no password prompt — ideal for CI.
 
 ---
 
-## 4. – Cisco IOL images (optional)
+## 4. – Pick a router/switch image to run
 
-`netlab` supports [Cisco IOL (IOS on Linux)](https://github.com/hellt/vrnetlab/tree/master/cisco/iol) via
-Containerlab. These images run fast and light — ideal for routing/switching labs.
+Once `netlab test clab` passes, you have a working lab host that can boot
+the open-source [FRR](https://netlab.tools/platforms/frr/) image out of
+the box. For everything else — open-source vendor stacks like
+[Nokia SR Linux](https://netlab.tools/platforms/srlinux/), licensed
+images like [Cisco IOL](https://netlab.tools/platforms/cisco_iol/), or
+adding any other Netlab-supported platform — see the dedicated
+[Vendors & images](30-vendor-images.md) guide.
 
-!!! warning "License restriction"
-    You need to provide the Cisco IOL binary files yourself, as they are not freely distributable.
-
-### Images in zebbra quay.io
-
-On the [zebbra quay.io registry](https://quay.io/repository/zebbra/neops-labs/cisco_iol) you can find the cisco_iol images.
-
-To clone them to your local machine, run:
-
-```bash
-docker pull quay.io/zebbra/neops-labs/cisco_iol:17.15.01
-docker pull quay.io/zebbra/neops-labs/cisco_iol:L2-17.15.01
-```
-
-!!! note
-    These images are built from the same source as the `vrnetlab` images, but are pre-built and ready to use.
-
-### Build the images
-
-First clone vrnetlab.
-
-!!! note
-    Make sure to use the [fork](https://github.com/hellt/vrnetlab/) compatible with containerlabs and not the original repo.
-
-```bash
-# 1. Clone the vrnetlab repository
-git clone ssh://github.com/hellt/vrnetlab.git
-
-# 2. Place Cisco IOL binary in build directory
-cp x86_64_crb_linux-adventerprisek9-ms.iol \
-   vrnetlab/cisco/iol/cisco_iol-17.15.01.bin
-
-cp x86_64_crb_linux-adventerprisek9-ms-l2.iol \
-   vrnetlab/cisco/iol/cisco_iol-L2-17.15.01.bin
-```
-
-!!! note
-    The `.bin` extension is required.
-
-```bash
-# 3. Build the Docker images
-cd vrnetlab/cisco/iol
-make docker-image
-```
-
-### Check the images
-
-```bash
-docker images --format '{{.Repository}}:{{.Tag}}'
-```
-
-Expected output:
-
-```text
-vrnetlab/cisco_iol:17.15.01
-vrnetlab/cisco_iol:L2-17.15.01
-```
+The vendor page covers when each platform is the right call, the FRR
+limitations to know about before you commit, the SR Linux setup (free,
+public registry, no license), the Cisco IOL build path (license
+required), and a generic recipe for adding any other Netlab platform.
 
 ---
-
-### Set image defaults in Netlab
-
-```bash
-cat > ~/.netlab.yml << 'EOF'
----
-device: iol
-devices.iol:
-  clab.image: "vrnetlab/cisco_iol:17.15.01"
-devices.ioll2:
-  clab.image: "vrnetlab/cisco_iol:L2-17.15.01"
-EOF
-```
-
-!!! note
-    Setting `device: iol` makes it the **default device type** — **optional**.
-    You can override this per-topology.
-
-### Verify image config
-
-```bash
-netlab show images
-```
-
-You should see:
-
-```text
-iol     → vrnetlab/cisco_iol:17.15.01
-ioll2   → vrnetlab/cisco_iol:L2-17.15.01
-```
-
----
-
-### Test your IOL lab
-
-Create a simple IOL lab file `topology.yml` in a directory of your choice, e.g., `~/iol-lab/`:
-
-```yaml
----
-provider: clab
-defaults.device: iol
-module: [ ospf ]
-
-nodes: [ r1, r2 ]
-links: [ r1, r2, r1-r2 ]
-```
 
 ## Troubleshooting Cheatsheet
 
@@ -301,7 +232,6 @@ links: [ r1, r2, r1-r2 ]
 | Wrong or missing image             | `netlab show images`                                                        |
 | `netlab up` asks for sudo password | Ensure `containerlab` runs without sudo, and you're in the right groups     |
 | `pip install` errors with `externally-managed-environment` | PEP 668 is blocking system pip on Ubuntu 24.04+; install via `pipx install networklab` instead (see §1 pipx warning) |
-| Forward link to `testing-framework.md` is broken | The old page was split into [Pytest fixtures](../client/10-pytest-fixtures.md) and [Quickstart](../getting-started/10-quickstart.md); update references to point at those |
 
 You now have a **fully rootless, scriptable Netlab setup** that works cleanly in CI and without passwords or privilege
 escalation.

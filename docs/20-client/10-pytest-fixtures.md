@@ -222,28 +222,11 @@ With the plugin:     test_a(lab1), test_c(lab1), test_b(lab2)
 ## End-to-end example
 
 ```python title="tests/conftest.py" linenums="1"
-from neops_remote_lab.testing.fixture import remote_lab_fixture
-
-frr_lab = remote_lab_fixture(
-    "tests/topologies/frr.yml",
-    reuse_lab=True,
-)
+--8<-- "examples/pytest_fixtures/conftest.py"
 ```
 
 ```python title="tests/test_frr_ospf.py" linenums="1"
-def test_two_routers_present(frr_lab):
-    names = sorted(d.name for d in frr_lab)
-    assert names == ["r1", "r2"]
-
-
-def test_devices_reported_by_netlab(frr_lab):
-    # `d.raw` is the full `netlab inspect` dict for each node.
-    assert all(d.raw for d in frr_lab)
-
-
-def test_device_names_are_stable(frr_lab):
-    # reuse_lab=True means this test shares the lab from the previous two.
-    assert {d.name for d in frr_lab} == {"r1", "r2"}
+--8<-- "examples/pytest_fixtures/test_frr_ospf.py"
 ```
 
 Run the whole file:
@@ -256,7 +239,7 @@ pytest tests/test_frr_ospf.py -v
 !!! success "Expected output (abbreviated)"
     ```
     tests/test_frr_ospf.py::test_two_routers_present PASSED
-    tests/test_frr_ospf.py::test_devices_have_management_ips PASSED
+    tests/test_frr_ospf.py::test_devices_reported_by_netlab PASSED
     tests/test_frr_ospf.py::test_device_names_are_stable PASSED
     3 passed
     ```
@@ -283,8 +266,8 @@ downstream consumers.
 
 - [RemoteLabClient reference](20-python-client.md) — the HTTP client the
   fixtures wrap.
-- [Lab lifecycle](../concepts/30-lab-lifecycle.md) — reference counting and reuse semantics
+- [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting and reuse semantics
   (relevant when `reuse_lab=True`).
-- [Topology format](../concepts/40-topology-format.md) — what to put in the `.yml` file.
-- [Configuration](../server/20-configuration.md) — environment variables that the
+- [Topology format](../10-concepts/40-topology-format.md) — what to put in the `.yml` file.
+- [Configuration](../30-server/20-configuration.md) — environment variables that the
   `remote_lab_client` fixture reads.

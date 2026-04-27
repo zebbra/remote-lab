@@ -12,10 +12,10 @@ Only one lab runs per host, so only one client can drive it at a time. The
 session queue is the mechanism that decides who goes next, and it is the only
 thing standing between well-behaved cooperation and a deadlocked test suite.
 
-> **Why a queue and not a mutex?** Netlab topologies take minutes to bring up.
-> Holding a kernel mutex for that long would block every health check and
-> status poll. The queue lets clients poll their own status at whatever cadence
-> they choose while only one client at a time drives Netlab.
+> **Why a queue?** Netlab topologies take minutes to bring up. A queue lets a
+> waiting client poll for its turn at whatever cadence it likes — and lets the
+> server keep answering health checks and status requests for everyone else —
+> while only one client at a time actually drives Netlab.
 
 ## The state machine
 
@@ -39,7 +39,7 @@ ACTIVE session (if any), and the rest are WAITING in insertion order.
 `POST /session` generates a UUID, appends it to the queue, and immediately
 invokes the promotion helper. If the queue was empty the new session is
 promoted to ACTIVE before the response returns; otherwise it stays WAITING at
-position `len(queue) - 1`.
+the tail of the queue and the response reports its position.
 
 ```bash
 curl -s -X POST http://$LAB_HOST:8000/session
@@ -52,16 +52,15 @@ curl -s -X POST http://$LAB_HOST:8000/session
 Position 0 means ACTIVE. Any higher number is the number of sessions ahead of
 you in line.
 
-## Promotion is strict FIFO
+## Promotion order
 
 <!-- trace: neops_remote_lab/server.py:185 -->
-`_promote_if_needed` walks the queue head and promotes only the first WAITING
-session. The queue order is never rearranged: if a client three places back
-gets impatient and `DELETE`s its session, that slot is removed without
-affecting anyone else's position.
+The queue head moves forward by one when the current ACTIVE session releases.
+If a client three places back gets impatient and `DELETE`s its session, that
+slot is removed without rearranging anyone else's position.
 
-> **Why strict FIFO?** Any priority scheme needs a reason to prefer one test
-> over another. None of the consumer projects — most importantly
+> **Why no priority scheme?** A priority queue needs a reason to prefer one
+> test over another. None of the consumer projects — most importantly
 > `neops-worker-sdk-py` — surface that intent to the server, so the server
 > doesn't try to guess. First-come, first-served is the only fair default.
 
@@ -81,7 +80,7 @@ exists (404 if unknown), which is why a client can heartbeat while still
 WAITING in the queue. See [The heartbeat](#the-heartbeat) below for why
 that matters.
 
-!!! danger "423 Locked is the only auth"
+!!! danger "ACTIVE-session gating is the only access control"
     This is the sole access boundary on the lab surface. There is no Bearer
     token, no mTLS, no tenant header. Run the server behind a VPN or on a
     trusted internal network — treat an exposed port as equivalent to giving
@@ -158,14 +157,8 @@ HTTP/1.1 204 No Content
 
 ## Polling from a client's perspective
 
-```bash
-SESSION=$(curl -s -X POST http://$LAB_HOST:8000/session | jq -r .session_id)
-
-while true; do
-    STATUS=$(curl -s "http://$LAB_HOST:8000/session/$SESSION" | jq -r .status)
-    [[ $STATUS == "active" ]] && break
-    sleep 5
-done
+```bash title="examples/curl/poll_until_active.sh"
+--8<-- "examples/curl/poll_until_active.sh"
 ```
 
 Expected sequence during a busy queue:
@@ -177,8 +170,7 @@ Expected sequence during a busy queue:
 ```
 
 `RemoteLabClient` does this automatically with exponential backoff on
-retriable errors. See [remote-lab-client.md](../client/20-python-client.md) when it
-lands.
+retriable errors. See [RemoteLabClient](../20-client/20-python-client.md).
 
 ## Common pitfalls
 
@@ -195,7 +187,7 @@ lands.
 
 ## Where to go next
 
-- [lab-lifecycle.md](30-lab-lifecycle.md) — what happens after promotion:
+- [Lab lifecycle](30-lab-lifecycle.md) — what happens after promotion:
   uploading a topology, reuse semantics, and release.
-- [architecture.md](10-architecture.md) — how this queue sits inside the broader
+- [Architecture](10-architecture.md) — how this queue sits inside the broader
   server + client topology.

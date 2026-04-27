@@ -28,16 +28,7 @@ some links. Here is the smallest useful starting point — two FRR routers on
 one link:
 
 ```yaml title="minimal_frr.yml"
-provider: clab
-defaults:
-  device: frr
-
-nodes:
-  r1:
-  r2:
-
-links:
-  - r1-r2
+--8<-- "examples/topologies/minimal_frr.yml"
 ```
 
 Expected Netlab output on `netlab up`:
@@ -77,9 +68,11 @@ slot.
 
 ## Supported providers
 
-Netlab supports multiple providers. `neops-remote-lab` has been exercised
-primarily with **Containerlab** via `provider: clab`, which is what every
-shipped integration test uses.
+Netlab supports
+[multiple providers](https://netlab.tools/labs/) — Containerlab,
+libvirt/KVM, VirtualBox, external. `neops-remote-lab` has been exercised
+primarily with **[Containerlab](https://containerlab.dev/)** via
+`provider: clab`, which is what every shipped integration test uses.
 
 ```yaml
 provider: clab
@@ -91,17 +84,26 @@ supports will run — but container-based labs are what this project is built
 and validated against. If you stray, expect to maintain your own host
 provisioning.
 
-## Vendor defaults: Cisco IOL vs FRRouting
+## Vendor defaults: which device to use
 
-Multi-vendor topologies pick their device kind with the `device:` key, either
-globally under `defaults:` or per-node. The two vendors you will see in
-neops repos are Cisco IOL and FRRouting. **They are different devices with
-different configuration syntax — never conflate them.**
+Multi-vendor topologies pick their device kind with the `device:` key,
+either globally under `defaults:` or per-node. The three you will see most
+in neops repos are listed below. **They are different devices with
+different configuration semantics — never conflate them.**
 
-| Kind | Netlab key | Typical image | Use when |
+| Kind | Netlab key | Image source | Use when |
 |---|---|---|---|
-| Cisco IOL | `device: cisco_iol` | `vrnetlab/cisco_iol` | You need IOS-style CLI for worker-SDK integration tests. |
-| FRRouting | `device: frr` | `frrouting/frr` | You need an open-source router with BGP/OSPF for protocol tests. |
+| [FRRouting](https://netlab.tools/platforms/frr/) | `device: frr` | `frrouting/frr` (Docker Hub) | Protocol tests (BGP/OSPF/IS-IS). Open-source, no license, fast boot. The default for CI. |
+| [Nokia SR Linux](https://netlab.tools/platforms/srlinux/) | `device: srlinux` | `ghcr.io/nokia/srlinux` (GHCR) | Real vendor NOS without a license fee. YANG/gNMI-driven config, EVPN, SR-MPLS. |
+| [Cisco IOL](https://netlab.tools/platforms/cisco_iol/) | `device: cisco_iol` | `vrnetlab/cisco_iol` (built locally) | IOS-style CLI for function blocks targeting Cisco. **Cisco license required.** |
+
+For setup details, FRR limitations, the SR Linux quickstart, the Cisco
+IOL build, and the recipe for adding any other Netlab-supported platform,
+see [Vendors & images](../40-deployment/30-vendor-images.md). The
+authoritative per-platform reference is the
+[Netlab platform list](https://netlab.tools/platforms/) for the Netlab
+view and [Containerlab kinds](https://containerlab.dev/manual/kinds/) for
+the container-runtime view.
 
 Example per-node selection:
 
@@ -109,21 +111,22 @@ Example per-node selection:
 provider: clab
 
 nodes:
-  edge1:
-    device: cisco_iol
-  core1:
+  spine1:
+    device: srlinux
+  leaf1:
     device: frr
 
 links:
-  - edge1-core1
+  - leaf1-spine1
 ```
 
 !!! info "Pre-built fixtures live in consumer repos"
     The README mentions `simple_iol` and `simple_frr` fixtures. Those are
-    conventions defined by downstream consumers (most notably
-    `neops-worker-sdk-py` test suites), not fixtures shipped from this
-    repository. If your project needs them, see the consuming project's
-    test directory for canonical topology files to copy.
+    conventions defined by downstream consumers (most notably the
+    [`neops-worker-sdk-py`](https://github.com/zebbra/neops-worker-sdk-py)
+    test suites), not fixtures shipped from this repository. If your
+    project needs them, see the consuming project's test directory for
+    canonical topology files to copy.
 
 ## The multipart upload contract
 
@@ -132,7 +135,7 @@ The `POST /lab` endpoint is `multipart/form-data` with three form fields:
 | Field | Type | Required | Purpose |
 |---|---|---|---|
 | `topology` | file | yes | The `.yml` topology. Uploaded filename is preserved in the workdir. |
-| `reuse` | string | no (defaults to true) | `"true"` opts into reuse if the content hash matches the running lab. See [lab-lifecycle.md](30-lab-lifecycle.md). |
+| `reuse` | string | no (defaults to true) | `"true"` opts into reuse if the content hash matches the running lab. See [Lab lifecycle](30-lab-lifecycle.md). |
 | `extra_files` | file (repeated) | no | Additional files written alongside the topology before Netlab runs. |
 
 ### extra_files: bringing supporting files with the topology
@@ -224,7 +227,7 @@ saves a queue slot.
 
 ## Where to go next
 
-- [lab-lifecycle.md](30-lab-lifecycle.md) — what the server does with the
+- [Lab lifecycle](30-lab-lifecycle.md) — what the server does with the
   topology after upload: SHA hashing, reuse detection, reference counting.
-- [netlab_configuration.md](../deployment/10-netlab-host-setup.md) — installing and
+- [Netlab host setup](../40-deployment/10-netlab-host-setup.md) — installing and
   configuring Netlab on the lab host itself.
