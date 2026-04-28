@@ -38,7 +38,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Security audit (production dependencies only)
-        run: uv run pip-audit --strict --progress-spinner=off --vulnerability-service osv
+        run: make audit
 
       - name: Run tests
         run: uv run pytest
