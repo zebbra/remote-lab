@@ -1,5 +1,11 @@
 # Neops Remote Lab
 
+[![PyPI](https://img.shields.io/pypi/v/neops-remote-lab.svg)](https://pypi.org/project/neops-remote-lab/)
+[![Python](https://img.shields.io/badge/python-3.12+-blue)](https://pypi.org/project/neops-remote-lab/)
+[![CI](https://github.com/zebbra/remote-lab/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/zebbra/remote-lab/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-neops.io-blue)](https://docs.neops.io/neops-remote-lab/docs/)
+[![Status: developer preview](https://img.shields.io/badge/status-developer--preview-orange)](#)
+
 > [!IMPORTANT]
 > **Developer Preview Disclaimer**
 >
@@ -8,12 +14,6 @@
 > reserved in the interim. We encourage you to explore the code, experiment with it,
 > and share your feedback via issues or discussions. Use of this software is at your
 > own risk and provided "as-is" without warranty.
-
-[![PyPI](https://img.shields.io/pypi/v/neops-remote-lab.svg)](https://pypi.org/project/neops-remote-lab/)
-[![Python](https://img.shields.io/pypi/pyversions/neops-remote-lab.svg)](https://pypi.org/project/neops-remote-lab/)
-[![CI](https://github.com/zebbra/remote-lab/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/zebbra/remote-lab/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-neops.io-blue)](https://docs.neops.io/neops-remote-lab/docs/)
-[![Status: developer preview](https://img.shields.io/badge/status-developer--preview-orange)](#)
 
 *A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.*
 
