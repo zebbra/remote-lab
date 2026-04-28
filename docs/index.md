@@ -8,9 +8,29 @@ crosslink_references: []
 
 # Neops Remote Lab
 
-*A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.*
+*A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — drive it from a pytest11 plugin (Python), the bundled [REST API](30-server/40-rest-api.md) (any stack), or both.*
 
-`neops-remote-lab` fronts a Netlab host with a small HTTP service and a pytest fixture. Every test asks for a session, waits in a FIFO queue, gets the lab, then tears it down when the last consumer walks away.
+`neops-remote-lab` fronts a Netlab host with a small HTTP service and a pytest fixture. Every consumer asks for a session, waits in a FIFO queue, gets the lab, and tears it down when the last consumer walks away. Topologies are identified by their SHA-256 content hash, so byte-identical files share the running lab — and FRR, Nokia SR Linux, and Cisco IOL all work out of the box.
+
+=== "uv (recommended)"
+
+    ```bash
+    uv add neops-remote-lab
+    ```
+
+=== "Poetry"
+
+    ```bash
+    poetry add neops-remote-lab
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install neops-remote-lab
+    ```
+
+[On PyPI](https://pypi.org/project/neops-remote-lab/) · [Source](https://github.com/zebbra/remote-lab) · [Worker SDK uses it as a stable contract](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)
 
 <!-- trace: neops_remote_lab/server.py:390 -->
 <!-- trace: neops_remote_lab/netlab/lab_manager.py:43 -->
