@@ -9,13 +9,7 @@
 > [!IMPORTANT]
 > **Developer Preview Disclaimer**
 >
-> This repository is an early-stage developer preview and is not production-ready.
->
-> While we are currently finalizing an open-source friendly license, all rights are reserved in the interim.
->
-> We encourage you to explore the code, experiment with it, and share your feedback via issues or discussions.
->
-> Use of this software is at your own risk and provided "as-is" without warranty.
+> *This repository is an early-stage developer preview and is not production-ready. While we are currently finalizing an open-source friendly license, all rights are reserved in the interim. We encourage you to explore the code, experiment with it, and share your feedback via issues or discussions. Use of this software is at your own risk and provided "as-is" without warranty.*
 
 *A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.*
 
