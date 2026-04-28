@@ -51,11 +51,7 @@ def is_file_dirty(filename):
 
     # 2. Check if we are inside a Git repository
     # rev-parse returns 0 if inside a repo, non-zero otherwise
-    is_git = subprocess.run(
-        ["git", "rev-parse", "--is-inside-work-tree"],
-        capture_output=True,
-        text=True
-    )
+    is_git = subprocess.run(["git", "rev-parse", "--is-inside-work-tree"], capture_output=True, text=True)
     if is_git.returncode != 0:
         return False
 
@@ -66,6 +62,7 @@ def is_file_dirty(filename):
 
     # Check the returncode. Non-zero indicates a difference (dirty file)
     return result.returncode != 0
+
 
 def read_file(file_name):
     with open(file_name) as f:
@@ -88,11 +85,8 @@ def merge_mkdocs_yml():
     if not is_file_dirty(MKDOCS_RES):
         write_file(
             MKDOCS_RES,
-            RES_HEADER
-            + yaml.dump(yaml_res)
-            .replace("tag:yaml.org,2002:", "!!")
-            .replace("'!relative'", "!relative"),
-            )
+            RES_HEADER + yaml.dump(yaml_res).replace("tag:yaml.org,2002:", "!!").replace("'!relative'", "!relative"),
+        )
     else:
         raise Exception(f"{MKDOCS_RES} is dirty, stage or commit first")
 
@@ -112,11 +106,40 @@ def ensure_docs_dir():
         shutil.copytree(MKDOCS_DOCS_TEMPLATE, "docs")
 
 
+# Files under docs_template/ that are *managed* by this pipeline — they get
+# pushed into every project's docs/ tree on every setup run, overwriting any
+# local copy. Use this for shared styling / assets that should stay in sync
+# across all neops projects (e.g. content-tab CSS).
+#
+# Project-specific overrides should live under a different filename so they
+# aren't clobbered (e.g. docs/assets/project-extra.css, with both files
+# referenced from extra_css in the project's mkdocs_custom.yml).
+MANAGED_DOCS_ASSETS = [
+    "assets/extra.css",
+]
+
+
+def sync_managed_docs_assets():
+    """
+    Copy each MANAGED_DOCS_ASSETS file from docs_template/ into the project's
+    docs/ tree, creating any missing parent directories. Runs unconditionally
+    so existing projects pick up upstream styling fixes via `make doc-update-assets`.
+    """
+    for rel_path in MANAGED_DOCS_ASSETS:
+        src = os.path.join(MKDOCS_DOCS_TEMPLATE, rel_path)
+        dst = os.path.join("docs", rel_path)
+        if not os.path.exists(src):
+            # Defensive: skip silently if the upstream template doesn't ship
+            # this asset (e.g. older release before the file was added).
+            continue
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy(src, dst)
+        print(f"++ Synced managed asset: {dst}")
+
+
 def is_ignored_by_git(path):
     # Use git check-ignore command to see if the path is ignored
-    result = subprocess.run(
-        ["git", "check-ignore", path], capture_output=True, text=True
-    )
+    result = subprocess.run(["git", "check-ignore", path], capture_output=True, text=True)
 
     # If the result's stdout is not empty, the path is ignored
     return result.stdout != ""
@@ -191,6 +214,7 @@ def main():
     ensure_mkdocs_custom()
     merge_mkdocs_yml()
     ensure_docs_dir()
+    sync_managed_docs_assets()
     create_symlinks()
 
 

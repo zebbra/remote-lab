@@ -14,6 +14,8 @@ extra:
   - icon: fontawesome/solid/house
     link: https://zebbra.ch
     name: Zebbra
+extra_css:
+- assets/extra.css
 hooks:
 - .make_scripts/mkdocs-documentation/hooks/inline_nav_include.py
 - .make_scripts/mkdocs-documentation/hooks/fix_symlinks.py
@@ -31,8 +33,6 @@ markdown_extensions:
       name: mermaid
 - pymdownx.inlinehilite
 - pymdownx.snippets:
-    auto_append:
-    - includes/abbreviations.md
     base_path:
     - !relative
     check_paths: true
@@ -46,14 +46,16 @@ markdown_extensions:
 - md_in_html
 - pymdownx.tabbed:
     alternate_style: true
-- def_list
+- attr_list
+- md_in_html
+- pymdownx.tasklist:
+    custom_checkbox: true
+- abbr
 - smarty
 - pymdownx.smartsymbols
 - pymdownx.magiclink
 - pymdownx.betterem
-- pymdownx.tasklist:
-    custom_checkbox: true
-- abbr
+- def_list
 nav:
 - Start: index.md
 - Get started:
@@ -136,6 +138,8 @@ theme:
   - navigation.indexes
   - navigation.sections
   - navigation.tabs
+  - navigation.tabs.sticky
+  - navigation.path
   - navigation.top
   - navigation.tracking
   - navigation.instant
@@ -143,8 +147,6 @@ theme:
   - search.suggest
   - search.highlight
   - content.action.edit
-  - navigation.tabs.sticky
-  - navigation.path
   - toc.follow
   logo: assets/logo.svg
   name: material

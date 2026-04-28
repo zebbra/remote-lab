@@ -1,29 +1,11 @@
 site_name: Neops Remote Lab
 
-# Append extra extensions on top of the base set.
-#
-# Interaction:
-#   - pymdownx.tabbed: content tabs (`=== "Label"`) — install/runner/vendor walkthroughs.
-#   - def_list: term/definition lists — glossary, REST endpoint fields.
-#   - pymdownx.tasklist: visible checklists in test plans / first-PR.
-#   - abbr: abbreviation tooltips (REST, FIFO, ACL, NOS, ...).
-#
-# Typographic refinement (the elegance layer):
-#   - smarty: curly quotes, em-dashes (---), en-dashes (--), ellipses (...).
-#   - pymdownx.smartsymbols: arrows (-->, <==), registered/copyright marks.
-#   - pymdownx.magiclink: bare URLs in prose render as live links.
-#   - pymdownx.betterem: cleaner bold/italic edge cases.
+# Project-only extensions on top of the canonical base
+# (zebbra/mkdocs-documentation/assets/mkdocs_base.yml). Everything else
+# the docs use — tabs, tasklist, abbr, smarty, smartsymbols, magiclink,
+# betterem — is now part of the base and applies site-wide.
 markdown_extensions:
-  - pymdownx.tabbed:
-      alternate_style: true
-  - def_list
-  - smarty
-  - pymdownx.smartsymbols
-  - pymdownx.magiclink
-  - pymdownx.betterem
-  - pymdownx.tasklist:
-      custom_checkbox: true
-  - abbr
+  - def_list  # glossary entries + REST endpoint fields
 
 nav:
   - Start: index.md
@@ -81,14 +63,9 @@ nav:
 
 # --8<-- [start:theme]
 theme:
-  # Append theme features on top of the base set:
-  #   - navigation.tabs.sticky: top tabs stick when scrolling.
-  #   - navigation.path: breadcrumb path on every page.
-  #   - toc.follow: right-side TOC scroll-syncs with the reading position.
-  features:
-    - navigation.tabs.sticky
-    - navigation.path
-    - toc.follow
+  # Sticky top tabs, breadcrumb path, and toc.follow are now in the
+  # canonical base (zebbra/mkdocs-documentation). Only project-specific
+  # palette overrides live here.
   # Dark and light mode, defaults to system theme
   palette:
     - media: "(prefers-color-scheme)"
