@@ -27,6 +27,30 @@ This page is the five-command happy path: a [Headscale](https://headscale.net/) 
 - **Network egress** to reach client devices.
 - A clone of this repository. The Compose file and config templates live under `headscale/`.
 
+## Bootstrap: generate the cookie secret
+
+`headscale/headplane.config.yaml` ships with a placeholder `cookie_secret: "CHANGE_ME_GENERATE_RANDOM_SECRET"`. Headplane refuses to start until you replace it with a real 32-character value. The one-liner below generates a fresh random secret and substitutes it into the file:
+
+```bash
+sed -i.bak "s/CHANGE_ME_GENERATE_RANDOM_SECRET/$(openssl rand -hex 16)/" \
+  headscale/headplane.config.yaml \
+  && rm headscale/headplane.config.yaml.bak
+```
+
+Run this **once per clone**. The command is idempotent in the sense that re-running it after the placeholder is gone is a no-op (sed finds no match). Verify:
+
+```bash
+grep cookie_secret headscale/headplane.config.yaml
+```
+
+You should see your random hex string, not the `CHANGE_ME...` placeholder.
+
+!!! tip "macOS / BSD `sed` users"
+    The `-i.bak` form works on both GNU and BSD `sed` — that's why the redundant `.bak` extension and explicit `rm` are there. Don't simplify to `-i ''` unless you're sure it's GNU.
+
+!!! danger "**Demo-grade secret hygiene only**"
+    The bootstrap above gives every developer their own random secret per clone — fine for local dev and lab use. **For shared / production deployments**, store the secret outside the repo: drop it in a sealed-secret store (Vault, SOPS-encrypted file, your CI's secrets store) and template it in at deploy time. Cookies signed with a leaked secret can be forged by anyone who has it.
+
 ## What you'll deploy
 
 <!-- trace: headscale/docker-compose.yml:32-33 -->
