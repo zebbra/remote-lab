@@ -27,7 +27,13 @@ audit:
 	# `--no-dev` requirements first scopes the scan to what actually ships.
 	# Use `make audit-dev` to scan the dev environment as well.
 	uv export --no-dev --no-emit-project --format requirements-txt -o /tmp/neops-remote-lab-prod-reqs.txt
-	uv run pip-audit -r /tmp/neops-remote-lab-prod-reqs.txt \
+	# `--disable-pip --no-deps --skip-editable` keeps pip-audit from
+	# trying to spin up an internal venv to resolve the requirements
+	# file. Runners without `python3.12-venv` (e.g. our hetzner image)
+	# fail without these flags. The exported requirements already pin
+	# every package, so resolution is unnecessary.
+	uv run pip-audit --disable-pip --no-deps --skip-editable \
+		-r /tmp/neops-remote-lab-prod-reqs.txt \
 		--strict --progress-spinner=off --vulnerability-service osv
 
 audit-dev:
