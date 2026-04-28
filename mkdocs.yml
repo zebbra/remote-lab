@@ -16,6 +16,8 @@ extra:
     name: Zebbra
 extra_css:
 - assets/extra.css
+extra_javascript:
+- assets/extra.js
 hooks:
 - .make_scripts/mkdocs-documentation/hooks/inline_nav_include.py
 - .make_scripts/mkdocs-documentation/hooks/fix_symlinks.py
@@ -40,10 +42,6 @@ markdown_extensions:
 - pymdownx.emoji:
     emoji_generator: !!python/name:material.extensions.emoji.to_svg
     emoji_index: !!python/name:material.extensions.emoji.twemoji
-- pymdownx.tabbed:
-    alternate_style: true
-- attr_list
-- md_in_html
 - pymdownx.tabbed:
     alternate_style: true
 - attr_list
