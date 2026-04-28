@@ -15,26 +15,49 @@
 [![Docs](https://img.shields.io/badge/docs-neops.io-blue)](https://docs.neops.io/neops-remote-lab/docs/)
 [![Status: developer preview](https://img.shields.io/badge/status-developer--preview-orange)](#)
 
-A FastAPI service plus pytest plugin that gives multiple developers and CI runners
-**exclusive, queue-brokered access to one shared [Netlab](https://netlab.tools/) host**.
-Tests on your laptop or runner connect over HTTP, wait their turn in a FIFO queue,
-run against real virtual devices (FRR, Nokia SR Linux, Cisco IOL), and tear down
-cleanly when the last consumer walks away — no per-developer Containerlab install,
-no host-level race conditions, no manual cleanup.
+*A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — FIFO scheduling, content-hash-keyed lab reuse, reference-counted teardown, multi-vendor support (FRR, Nokia SR Linux, Cisco IOL).*
+
+*Drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.*
+
+[On PyPI](https://pypi.org/project/neops-remote-lab/) · [Docs](https://docs.neops.io/neops-remote-lab/docs/) · [Worker SDK consumes it as a stable contract](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)
 
 ## Install
 
-```bash
-pip install neops-remote-lab
-# or
-uv add neops-remote-lab
-```
+For the **Python client / pytest fixture** (library install):
 
-For the runnable server CLI, prefer an isolated install:
+=== "uv (recommended)"
 
-```bash
-uv tool install neops-remote-lab   # or `pipx install neops-remote-lab`
-```
+    ```bash
+    uv add neops-remote-lab
+    ```
+
+=== "Poetry"
+
+    ```bash
+    poetry add neops-remote-lab
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install neops-remote-lab
+    ```
+
+For the **runnable server CLI** (isolated install):
+
+=== "uv (recommended)"
+
+    ```bash
+    uv tool install neops-remote-lab
+    ```
+
+=== "pipx"
+
+    ```bash
+    pipx install neops-remote-lab
+    ```
+
+> Picking between the two? Library install is what most consumers want — it gives you the pytest fixture and `RemoteLabClient`. CLI install is for operators standing up the server itself.
 
 ## Quick start
 
