@@ -21,6 +21,9 @@ doc-build:
 	uv run --project $(MKDOCS_ENV) mkdocs build
 	uv run --project $(MKDOCS_ENV) python $(MKDOCS_ENV)/clean_sites_directory.py
 
+doc-setup:
+	uv run --project $(MKDOCS_ENV) python $(MKDOCS_ENV)/setup_documentation.py
+
 doc-build-docker:
 	docker build --file $(MKDOCS_ENV)/Dockerfile --build-context git=.git -t $(PROJECT_NAME)-docs .
 

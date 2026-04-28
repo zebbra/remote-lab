@@ -1,0 +1,55 @@
+/* ─────────────────────────────────────────────────────────────────
+ * Tabbed content (pymdownx.tabbed with alternate_style: true)
+ *
+ * Adds a subtle container, a distinct label-row background, and a
+ * shaded content area so each tab group reads as a single visual unit.
+ * Without this, content tabs visually bleed into surrounding prose.
+ * ───────────────────────────────────────────────────────────────── */
+
+.md-typeset .tabbed-set {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: .4rem;
+  margin: 1.4em 0;
+  overflow: hidden;
+  background: var(--md-default-bg-color);
+}
+
+.md-typeset .tabbed-set > .tabbed-labels {
+  display: flex;
+  background: var(--md-code-bg-color);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset .tabbed-set > .tabbed-labels > label {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  opacity: .55;
+  padding: .65rem 1.1rem;
+  font-size: .82rem;
+  transition: opacity .15s ease;
+}
+
+.md-typeset .tabbed-set > .tabbed-labels > label:hover {
+  opacity: .8;
+}
+
+/* Active tab — selected label gets full opacity and an indicator line. */
+.md-typeset .tabbed-set > input:checked + label {
+  opacity: 1;
+  color: var(--md-accent-fg-color);
+}
+
+/* Tab content area — slightly inset so tab boundary is unambiguous. */
+.md-typeset .tabbed-set > .tabbed-content {
+  padding: .9rem 1.2rem;
+}
+
+/* Dark mode polish — the lightest fg color is too pale on dark; nudge. */
+[data-md-color-scheme="slate"] .md-typeset .tabbed-set {
+  border-color: var(--md-default-fg-color--lighter);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .tabbed-set > .tabbed-labels {
+  border-bottom-color: var(--md-default-fg-color--lighter);
+}

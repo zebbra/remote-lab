@@ -11,6 +11,10 @@ theme:
     - navigation.indexes
     - navigation.sections
     - navigation.tabs
+    # Top tabs stay visible while scrolling.
+    - navigation.tabs.sticky
+    # Breadcrumb path under the top tabs on every page.
+    - navigation.path
     - navigation.top
     - navigation.tracking
     - navigation.instant
@@ -18,8 +22,17 @@ theme:
     - search.suggest
     - search.highlight
     - content.action.edit
+    # Right-side TOC scroll-syncs with the reading position.
+    - toc.follow
   logo: assets/logo.svg
   favicon: assets/favicon.png
+
+# Shared styling — extra.css is a "managed asset" copied into each project's
+# docs/assets/ on every `make doc-update-assets` cycle (see
+# setup_documentation.py::sync_managed_docs_assets). Project-specific styling
+# should live in a separate file referenced alongside this one.
+extra_css:
+  - assets/extra.css
 
 hooks:
   - .make_scripts/mkdocs-documentation/hooks/inline_nav_include.py
@@ -43,10 +56,6 @@ markdown_extensions:
       # Make the build fail if a snippet can't be found.
       check_paths: true
       restrict_base_path: false
-      # auto_append: include abbreviations.md on every page so `*[X]: ...`
-      # tooltips work site-wide without per-page boilerplate.
-      auto_append:
-        - includes/abbreviations.md
       # https://github.com/mkdocs/mkdocs/issues/2154
       # https://github.com/mkdocs/mkdocs/issues/3453
       base_path:
@@ -62,8 +71,19 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tabbed:
+      alternate_style: true
   - attr_list
   - md_in_html
+  # Interaction features
+  - pymdownx.tasklist:      # visible checklist boxes
+      custom_checkbox: true
+  - abbr                    # *[ACL]: ... tooltips on hover
+  # Typographic refinement
+  - smarty                  # 'curly' / "quotes", em-dashes (---), en-dashes (--), …
+  - pymdownx.smartsymbols   # --> → / <== ⇐ / (c) (r) (tm)
+  - pymdownx.magiclink      # bare URLs render as live links
+  - pymdownx.betterem       # cleaner bold/italic edge-case parsing
 # --8<-- [end:markdown_extensions]
 
 # --8<-- [start:plugins]
