@@ -190,7 +190,7 @@ quickly, exploring topology shapes. It's the wrong shape when:
 
 - **More than one developer or CI job needs the lab.** The one-server-
   per-host invariant means a second developer cannot run their own server
-  on your machine; a shared VM (with [Headscale VPN](../40-deployment/20-headscale-quick-setup.md)
+  on your machine; a shared VM (with [Headscale VPN](../40-deployment/30-headscale-quick-setup.md)
   in front of it) is the multi-user shape.
 - **You need the lab to outlive your shell session.** Local-dev assumes
   you stop the server when you stop working. A long-lived service belongs
@@ -217,5 +217,5 @@ change on the consumer side.
   reference, including stale-lock recovery, the security posture you sign
   up for, and the systemd unit if you want the server to come back after
   reboot.
-- **[Headscale VPN](../40-deployment/20-headscale-quick-setup.md)** — when local
+- **[Headscale VPN](../40-deployment/30-headscale-quick-setup.md)** — when local
   is no longer enough, the recommended VPN enclosure for a shared host.

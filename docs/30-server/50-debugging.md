@@ -22,7 +22,7 @@ Grep this page when something breaks — for any client, in any language. Sympto
 | `423 Locked` on `POST /lab` only | Lab is busy with a different topology | The client retries every 5 s automatically. If you cannot wait, see "Lab stuck busy" below. |
 | `404 Not Found` on `GET /session/{id}` | Session expired (heartbeat or queue timeout) | Create a new session. See [Stale-session eviction](../10-concepts/20-session-queue.md#stale-session-eviction) for the timeouts. |
 | Lab stuck busy on every request | A previous session did not release | Force-destroy with `DELETE /lab?force=true` using an active `X-Session-ID`, or restart the server. See [Administration → Forced cleanup](10-administration.md#forced-cleanup-of-a-stuck-lab). |
-| Containers unreachable from the test | VPN or routing problem | Confirm Tailscale/Headscale is up; check `network_mode: host` in the topology; review firewall rules. See [Headscale VPN](../40-deployment/20-headscale-quick-setup.md). |
+| Containers unreachable from the test | VPN or routing problem | Confirm Tailscale/Headscale is up; check `network_mode: host` in the topology; review firewall rules. See [Headscale VPN](../40-deployment/30-headscale-quick-setup.md). |
 | Connection refused on `$REMOTE_LAB_URL` | Server not running, wrong host, or VPN down | `curl $REMOTE_LAB_URL/healthz` should return 204. If it errors, fix transport before continuing. |
 
 For the operator's view of the same symptom space (stale filelocks, port

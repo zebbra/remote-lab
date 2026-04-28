@@ -41,7 +41,7 @@ Function blocks target real device behaviour. The vendor matters:
 - **Function blocks that parse vendor-specific CLI output** (Cisco show-output formats, Junos config blocks) — Cisco IOL or Juniper vSRX. License required.
 - **Function blocks driving YANG / gNMI** — Nokia SR Linux. Free under EULA; container-only.
 
-For the decision tree, see [Topology format → Vendor defaults](../10-concepts/40-topology-format.md#vendor-defaults-which-device-to-use). For per-vendor install walkthroughs, see [Vendor setup](../40-deployment/40-vendor-setup.md).
+For the decision tree, see [Topology format → Vendor defaults](../10-concepts/40-topology-format.md#vendor-defaults-which-device-to-use). For per-vendor install walkthroughs, see [Vendor setup](../40-deployment/20-vendor-setup.md).
 
 ## Multi-vendor function-block tests
 

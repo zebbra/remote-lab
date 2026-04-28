@@ -127,16 +127,16 @@ For peer-project terminology (Function Block, Worker, Workflow, Provider, Blackb
 :   Netlab's default provider (`provider: clab`); pulls vendor NOS containers and wires them.
 
 **[FRR](https://frrouting.org/)**
-:   Open-source software router; the default `device:` in most topologies. See [Vendor setup](../40-deployment/40-vendor-setup.md) (FRR tab).
+:   Open-source software router; the default `device:` in most topologies. See [Vendor setup](../40-deployment/20-vendor-setup.md) (FRR tab).
 
 **[Nokia SR Linux](https://learn.srlinux.dev/)**
-:   Container-native vendor NOS, free under Nokia EULA. See [Vendor setup](../40-deployment/40-vendor-setup.md) (Nokia SR Linux tab).
+:   Container-native vendor NOS, free under Nokia EULA. See [Vendor setup](../40-deployment/20-vendor-setup.md) (Nokia SR Linux tab).
 
 **[Cisco IOL](https://netlab.tools/platforms/cisco_iol/)**
-:   IOS-on-Linux, license required. See [Vendor setup](../40-deployment/40-vendor-setup.md) (Cisco IOL tab).
+:   IOS-on-Linux, license required. See [Vendor setup](../40-deployment/20-vendor-setup.md) (Cisco IOL tab).
 
 **[Headscale](https://headscale.net/)**
-:   Self-hosted Tailscale control plane; the recommended enclosure for the no-auth lab service. See [Headscale VPN](../40-deployment/20-headscale-quick-setup.md).
+:   Self-hosted Tailscale control plane; the recommended enclosure for the no-auth lab service. See [Headscale VPN](../40-deployment/30-headscale-quick-setup.md).
 
 **[Headplane](https://github.com/tale/headplane)**
 :   Web UI for Headscale.
@@ -145,7 +145,7 @@ For peer-project terminology (Function Block, Worker, Workflow, Provider, Blackb
 :   The mesh VPN whose protocol Headscale implements.
 
 **Subnet router**
-:   A Tailscale node advertising lab subnet routes to the rest of the mesh — typically the lab host itself. See [Headscale VPN → Quick setup](../40-deployment/20-headscale-quick-setup.md#register-the-lab-host-as-a-subnet-router).
+:   A Tailscale node advertising lab subnet routes to the rest of the mesh — typically the lab host itself. See [Headscale VPN → Quick setup](../40-deployment/30-headscale-quick-setup.md#register-the-lab-host-as-a-subnet-router).
 
 ---
 

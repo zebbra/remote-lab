@@ -1,77 +1,65 @@
 ---
-title: Deploy & Operate
-description: Stand up the lab host plus the VPN enclosure around it — Netlab + Containerlab installation, Headscale + Headplane with Docker Compose, and client enrollment.
+title: Set up a host
+description: Configure a single Linux host so the Remote Lab service can run on it — install rootless Netlab + Containerlab, pick the device images you'll boot, and enclose the host in a network boundary. Then hand off to "Run the service".
 tags: [how-to, deployment, operator]
 crosslink_defines: []
 crosslink_references: []
 ---
 
-# Deploy & Operate
+# Set up a host
 
-*Stand up the lab host plus a network enclosure around it. Three install guides plus a vendor-image walkthrough; pick the path that matches your scale.*
+*Stand up the lab platform on one Linux host: rootless Netlab + Containerlab, the device images you'll boot, and a network boundary around it. When the host is ready, **[Run the service](../30-server/index.md)** installs and starts `neops-remote-lab` on top of it.*
 
-Three bring-up guides cover a fresh Remote Lab host end-to-end: install
-and configure rootless [Netlab](https://netlab.tools/) +
-[Containerlab](https://containerlab.dev/), enclose the host in a
-network boundary so clients and CI can reach lab subnets without
-exposing the server, and decide which router/switch images to ship.
+## What you're standing up
 
-The VPN guides walk **one opinionated path** — self-hosted
-[Headscale](https://headscale.net/) + [Headplane](https://github.com/tale/headplane) —
-because that's what the project's reference deployment uses. Any
-equivalent enclosure works (managed Tailscale, WireGuard, IP allowlists,
-mTLS at a reverse proxy); see
-[Other approaches](20-headscale-quick-setup.md#other-approaches) on the
-quick-setup page for when each fits.
+A Remote Lab host has **three components** — two run on the host, one wraps around it:
 
-Follow the install guides in order — the Netlab side boots the actual
-labs; the network side gives you the private reachability the Remote
-Lab Manager's `X-Session-ID`-only access boundary relies on for safety.
-The vendor page is reference material you can hop into any time you need
-to add a new device kind.
+| | Component | Lives | Where it's set up |
+|---|---|---|---|
+| :material-server-network: | **Lab platform** &mdash; [Netlab](https://netlab.tools/) + [Containerlab](https://containerlab.dev/) + device images | on the host | **this section** &mdash; phases 2, 3 |
+| :material-shield-lock: | **Network boundary** &mdash; VPN, VLAN, or reverse-proxy gate | around the host | **this section** &mdash; phase 4 |
+| :material-rocket-launch: | **Service** &mdash; `neops-remote-lab`, the FastAPI server that drives the platform | on the host | **[Run the service](../30-server/index.md)** &mdash; next section |
 
-## In this section
+Peers reach the service only through the boundary — the service ships [without HTTP authentication](../30-server/30-security.md), so the network *is* the access control.
 
-<div class="grid cards" markdown>
+```mermaid
+%%{init: {'theme':'neutral', 'flowchart': {'useMaxWidth': true, 'htmlLabels': true, 'curve': 'basis'}}}%%
+flowchart LR
+    P([Peer<br/>laptop · CI runner])
+    subgraph Host[Lab host]
+        direction TB
+        S["<b>Service</b> · neops-remote-lab<br/><i>next section</i>"]
+        L["<b>Lab platform</b> · Netlab + Containerlab + images<br/><i>this section</i>"]
+        S -- drives --> L
+    end
+    P -- "Network boundary &mdash; VPN · VLAN · proxy gate" --> S
+```
 
--   :material-map-marker-path:{ .lg .middle } &nbsp; **[Pick a deployment](05-pick-deployment.md)**
+This section configures the **lab platform** and the **network boundary** — the host prerequisites the service will run on. **Setting up a host is four phases done once per box**: pick the deployment shape, install the lab tooling, choose your device images, enclose the host in a network boundary.
 
-    ---
+## The four phases
 
-    Decision tree for the four deployment shapes — local laptop, single shared VM, multi-tenant lab, CI runner pool. Routes you to the right starting point.
+1.  **[Decide your shape](05-pick-deployment.md)** — local laptop / single shared VM / multi-tenant lab / CI runner pool. Each shape routes to a different starting guide and a different effort budget.
 
--   :material-server-network:{ .lg .middle } &nbsp; **[Netlab host](10-netlab-host-setup.md)**
+2.  **[Install lab tooling](10-netlab-host-setup.md)** — rootless [Netlab](https://netlab.tools/) + [Containerlab](https://containerlab.dev/) on Ubuntu 24.04+, validated with `netlab test clab`. The hard part is the rootless wiring; the guide walks it step by step.
 
-    ---
+3.  **[Pick device images](20-vendor-setup.md)** — FRR for free, Nokia SR Linux for container-native, Cisco IOL via [vrnetlab](https://github.com/hellt/vrnetlab) when you need IOS. Or any vendor [Netlab](https://netlab.tools/platforms/) supports — the page covers the generic recipe too.
 
-    Install `networklab` on Ubuntu 24.04+, configure rootless Containerlab with `clab_admins` + setuid, stop netlab from wrapping Containerlab in `sudo`, validate with `netlab test clab`.
+4.  **Enclose the host in a network boundary.** Two threads:
 
--   :material-shield-lock:{ .lg .middle } &nbsp; **[Headscale: quick](20-headscale-quick-setup.md)**
+    -   **[Network access](25-network-enclosure.md)** is the family of options — self-hosted Headscale, managed mesh VPN services (Tailscale, NetBird, ZeroTier, Twingate, …), plain WireGuard, network-layer ACLs, application-layer mTLS. Read it first if you haven't already picked a path; **your own VPN solution is fine** — the lab service is unaware of which boundary surrounds it.
+    -   **[Headscale quick start](30-headscale-quick-setup.md)** is the five-command happy path for the option this project ships docs for. Follow it if you want the recommended path; otherwise the [Network access](25-network-enclosure.md) page lists what's the same regardless. ([Headscale reference](40-headscale-reference.md) covers ACLs, OIDC, and troubleshooting once the tailnet is up.)
 
-    ---
+When the host is ready, install and start the service: **[Run the service →](../30-server/index.md)**.
 
-    Five-command happy path through the project's recommended enclosure — [Headscale](https://headscale.net/) + [Headplane](https://github.com/tale/headplane) via Docker Compose, the lab host as a subnet router, one client peer reaching the lab subnet. **Alternatives in the page's [Other approaches](20-headscale-quick-setup.md#other-approaches) section.**
+## What this section produces
 
--   :material-network-pos:{ .lg .middle } &nbsp; **[Headscale reference](30-headscale-reference.md)**
+When you finish, the host has:
 
-    ---
+- [x] `netlab` and `containerlab` running rootless under your user
+- [x] The vendor device images you need pulled or built locally
+- [x] A network boundary (VPN tailnet, internal VLAN, or reverse-proxy gate) around the lab host
+- [x] Clients (laptops, CI runners) reaching the lab subnet through that boundary
+- [x] `X-Session-ID`-only access to the service — the boundary *is* the security perimeter
 
-    Configuration surface for a deployed Headscale tailnet — ACL configuration, user and pre-auth key management, system settings, troubleshooting, and the full command summary.
-
--   :material-router-network:{ .lg .middle } &nbsp; **[Vendor setup](40-vendor-setup.md)**
-
-    ---
-
-    Per-vendor install walkthroughs — FRR auto-pull, Nokia SR Linux image pin, Cisco IOL [vrnetlab](https://github.com/hellt/vrnetlab) build. Decision tree lives in [Topology format](../10-concepts/40-topology-format.md#vendor-defaults-which-device-to-use).
-
-</div>
-
-## What to read next
-
-- **[Operator runbook](../30-server/10-administration.md)** — install the
-  `neops-remote-lab` service itself once the host is ready, including
-  the recommended `systemd` unit and the stale-lock recovery runbook.
-- **[Configuration](../30-server/20-configuration.md)** — server CLI flags
-  (`--host`, `--port`, `--debug`) and client environment variables.
-- **[REST API](../30-server/40-rest-api.md)** — the HTTP surface now
-  protected by the tailnet.
+`neops-remote-lab` itself is **not yet installed** at this point. That happens in **[Run the service → Operator runbook](../30-server/10-administration.md)**: install via `uv` or `pipx`, run under `systemd`, recover from stale locks.
