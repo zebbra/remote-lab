@@ -78,13 +78,16 @@ nav:
   - Security model: 30-server/30-security.md
   - REST API: 30-server/40-rest-api.md
   - Debugging: 30-server/50-debugging.md
-- Deploy & Operate:
-  - Deploy & Operate: 40-deployment/index.md
+- Set up a host:
+  - Set up a host: 40-deployment/index.md
   - Pick a deployment: 40-deployment/05-pick-deployment.md
-  - Netlab host: 40-deployment/10-netlab-host-setup.md
-  - 'Headscale: quick': 40-deployment/20-headscale-quick-setup.md
-  - Headscale reference: 40-deployment/30-headscale-reference.md
-  - Vendor setup: 40-deployment/40-vendor-setup.md
+  - Lab platform:
+    - Netlab host: 40-deployment/10-netlab-host-setup.md
+    - Vendor setup: 40-deployment/20-vendor-setup.md
+  - Networking:
+    - Network access: 40-deployment/25-network-enclosure.md
+    - Headscale Quick start: 40-deployment/30-headscale-quick-setup.md
+    - Headscale Reference: 40-deployment/40-headscale-reference.md
 - Concepts:
   - Concepts: 10-concepts/index.md
   - Three-minute tour: 10-concepts/05-tour.md

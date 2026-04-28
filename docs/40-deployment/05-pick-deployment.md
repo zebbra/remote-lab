@@ -13,17 +13,17 @@ crosslink_references: []
 | Scenario | Path | Setup time |
 |---|---|---|
 | **Local laptop dev** — one developer, no shared lab, no enclosure | [Run locally](../getting-started/20-local.md) | ~10 minutes |
-| **Single shared VM** (small team) | [Netlab host](10-netlab-host-setup.md) → systemd ([Operator runbook](../30-server/10-administration.md)) → [Headscale: quick](20-headscale-quick-setup.md) | ~1 hour |
-| **Multi-tenant lab** (large team / multiple sites) | [Netlab host](10-netlab-host-setup.md) → systemd + reverse proxy → [Headscale reference](30-headscale-reference.md) for ACLs | 2–3 hours |
-| **CI runner pool** | [Wire into CI](../getting-started/40-ci.md) → subnet routing for the runners ([Headscale reference](30-headscale-reference.md), or any equivalent VPN) | ~30 minutes once a host exists |
+| **Single shared VM** (small team) | [Netlab host](10-netlab-host-setup.md) → systemd ([Operator runbook](../30-server/10-administration.md)) → [Headscale quick start](30-headscale-quick-setup.md) | ~1 hour |
+| **Multi-tenant lab** (large team / multiple sites) | [Netlab host](10-netlab-host-setup.md) → systemd + reverse proxy → [Headscale reference](40-headscale-reference.md) for ACLs | 2–3 hours |
+| **CI runner pool** | [Wire into CI](../getting-started/40-ci.md) → subnet routing for the runners ([Headscale reference](40-headscale-reference.md), or any equivalent VPN) | ~30 minutes once a host exists |
 
-The shared-VM and multi-tenant rows assume the project's recommended Headscale enclosure. **Any equivalent network boundary works** — managed Tailscale, WireGuard, internal-only VLAN with IP allowlists, mTLS at a reverse proxy. See [Headscale: quick → Other approaches](20-headscale-quick-setup.md#other-approaches) before committing.
+The shared-VM and multi-tenant rows assume the project's recommended Headscale enclosure. **Any equivalent network boundary works** — managed Tailscale, NetBird, ZeroTier, plain WireGuard, internal VLAN with IP allowlists, mTLS at a reverse proxy. See [Network access](25-network-enclosure.md) for the family of options before committing.
 
 ## When each shape is the right call
 
 <div class="grid cards" markdown>
 
--   :material-laptop:{ .lg .middle } &nbsp; **Local laptop**
+-   :material-laptop:{ .lg .middle } &nbsp; **[Local laptop](../getting-started/20-local.md)**
 
     ---
 
@@ -31,15 +31,19 @@ The shared-VM and multi-tenant rows assume the project's recommended Headscale e
 
     Server runs in your terminal, foreground. Stop it when you stop working. No VPN, no lock recovery, no shared queue. Containerlab is greedy with CPU; offload to a VM when laptop heat or other-people's-tests start to matter.
 
--   :material-server:{ .lg .middle } &nbsp; **Single shared VM**
+    [Run locally :material-arrow-right:](../getting-started/20-local.md)
+
+-   :material-server:{ .lg .middle } &nbsp; **[Single shared VM](10-netlab-host-setup.md)**
 
     ---
 
     *Small team, one lab host, occasional contention.*
 
-    Single instance under `systemd` on a dedicated VM. **Network enclosure** so the team's laptops and CI runners can reach the lab subnet — Headscale is the path we ship docs for, but any VPN/IP-allowlist scheme works. The default deployment shape; covers everything up to maybe a dozen developers.
+    Single instance under `systemd` on a dedicated VM. **Network enclosure** so the team's laptops and CI runners can reach the lab subnet — Headscale is the path we ship docs for, but any VPN or VLAN works equally well. The default deployment shape; covers everything up to maybe a dozen developers.
 
--   :material-server-network:{ .lg .middle } &nbsp; **Multi-tenant lab**
+    [Netlab host setup :material-arrow-right:](10-netlab-host-setup.md)
+
+-   :material-server-network:{ .lg .middle } &nbsp; **[Multi-tenant lab](40-headscale-reference.md#acl-configuration)**
 
     ---
 
@@ -47,13 +51,17 @@ The shared-VM and multi-tenant rows assume the project's recommended Headscale e
 
     Same `systemd`-managed instance, plus reverse proxy (TLS), and **ACLs restricting subnet access by user/tag** (Headscale ACLs in our reference deployment; any equivalent policy plane fits). The lab queue serializes contention; the ACL restricts who can queue at all. **Still one process per host** — the one-server invariant doesn't change.
 
--   :material-cog-sync:{ .lg .middle } &nbsp; **CI runner pool**
+    [ACL configuration :material-arrow-right:](40-headscale-reference.md#acl-configuration)
+
+-   :material-cog-sync:{ .lg .middle } &nbsp; **[CI runner pool](../getting-started/40-ci.md)**
 
     ---
 
     *Automated tests against an existing host.*
 
     Runners need **subnet-route access to the lab host** (tailnet membership in the Headscale path; equivalent on whichever enclosure you picked) and the four `REMOTE_LAB_*` env vars. Set queue tuning per concurrency. The host itself is one of the three shapes above.
+
+    [Wire into CI :material-arrow-right:](../getting-started/40-ci.md)
 
 </div>
 
@@ -79,8 +87,12 @@ Every deployment shares the load-bearing parts:
 ## See also
 
 - **[Netlab host](10-netlab-host-setup.md)** — install Netlab + Containerlab rootless. Prerequisite for every deployment except "Local laptop" running on a dev's machine.
-- **[Headscale: quick](20-headscale-quick-setup.md)** — five-command Headscale + Headplane setup; also lists the alternatives (managed Tailscale, WireGuard, IP allowlists, mTLS).
-- **[Headscale reference](30-headscale-reference.md)** — ACLs, OIDC, troubleshooting (Headscale-specific).
+- **[Vendor setup](20-vendor-setup.md)** — pick the device images you'll boot (FRR, SR Linux, Cisco IOL, …).
+- **[Network access](25-network-enclosure.md)** — the family of network boundary options. Read this if you're not committed to Headscale.
+- **[Headscale quick start](30-headscale-quick-setup.md)** — five-command Headscale + Headplane setup, the opinionated path.
+- **[Headscale reference](40-headscale-reference.md)** — ACLs, OIDC, troubleshooting (Headscale-specific).
 - **[Operator runbook](../30-server/10-administration.md)** — install via uv/pipx, run under `systemd`, recover from stale locks.
 - **[Security model](../30-server/30-security.md)** — what the X-Session-ID gate protects against and what it doesn't.
 - **[Wire into CI](../getting-started/40-ci.md)** — runner pipeline shapes and queue-tuning pointers.
+
+Next: **[Run the service →](../30-server/index.md)** once you've worked through the install path your shape requires.

@@ -10,6 +10,9 @@ crosslink_references: []
 
 *Install, foreground-launch, healthz — thirty seconds below. Then runbook, knobs, security model, REST contract, and debugging in the pages that follow.*
 
+!!! info "Stand up a host first"
+    This section installs and operates the `neops-remote-lab` service. It assumes the host already has rootless Netlab + Containerlab, the device images you'll boot, and a network boundary around it. If any of that's missing, work through **[Set up a host](../40-deployment/index.md)** first — it covers the four phases (decide your shape, install lab tooling, pick device images, enclose the host) in order.
+
 ## 30-second start
 
 !!! info "Have Netlab installed?"
@@ -120,5 +123,5 @@ It's now waiting for `POST /session`.
 - **[Architecture](../10-concepts/10-architecture.md)** — why the service is shaped the way it is; the three cooperating components; the one-server-per-host and one-lab-per-host invariants.
 - **[Session queue](../10-concepts/20-session-queue.md)** — the FIFO model that the `X-Session-ID` access boundary enforces.
 - **[Netlab host setup](../40-deployment/10-netlab-host-setup.md)** — must be complete before the server will start; the launcher exits if `netlab` is not on `PATH`.
-- **[Headscale: quick](../40-deployment/20-headscale-quick-setup.md)** — the recommended VPN enclosure for the internal-trust HTTP surface (alternatives in the page's *Other approaches* section).
+- **[Headscale quick start](../40-deployment/30-headscale-quick-setup.md)** — the recommended VPN enclosure for the internal-trust HTTP surface (alternatives in the page's *Other approaches* section).
 - **[Wire into CI](../getting-started/40-ci.md)** — wire the service into GitHub Actions, GitLab CI, or Jenkins.

@@ -281,4 +281,4 @@ Remember: **only one operator should be doing this at a time**. The Netlab
 - **[Security model](30-security.md)** — the threat model the operational guidance above is built on top of.
 - **[Architecture](../10-concepts/10-architecture.md)** — where the single-instance + one-lab invariants come from.
 - **[Session queue](../10-concepts/20-session-queue.md)** — FIFO semantics and 423 Locked flow.
-- **[Headscale: quick setup](../40-deployment/20-headscale-quick-setup.md)** — the recommended VPN enclosure (alternatives in the page's *Other approaches* section).
+- **[Headscale quick start](../40-deployment/30-headscale-quick-setup.md)** — the recommended VPN enclosure (alternatives in the page's *Other approaches* section).

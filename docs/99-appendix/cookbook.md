@@ -203,4 +203,4 @@ Recipes that don't exist yet but would help. Open a PR if you have a good one:
 - **[Python client](../20-client/20-python-client.md)** — the API the Python (no-pytest) recipes consume.
 - **[Drive from cURL](../getting-started/30-curl.md)** — the cURL recipes are alternate entry points to the same six-call lifecycle.
 - **[Topology format](../10-concepts/40-topology-format.md)** — the YAML shape the topology recipes follow.
-- **[Vendor setup](../40-deployment/40-vendor-setup.md)** — the per-vendor install walkthroughs the topology recipes assume.
+- **[Vendor setup](../40-deployment/20-vendor-setup.md)** — the per-vendor install walkthroughs the topology recipes assume.

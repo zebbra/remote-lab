@@ -14,8 +14,8 @@ The Remote Lab Manager refuses to start without `netlab` on `PATH`. This
 page is the **prerequisite for everything else in deployment**: install
 [Netlab](https://netlab.tools/) and [Containerlab](https://containerlab.dev/)
 rootless on Ubuntu, validate the install with `netlab test clab`, then
-move on to [Vendor setup](40-vendor-setup.md) (per-vendor install walkthroughs)
-and [Headscale: quick setup](20-headscale-quick-setup.md) (how clients
+move on to [Vendor setup](20-vendor-setup.md) (per-vendor install walkthroughs)
+and [Headscale quick start](30-headscale-quick-setup.md) (how clients
 reach the lab).
 
 ---
@@ -219,7 +219,7 @@ No `sudo`, no password prompt — ideal for CI.
 
 ## 4. – Pick a router/switch image to run
 
-Once `netlab test clab` passes, the host can boot the open-source [FRR](https://netlab.tools/platforms/frr/) image out of the box. For deciding **which** vendor fits your tests (FRR vs SR Linux vs Cisco IOL, with limitations and trade-offs), see [Topology Format → Vendor defaults](../10-concepts/40-topology-format.md#vendor-defaults-which-device-to-use). For the install walkthroughs (image pull, license setup, vrnetlab build), see [Vendor setup](40-vendor-setup.md).
+Once `netlab test clab` passes, the host can boot the open-source [FRR](https://netlab.tools/platforms/frr/) image out of the box. For deciding **which** vendor fits your tests (FRR vs SR Linux vs Cisco IOL, with limitations and trade-offs), see [Topology Format → Vendor defaults](../10-concepts/40-topology-format.md#vendor-defaults-which-device-to-use). For the install walkthroughs (image pull, license setup, vrnetlab build), see [Vendor setup](20-vendor-setup.md).
 
 ---
 
@@ -234,3 +234,5 @@ Once `netlab test clab` passes, the host can boot the open-source [FRR](https://
 
 You now have a **fully rootless, scriptable Netlab setup** that works cleanly in CI and without passwords or privilege
 escalation.
+
+Next: **[Vendor setup →](20-vendor-setup.md)** to pick the device images you'll boot, then **[Network enclosure →](25-network-enclosure.md)** to put a security boundary around the host. Once both are done: **[Run the service →](../30-server/index.md)**.

@@ -79,7 +79,7 @@ Multi-vendor topologies pick their device kind with the `device:` key, either gl
     - CI defaults — no license, fastest boot
     - No vendor CLI semantics (don't grep for IOS strings)
 
-    [Setup →](../40-deployment/40-vendor-setup.md) &middot; [netlab.tools/frr](https://netlab.tools/platforms/frr/)
+    [Setup →](../40-deployment/20-vendor-setup.md) &middot; [netlab.tools/frr](https://netlab.tools/platforms/frr/)
 
 -   :material-shield-network:{ .lg .middle } &nbsp; **Nokia SR Linux**
 
@@ -91,7 +91,7 @@ Multi-vendor topologies pick their device kind with the `device:` key, either gl
     - EVPN, segment routing, DC fabrics
     - Container-only, ~1 GB RAM per node
 
-    [Setup →](../40-deployment/40-vendor-setup.md) &middot; [netlab.tools/srlinux](https://netlab.tools/platforms/srlinux/)
+    [Setup →](../40-deployment/20-vendor-setup.md) &middot; [netlab.tools/srlinux](https://netlab.tools/platforms/srlinux/)
 
 -   :material-router-network:{ .lg .middle } &nbsp; **Cisco IOL**
 
@@ -103,7 +103,7 @@ Multi-vendor topologies pick their device kind with the `device:` key, either gl
     - [Worker SDK function blocks](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/) targeting Cisco
     - vrnetlab build path; license overhead
 
-    [Setup →](../40-deployment/40-vendor-setup.md) &middot; [netlab.tools/cisco_iol](https://netlab.tools/platforms/cisco_iol/)
+    [Setup →](../40-deployment/20-vendor-setup.md) &middot; [netlab.tools/cisco_iol](https://netlab.tools/platforms/cisco_iol/)
 
 </div>
 
@@ -159,7 +159,7 @@ Netlab supports many more platforms — the full list is on [netlab.tools/platfo
 
 Before adding any of these, check the platform page on netlab.tools for the module-support matrix — not every protocol module works on every platform.
 
-For per-vendor install walkthroughs (image pull, license setup, vrnetlab build), see [Vendor setup](../40-deployment/40-vendor-setup.md).
+For per-vendor install walkthroughs (image pull, license setup, vrnetlab build), see [Vendor setup](../40-deployment/20-vendor-setup.md).
 
 ### Example: per-node selection
 
@@ -286,5 +286,5 @@ saves a queue slot.
 ## Where to go next
 
 - [Lab Lifecycle](30-lab-lifecycle.md) — what the server does with the topology after upload: SHA hashing, reuse detection, reference counting.
-- [Vendor setup](../40-deployment/40-vendor-setup.md) — per-vendor install walkthroughs (FRR auto-pull, SR Linux pin, Cisco IOL build).
+- [Vendor setup](../40-deployment/20-vendor-setup.md) — per-vendor install walkthroughs (FRR auto-pull, SR Linux pin, Cisco IOL build).
 - [Netlab host setup](../40-deployment/10-netlab-host-setup.md) — installing and configuring Netlab on the lab host itself.

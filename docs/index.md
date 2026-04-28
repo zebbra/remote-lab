@@ -135,7 +135,7 @@ Pick the route that matches your current question.
     [Architecture](10-concepts/10-architecture.md) → [Session Queue](10-concepts/20-session-queue.md) → [Lab Lifecycle](10-concepts/30-lab-lifecycle.md) → [Topology Format](10-concepts/40-topology-format.md). Every invariant the system enforces and why.
 
 !!! info "Standing up the host — you are deploying the service"
-    [Netlab host setup](40-deployment/10-netlab-host-setup.md) → [Headscale: quick setup](40-deployment/20-headscale-quick-setup.md) → [Operator runbook](30-server/10-administration.md) → [Configuration](30-server/20-configuration.md). Install Netlab, enclose the host in a private tailnet, configure and operate the server.
+    [Netlab host setup](40-deployment/10-netlab-host-setup.md) → [Headscale quick start](40-deployment/30-headscale-quick-setup.md) → [Operator runbook](30-server/10-administration.md) → [Configuration](30-server/20-configuration.md). Install Netlab, enclose the host in a private tailnet, configure and operate the server.
 
 !!! info "Wiring in a new client — you are integrating a consumer"
     [REST API](30-server/40-rest-api.md) → [Python Client](20-client/20-python-client.md) → [Pytest Fixtures](20-client/10-pytest-fixtures.md). The API reference is authoritative; the Python client is a thin wrapper; the fixture is the stable consumer surface.
@@ -152,6 +152,6 @@ Pick the route that matches your current question.
 - [Netlab](https://netlab.tools/) — the upstream lab orchestrator this service wraps. Authoritative reference for topology YAML, providers, and vendor kinds.
 - [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) — the primary consumer; imports `remote_lab_fixture` as a stable API ([integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)).
 - [Containerlab](https://containerlab.dev/) — the container runtime Netlab drives by default in this project (`provider: clab`).
-- [Headscale](https://headscale.net/) — the open-source Tailscale control plane used for the recommended VPN enclosure ([deployment guide](40-deployment/20-headscale-quick-setup.md)).
+- [Headscale](https://headscale.net/) — the open-source Tailscale control plane used for the recommended VPN enclosure ([deployment guide](40-deployment/30-headscale-quick-setup.md)).
 - [Material for MkDocs reference](https://squidfunk.github.io/mkdocs-material/reference/) and [pymdown-extensions Snippets](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/) — theme and extension docs backing this site.
 - Project [`README.md`](https://github.com/zebbra/remote-lab/blob/develop/README.md) and [`AGENTS.md`](https://github.com/zebbra/remote-lab/blob/develop/AGENTS.md) — repository-level conventions, invariants, and agent context.
