@@ -13,7 +13,7 @@ crosslink_references: [remote-lab]
 Run the Remote Lab Manager on your laptop on `localhost:8000`. Foreground process; install once, start when you want a lab, `Ctrl+C` when you don't.
 
 !!! tip "Wrong page?"
-    Already have a Remote Lab Manager you can reach? Skip this and use [Quickstart](10-pytest.md) directly. Standing up a multi-user shared host? Jump to [Administration](../30-server/10-administration.md).
+    Already have a Remote Lab Manager you can reach? Skip this and use [Quickstart](10-pytest.md) directly. Standing up a multi-user shared host? Jump to [Operator runbook](../30-server/10-administration.md).
 
 !!! info "Before you start"
     - **Ubuntu 22.04+** (or another Linux with rootless Docker). macOS works for the *client* side but not the *server* — Containerlab and Netlab need Linux.
@@ -213,7 +213,7 @@ change on the consumer side.
 - **[Architecture](../10-concepts/10-architecture.md)** — the high-level
   picture of how the local server is structured (it's the same server you
   would run on a shared host; only the network topology differs).
-- **[Administration](../30-server/10-administration.md)** — the operator
+- **[Operator runbook](../30-server/10-administration.md)** — the operator
   reference, including stale-lock recovery, the security posture you sign
   up for, and the systemd unit if you want the server to come back after
   reboot.

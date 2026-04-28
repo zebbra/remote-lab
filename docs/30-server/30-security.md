@@ -65,7 +65,7 @@ If a future requirement demands real auth, the right shape is to *replace* `X-Se
 
 ## See also
 
-- **[Headscale VPN — Quick setup](../40-deployment/20-headscale-quick-setup.md)** — the recommended VPN enclosure in five commands; the page's [Other approaches](../40-deployment/20-headscale-quick-setup.md#other-approaches) section covers managed Tailscale, WireGuard, IP allowlists, and mTLS at a reverse proxy.
+- **[Headscale: quick setup](../40-deployment/20-headscale-quick-setup.md)** — the recommended VPN enclosure in five commands; the page's [Other approaches](../40-deployment/20-headscale-quick-setup.md#other-approaches) section covers managed Tailscale, WireGuard, IP allowlists, and mTLS at a reverse proxy.
 - **[REST API](40-rest-api.md)** — the contract table that the gate enforces.
 - **[Session Queue](../10-concepts/20-session-queue.md)** — the FIFO state machine ACTIVE-only gating sits on top of.
 - **[Invariants → X-Session-ID is the only access boundary](../50-contributing/20-invariants.md#x-session-id-is-the-only-access-boundary-on-lab)** — the rule, in the contributor's voice.

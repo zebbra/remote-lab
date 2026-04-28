@@ -55,6 +55,8 @@ graph TD
     LabMgr --> Models
 ```
 
+*Import direction; only `connector.py` shells out to the `netlab` CLI.*
+
 Direction-of-import matters here:
 
 - **`__main__.py`** owns the CLI, logging setup, single-instance file lock, and the pre-flight check that `netlab` is on `PATH`. It imports `server.app` and hands it to Uvicorn.

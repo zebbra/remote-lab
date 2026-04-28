@@ -1,5 +1,5 @@
 ---
-title: Lab Lifecycle
+title: Lab lifecycle
 description: How LabManager identifies topologies by SHA-256, reference-counts concurrent reuse, and tears labs down on release, topology switch, or interpreter exit.
 tags: [concept, server, lifecycle, testing]
 crosslink_defines: []
@@ -64,6 +64,8 @@ flowchart TD
     q5 -- yes --> switch["teardown → _start → return"]
     q5 -- no --> busy2["return None"]
 ```
+
+*`try_acquire` decision tree — content hash and refcount decide every branch.*
 
 ## Reuse: the refcount increments
 

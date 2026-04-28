@@ -242,7 +242,7 @@ curl -s -X DELETE "$REMOTE_LAB_URL/session/<orphaned-session-id>"
 
 - **[REST API](40-rest-api.md)** — endpoint-by-endpoint reference. The
   authoritative source for status codes and response DTOs.
-- **[Administration](10-administration.md)** — operator-side runbook
+- **[Operator runbook](10-administration.md)** — operator-side runbook
   (stale filelocks, port conflicts, `netlab` startup checks).
 - **[Session queue](../10-concepts/20-session-queue.md)** — the FIFO
   state machine behind every queue-related symptom on this page.

@@ -1,5 +1,5 @@
 ---
-title: REST API Reference
+title: REST API
 description: Endpoint-by-endpoint reference for the Remote Lab Manager HTTP surface — sessions, lab acquisition, release, devices. Contract matrix at the top; per-endpoint deep-dives in collapsible cards below.
 tags: [reference, api, server]
 crosslink_defines: []

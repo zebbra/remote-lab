@@ -1,5 +1,5 @@
 ---
-title: Pytest Fixtures
+title: Pytest fixtures
 description: The stable public API for lab-backed tests — `remote_lab_fixture` factory, the `remote_lab_client` session fixture, and the one-fixture-per-test rule.
 tags: [reference, testing, api]
 crosslink_defines: []
@@ -316,7 +316,7 @@ The fixture reads four environment variables on first use: `REMOTE_LAB_URL` (req
 
 ## See also
 
-- [RemoteLabClient reference](20-python-client.md) — the HTTP client the fixtures wrap.
-- [Configuration](30-configuration.md) — the environment variables the `remote_lab_client` fixture reads.
-- [Lab Lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting and reuse semantics (relevant when `reuse_lab=True`).
-- [Topology Format](../10-concepts/40-topology-format.md) — what to put in the `.yml` file.
+- **[RemoteLabClient reference](20-python-client.md)** — the HTTP client the fixtures wrap.
+- **[Client config](30-configuration.md)** — the environment variables the `remote_lab_client` fixture reads.
+- **[Lab lifecycle](../10-concepts/30-lab-lifecycle.md)** — reference counting and reuse semantics (relevant when `reuse_lab=True`).
+- **[Topology format](../10-concepts/40-topology-format.md)** — what to put in the `.yml` file.

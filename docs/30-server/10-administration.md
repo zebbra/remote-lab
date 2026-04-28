@@ -1,5 +1,5 @@
 ---
-title: Administration
+title: Operator runbook
 description: Operator runbook for the Remote Lab Manager — starting the server, lock recovery, troubleshooting, and security posture.
 tags: [how-to, operator, security]
 crosslink_defines: []
@@ -276,9 +276,9 @@ Remember: **only one operator should be doing this at a time**. The Netlab
 
 ## See also
 
-- [REST API](40-rest-api.md) — endpoint reference for operator scripting
-- [Configuration](20-configuration.md) — flags and environment variables
-- [Security model](30-security.md) — the threat model the operational guidance above is built on top of
-- [Architecture](../10-concepts/10-architecture.md) — where the single-instance + one-lab invariants come from
-- [Session Queue](../10-concepts/20-session-queue.md) — FIFO semantics and 423 Locked flow
-- [Headscale VPN — Quick setup](../40-deployment/20-headscale-quick-setup.md) — the recommended VPN enclosure
+- **[REST API](40-rest-api.md)** — endpoint reference for operator scripting.
+- **[Server config](20-configuration.md)** — flags and environment variables.
+- **[Security model](30-security.md)** — the threat model the operational guidance above is built on top of.
+- **[Architecture](../10-concepts/10-architecture.md)** — where the single-instance + one-lab invariants come from.
+- **[Session queue](../10-concepts/20-session-queue.md)** — FIFO semantics and 423 Locked flow.
+- **[Headscale: quick setup](../40-deployment/20-headscale-quick-setup.md)** — the recommended VPN enclosure (alternatives in the page's *Other approaches* section).

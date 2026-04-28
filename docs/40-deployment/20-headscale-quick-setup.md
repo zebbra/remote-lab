@@ -1,19 +1,19 @@
 ---
-title: Headscale VPN — Quick setup
+title: Headscale: quick setup
 description: Stand up Headscale + Headplane on the lab host with Docker Compose, register the host as a subnet router, connect one peer — the happy path in five commands.
 tags: [how-to, deployment, operator]
 crosslink_defines: []
 crosslink_references: []
 ---
 
-# Headscale VPN — Quick setup
+# Headscale: quick setup
 
 *Five-command happy path — Headscale + Headplane via Docker Compose, the lab host as a subnet router, one client peer reaching the lab subnet.*
 
 !!! info "**One opinionated path — not the only one**"
     `neops-remote-lab` ships [without HTTP authentication](../30-server/30-security.md), so deployment lives or dies on the network boundary. **What you put around it is your call.** This guide walks the path the project ships docs for: self-hosted [Headscale](https://headscale.net/) + [Headplane](https://github.com/tale/headplane) — free, audit-friendly, and what the reference deployment uses. Any equivalent enclosure works just as well — managed Tailscale, plain WireGuard, an internal VLAN with IP allowlists, mTLS at a reverse proxy. The lab service is unaware of which fence is around it. See [Other approaches](#other-approaches) for when each fits.
 
-This page is the five-command happy path: a [Headscale](https://headscale.net/) control plane, the [Headplane](https://github.com/tale/headplane) UI, the lab host as a subnet router, and one client peer that can reach the lab subnet. For ACLs, OIDC, and troubleshooting tables, see [Headscale VPN — Reference](30-headscale-reference.md).
+This page is the five-command happy path: a [Headscale](https://headscale.net/) control plane, the [Headplane](https://github.com/tale/headplane) UI, the lab host as a subnet router, and one client peer that can reach the lab subnet. For ACLs, OIDC, and troubleshooting tables, see [Headscale: reference](30-headscale-reference.md).
 
 !!! info "Placeholder convention"
     Substitute `$HEADSCALE_HOST` with your Headscale server's IP or DNS name (`export HEADSCALE_HOST=lab.example.com`) and `$LAB_SUBNET` with the IPv4 CIDR of the lab network (`export LAB_SUBNET=192.168.121.0/24`). The libvirt default is `192.168.121.0/24`; a Containerlab-only host typically uses a `172.20.20.0/24` management bridge.
@@ -150,6 +150,6 @@ If you go with one of the alternatives, the Headscale-specific commands and the 
 
 ## What to do next
 
-- **[Headscale VPN — Reference](30-headscale-reference.md)** — ACLs, user management, system settings, troubleshooting (Headscale-specific).
-- **[Administration](../30-server/10-administration.md)** — install the lab service itself behind the network enclosure you just stood up.
+- **[Headscale: reference](30-headscale-reference.md)** — ACLs, user management, system settings, troubleshooting (Headscale-specific).
+- **[Operator runbook](../30-server/10-administration.md)** — install the lab service itself behind the network enclosure you just stood up.
 - **[Security model](../30-server/30-security.md)** — what the network boundary is protecting against, and what it isn't.

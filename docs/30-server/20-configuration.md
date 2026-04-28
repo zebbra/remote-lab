@@ -103,7 +103,7 @@ Client environment variables (`REMOTE_LAB_URL` plus the three timeout overrides)
 
 ## See also
 
-- [REST API](40-rest-api.md) — endpoints served on `--host`:`--port`
-- [Administration](10-administration.md) — operator runbook
-- [Security model](30-security.md) — the threat model the `--host` recommendation above is built on top of
-- [Use from Python → Configuration](../20-client/30-configuration.md) — client environment variables
+- **[REST API](40-rest-api.md)** — endpoints served on `--host`:`--port`.
+- **[Operator runbook](10-administration.md)** — install, systemd, stale-lock recovery, stuck-lab cleanup.
+- **[Security model](30-security.md)** — the threat model the `--host` recommendation above is built on top of.
+- **[Client config](../20-client/30-configuration.md)** — client environment variables (`REMOTE_LAB_URL` and the three timeout overrides).

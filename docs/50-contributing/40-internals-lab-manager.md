@@ -63,6 +63,8 @@ flowchart TD
     q5 -- no --> busy2["return None"]
 ```
 
+*Same `try_acquire` decision tree, viewed from the LabManager internals.*
+
 ## Cross-process serialization: `GLOBAL_LOCK`
 
 The in-process singleton is one half of the one-lab guard. The other is `GLOBAL_LOCK`, a `filelock.FileLock` at `<tempdir>/netlab_pytest.lock`. Every lab operation takes this lock before touching state.

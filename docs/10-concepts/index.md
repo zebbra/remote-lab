@@ -62,5 +62,5 @@ Read these four pages in order if you want to reason about edge cases
   contract these invariants enforce.
 - **[Pytest Fixtures](../20-client/10-pytest-fixtures.md)** — how
   `remote_lab_fixture` wraps these invariants into a stable public API.
-- **[Administration](../30-server/10-administration.md)** — the operator
+- **[Operator runbook](../30-server/10-administration.md)** — the operator
   runbook that handles the failure modes these invariants allow.

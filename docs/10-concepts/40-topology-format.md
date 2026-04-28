@@ -1,5 +1,5 @@
 ---
-title: Topology Format
+title: Topology format
 description: The Netlab YAML shape neops-remote-lab expects — provider choice, node/link structure, vendor defaults, and the extra_files multipart upload contract.
 tags: [concept, testing, deployment]
 crosslink_defines: [topology]

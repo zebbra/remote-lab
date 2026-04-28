@@ -88,6 +88,8 @@ stateDiagram-v2
     ACTIVE --> ACTIVE: heartbeat (implicit)
 ```
 
+*Client states; the constructor blocks until ACTIVE; `acquire`/`release` flip into HOLDING_LAB.*
+
 The session is kept alive by server-side timers: if no request touches the
 session for 300 seconds the server marks it stale, tears down any held lab,
 and promotes the next waiter. Call `acquire`/`release`/`destroy` to reset the
@@ -287,8 +289,8 @@ Each constructor argument falls back to a corresponding environment variable:
 
 ## See also
 
-- [Pytest Fixtures](10-pytest-fixtures.md) — the preferred interface for test code.
-- [Configuration](30-configuration.md) — environment variables that drive the constructor's defaults via the fixture.
-- [Session Queue](../10-concepts/20-session-queue.md) — the FIFO model that `_wait_for_active_session` polls.
-- [Lab Lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting, SHA identity, reuse semantics.
-- [REST API](../30-server/40-rest-api.md) — every endpoint the client wraps, plus a few it doesn't.
+- **[Pytest fixtures](10-pytest-fixtures.md)** — the preferred interface for test code.
+- **[Client config](30-configuration.md)** — environment variables that drive the constructor's defaults via the fixture.
+- **[Session queue](../10-concepts/20-session-queue.md)** — the FIFO model that `_wait_for_active_session` polls.
+- **[Lab lifecycle](../10-concepts/30-lab-lifecycle.md)** — reference counting, SHA identity, reuse semantics.
+- **[REST API](../30-server/40-rest-api.md)** — every endpoint the client wraps, plus a few it doesn't.

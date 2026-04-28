@@ -20,17 +20,23 @@ Add the package to your project:
     uv add neops-remote-lab
     ```
 
+    Adds the package to your `pyproject.toml` and locks it in `uv.lock`. See the [uv docs](https://docs.astral.sh/uv/concepts/projects/dependencies/) for project workflows.
+
 === "Poetry"
 
     ```bash
     poetry add neops-remote-lab
     ```
 
+    Adds the package to your `pyproject.toml` `[tool.poetry.dependencies]` and locks it in `poetry.lock`.
+
 === "pip"
 
     ```bash
     pip install neops-remote-lab
     ```
+
+    Installs into the active virtualenv. Pin in `requirements.txt` for reproducibility.
 
 Point at your Remote Lab Manager:
 

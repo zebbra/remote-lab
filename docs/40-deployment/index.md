@@ -68,7 +68,7 @@ to add a new device kind.
 
 ## What to read next
 
-- **[Administration](../30-server/10-administration.md)** — install the
+- **[Operator runbook](../30-server/10-administration.md)** — install the
   `neops-remote-lab` service itself once the host is ready, including
   the recommended `systemd` unit and the stale-lock recovery runbook.
 - **[Configuration](../30-server/20-configuration.md)** — server CLI flags

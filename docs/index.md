@@ -1,5 +1,5 @@
 ---
-title: Remote Lab
+title: Neops Remote Lab
 description: FastAPI service exposing exclusive, queue-brokered access to a real Netlab topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.
 tags: [concept, overview]
 crosslink_defines: [remote-lab]
@@ -135,7 +135,7 @@ Pick the route that matches your current question.
     [Architecture](10-concepts/10-architecture.md) → [Session Queue](10-concepts/20-session-queue.md) → [Lab Lifecycle](10-concepts/30-lab-lifecycle.md) → [Topology Format](10-concepts/40-topology-format.md). Every invariant the system enforces and why.
 
 !!! info "Standing up the host — you are deploying the service"
-    [Netlab host setup](40-deployment/10-netlab-host-setup.md) → [Headscale VPN — Quick setup](40-deployment/20-headscale-quick-setup.md) → [Administration](30-server/10-administration.md) → [Configuration](30-server/20-configuration.md). Install Netlab, enclose the host in a private tailnet, configure and operate the server.
+    [Netlab host setup](40-deployment/10-netlab-host-setup.md) → [Headscale: quick setup](40-deployment/20-headscale-quick-setup.md) → [Operator runbook](30-server/10-administration.md) → [Configuration](30-server/20-configuration.md). Install Netlab, enclose the host in a private tailnet, configure and operate the server.
 
 !!! info "Wiring in a new client — you are integrating a consumer"
     [REST API](30-server/40-rest-api.md) → [Python Client](20-client/20-python-client.md) → [Pytest Fixtures](20-client/10-pytest-fixtures.md). The API reference is authoritative; the Python client is a thin wrapper; the fixture is the stable consumer surface.

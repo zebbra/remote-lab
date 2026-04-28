@@ -1,5 +1,5 @@
 ---
-title: Run the Service
+title: Run the service
 description: Operator-facing reference — install, start the service, run it under systemd, configure it, secure it, look up the REST contract, and debug failures.
 tags: [reference, server, operator]
 crosslink_defines: []

@@ -1,19 +1,19 @@
 ---
-title: Headscale VPN — Reference
+title: Headscale: reference
 description: ACL configuration, user and pre-auth key management, system settings, troubleshooting, and the full command summary for a deployed Headscale tailnet.
 tags: [reference, deployment, operator]
 crosslink_defines: []
 crosslink_references: []
 ---
 
-# Headscale VPN — Reference
+# Headscale: reference
 
 *Configuration surface for a deployed Headscale tailnet — ACLs, OIDC, system settings, troubleshooting, full command summary.*
 
 !!! info "**Reference for the opinionated path**"
-    This page is Headscale-specific — ACL syntax, Headplane configuration, the Compose layout we ship. If you're picking your enclosure and haven't decided yet, start at [Headscale VPN — Quick setup → Other approaches](20-headscale-quick-setup.md#other-approaches) for the family of options (managed Tailscale, WireGuard, IP allowlists, mTLS, …). The lab service is unaware of which one you pick.
+    This page is Headscale-specific — ACL syntax, Headplane configuration, the Compose layout we ship. If you're picking your enclosure and haven't decided yet, start at [Headscale: quick setup → Other approaches](20-headscale-quick-setup.md#other-approaches) for the family of options (managed Tailscale, WireGuard, IP allowlists, mTLS, …). The lab service is unaware of which one you pick.
 
-For the five-command happy path, see [Headscale VPN — Quick setup](20-headscale-quick-setup.md). This page covers the configuration surface you reach for once the tailnet is running — ACLs, user management, the Compose+config layout, troubleshooting, and a quick command summary.
+For the five-command happy path, see [Headscale: quick setup](20-headscale-quick-setup.md). This page covers the configuration surface you reach for once the tailnet is running — ACLs, user management, the Compose+config layout, troubleshooting, and a quick command summary.
 
 ## Repository layout
 
@@ -161,8 +161,8 @@ TS_ALLOW_INSECURE=1 tailscale up --login-server http://$HEADSCALE_HOST:8080 --ac
 
 ## See also
 
-- **[Headscale VPN — Quick setup](20-headscale-quick-setup.md)** — the five-command happy path.
+- **[Headscale: quick setup](20-headscale-quick-setup.md)** — the five-command happy path.
 - **[Security model](../30-server/30-security.md)** — what the tailnet is and isn't protecting against.
-- **[Administration](../30-server/10-administration.md)** — install the lab service itself behind the tailnet.
+- **[Operator runbook](../30-server/10-administration.md)** — install the lab service itself behind the tailnet.
 - **[Headscale upstream](https://headscale.net/)** — authoritative reference for the control plane.
 - **[Tailscale subnet router docs](https://tailscale.com/kb/1019/subnets)** — what `--advertise-routes` actually does on the wire.

@@ -1,5 +1,5 @@
 ---
-title: Session Queue
+title: Session queue
 description: FIFO session model — how WAITING sessions are promoted to ACTIVE, how heartbeats keep them alive, and when the server evicts them.
 tags: [concept, server, lifecycle, testing]
 crosslink_defines: []
@@ -22,6 +22,8 @@ stateDiagram-v2
     WAITING --> [*]: 600s without movement
     ACTIVE --> [*]: 300s without heartbeat
 ```
+
+*Two states; promotion at the head, eviction on timeout — that's the whole queue.*
 
 The queue itself is a plain Python list in the server process; the head is the
 ACTIVE session (if any), and the rest are WAITING in insertion order.

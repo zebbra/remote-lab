@@ -90,7 +90,7 @@ address, and the command that started it — then exits with status 1.
     and probing whether the recorded PID is still alive; when the PID is gone
     it clears the stale metadata and proceeds. If both are stuck (live PID for a
     process that is actually hung), kill the PID manually. See
-    [Administration](../30-server/10-administration.md).
+    [Operator runbook](../30-server/10-administration.md).
 
 ## The one-lab-per-host guard
 
