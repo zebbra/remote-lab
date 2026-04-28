@@ -8,17 +8,24 @@ crosslink_references: []
 
 # Deploy & Operate
 
-*Stand up the lab host plus the VPN enclosure around it. Three install guides plus a vendor-image walkthrough; pick the path that matches your scale.*
+*Stand up the lab host plus a network enclosure around it. Three install guides plus a vendor-image walkthrough; pick the path that matches your scale.*
 
 Three bring-up guides cover a fresh Remote Lab host end-to-end: install
 and configure rootless [Netlab](https://netlab.tools/) +
 [Containerlab](https://containerlab.dev/), enclose the host in a
-self-hosted [Headscale](https://headscale.net/) tailnet so clients and
-CI can reach lab subnets without exposing the server, and decide which
-router/switch images to ship.
+network boundary so clients and CI can reach lab subnets without
+exposing the server, and decide which router/switch images to ship.
+
+The VPN guides walk **one opinionated path** — self-hosted
+[Headscale](https://headscale.net/) + [Headplane](https://github.com/tale/headplane) —
+because that's what the project's reference deployment uses. Any
+equivalent enclosure works (managed Tailscale, WireGuard, IP allowlists,
+mTLS at a reverse proxy); see
+[Other approaches](20-headscale-quick-setup.md#other-approaches) on the
+quick-setup page for when each fits.
 
 Follow the install guides in order — the Netlab side boots the actual
-labs; the Headscale side gives you the private reachability the Remote
+labs; the network side gives you the private reachability the Remote
 Lab Manager's `X-Session-ID`-only access boundary relies on for safety.
 The vendor page is reference material you can hop into any time you need
 to add a new device kind.
@@ -39,17 +46,17 @@ to add a new device kind.
 
     Install `networklab` on Ubuntu 24.04+, configure rootless Containerlab with `clab_admins` + setuid, stop netlab from wrapping Containerlab in `sudo`, validate with `netlab test clab`.
 
--   :material-shield-lock:{ .lg .middle } &nbsp; **[VPN: quick setup](20-headscale-quick-setup.md)**
+-   :material-shield-lock:{ .lg .middle } &nbsp; **[Headscale: quick](20-headscale-quick-setup.md)**
 
     ---
 
-    Five-command happy path — [Headscale](https://headscale.net/) + [Headplane](https://github.com/tale/headplane) via Docker Compose, the lab host as a subnet router, one client peer reaching the lab subnet.
+    Five-command happy path through the project's recommended enclosure — [Headscale](https://headscale.net/) + [Headplane](https://github.com/tale/headplane) via Docker Compose, the lab host as a subnet router, one client peer reaching the lab subnet. **Alternatives in the page's [Other approaches](20-headscale-quick-setup.md#other-approaches) section.**
 
--   :material-network-pos:{ .lg .middle } &nbsp; **[VPN: reference](30-headscale-reference.md)**
+-   :material-network-pos:{ .lg .middle } &nbsp; **[Headscale reference](30-headscale-reference.md)**
 
     ---
 
-    ACL configuration, user and pre-auth key management, system settings, troubleshooting, and the full command summary once the tailnet is up.
+    Configuration surface for a deployed Headscale tailnet — ACL configuration, user and pre-auth key management, system settings, troubleshooting, and the full command summary.
 
 -   :material-router-network:{ .lg .middle } &nbsp; **[Vendor setup](40-vendor-setup.md)**
 

@@ -64,4 +64,4 @@ Answer one question: **what runs your tests today?**
 - **[Topology Format](../10-concepts/40-topology-format.md)** — the `.yml`/`.yaml` extension rule and the `extra_files` multipart contract.
 - **[Cookbook](../99-appendix/cookbook.md)** — runnable examples for pytest, Python, cURL, topologies, and deployment.
 
-If you are standing up a **production** Remote Lab Manager host (not just a local dev server), start instead with [Netlab host setup](../40-deployment/10-netlab-host-setup.md) and [Headscale VPN — Quick setup](../40-deployment/20-headscale-quick-setup.md).
+If you are standing up a **production** Remote Lab Manager host (not just a local dev server), start instead with [Netlab host setup](../40-deployment/10-netlab-host-setup.md) and [Headscale: quick](../40-deployment/20-headscale-quick-setup.md) (the recommended network enclosure — that page also covers alternatives).

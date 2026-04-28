@@ -10,7 +10,10 @@ crosslink_references: []
 
 *Five-command happy path — Headscale + Headplane via Docker Compose, the lab host as a subnet router, one client peer reaching the lab subnet.*
 
-The lab service ships [without HTTP authentication](../30-server/30-security.md), so deployment lives or dies on the network boundary. This page is the five-command happy path: a [Headscale](https://headscale.net/) control plane, the [Headplane](https://github.com/tale/headplane) UI, the lab host as a subnet router, and one client peer that can reach the lab subnet. For ACLs, OIDC, and troubleshooting tables, see [Headscale VPN — Reference](30-headscale-reference.md).
+!!! info "**One opinionated path — not the only one**"
+    `neops-remote-lab` ships [without HTTP authentication](../30-server/30-security.md), so deployment lives or dies on the network boundary. **What you put around it is your call.** This guide walks the path the project ships docs for: self-hosted [Headscale](https://headscale.net/) + [Headplane](https://github.com/tale/headplane) — free, audit-friendly, and what the reference deployment uses. Any equivalent enclosure works just as well — managed Tailscale, plain WireGuard, an internal VLAN with IP allowlists, mTLS at a reverse proxy. The lab service is unaware of which fence is around it. See [Other approaches](#other-approaches) for when each fits.
+
+This page is the five-command happy path: a [Headscale](https://headscale.net/) control plane, the [Headplane](https://github.com/tale/headplane) UI, the lab host as a subnet router, and one client peer that can reach the lab subnet. For ACLs, OIDC, and troubleshooting tables, see [Headscale VPN — Reference](30-headscale-reference.md).
 
 !!! info "Placeholder convention"
     Substitute `$HEADSCALE_HOST` with your Headscale server's IP or DNS name (`export HEADSCALE_HOST=lab.example.com`) and `$LAB_SUBNET` with the IPv4 CIDR of the lab network (`export LAB_SUBNET=192.168.121.0/24`). The libvirt default is `192.168.121.0/24`; a Containerlab-only host typically uses a `172.20.20.0/24` management bridge.
@@ -125,8 +128,28 @@ ip route | grep $LAB_SUBNET
 curl -fsS "http://<lab-host-tailnet-ip>:8000/healthz" && echo OK
 ```
 
+## Other approaches
+
+The lab service is unaware of *how* it's reached — only that callers can hit `:8000` and the lab subnet. Pick whichever enclosure fits your infrastructure:
+
+| Approach | Pick it when | Trade-off |
+|---|---|---|
+| **Self-hosted Headscale** (this page) | You want full control, OSS license, no per-seat cost, on-prem audit log. | Operator effort to run the control plane. |
+| **Managed [Tailscale](https://tailscale.com/)** | You want zero ops on the control plane and the seat pricing is fine. | SaaS dependency on Tailscale; control plane lives off-prem. |
+| **Plain [WireGuard](https://www.wireguard.com/)** | You already run a WG mesh; you want kernel-level performance with minimal moving parts. | No coordination plane — manual peer config and route distribution. |
+| **OpenVPN, IPSec, ZeroTier, Nebula, Twingate, Cloudflare Tunnel, …** | Your org already runs and operates one of these well. | Whatever the specific tool's footprint is. |
+| **IP allowlist on a host firewall** (no VPN at all) | Every caller is already on a single private subnet you control. | No mesh — peers on other networks can't reach the host. |
+| **mTLS at a reverse proxy** | You can't deploy a VPN but you can manage client certs. | mTLS authenticates the *transport*, not the lab's session model — layer in front of network restriction, not instead of it. |
+
+The [Security model → operational guidance](../30-server/30-security.md#operational-guidance) lists the do/don'ts that apply regardless of which approach you pick.
+
+If you go with one of the alternatives, the Headscale-specific commands and the Headplane UI on this page won't apply — but two things on this page **carry over** to any subnet-routing setup:
+
+- **Prerequisites** — network egress to peers; do not expose `:8000` to the public internet.
+- **[System settings on the lab host](#system-settings-on-the-lab-host)** — Docker `iptables: false` and `net.ipv4.ip_forward=1` are required for *any* setup that bridges the lab subnet to peers, regardless of the VPN/coordination plane.
+
 ## What to do next
 
-- **[Headscale VPN — Reference](30-headscale-reference.md)** — ACLs, user management, system settings, troubleshooting.
-- **[Administration](../30-server/10-administration.md)** — install the lab service itself behind the tailnet you just stood up.
-- **[Security model](../30-server/30-security.md)** — what the tailnet is protecting against, and what it isn't.
+- **[Headscale VPN — Reference](30-headscale-reference.md)** — ACLs, user management, system settings, troubleshooting (Headscale-specific).
+- **[Administration](../30-server/10-administration.md)** — install the lab service itself behind the network enclosure you just stood up.
+- **[Security model](../30-server/30-security.md)** — what the network boundary is protecting against, and what it isn't.

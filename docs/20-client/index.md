@@ -12,8 +12,29 @@ crosslink_references: []
 
 ## 60-second start
 
+Add the package to your project:
+
+=== "uv (recommended)"
+
+    ```bash
+    uv add neops-remote-lab
+    ```
+
+=== "Poetry"
+
+    ```bash
+    poetry add neops-remote-lab
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install neops-remote-lab
+    ```
+
+Point at your Remote Lab Manager:
+
 ```bash
-pip install neops-remote-lab
 export REMOTE_LAB_URL=http://lab.example.com:8000
 ```
 

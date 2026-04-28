@@ -273,7 +273,17 @@ python scripts/smoke.py
 
 ## Configuration
 
-Constructor arguments default to the corresponding env vars: `base_url` falls back to `REMOTE_LAB_URL`; `request_timeout`, `session_timeout`, and `lab_acquisition_timeout` mirror `REMOTE_LAB_REQUEST_TIMEOUT`, `REMOTE_LAB_SESSION_TIMEOUT`, `REMOTE_LAB_ACQUISITION_TIMEOUT`. **When you instantiate the client directly, the constructor kwargs win** — the env vars only apply through the pytest fixture path. See [Configuration](30-configuration.md) for the full reference.
+Each constructor argument falls back to a corresponding environment variable:
+
+| Constructor arg | Falls back to |
+|---|---|
+| `base_url` | `REMOTE_LAB_URL` |
+| `request_timeout` | `REMOTE_LAB_REQUEST_TIMEOUT` |
+| `session_timeout` | `REMOTE_LAB_SESSION_TIMEOUT` |
+| `lab_acquisition_timeout` | `REMOTE_LAB_ACQUISITION_TIMEOUT` |
+
+!!! warning "**Constructor kwargs win when set**"
+    Instantiating `RemoteLabClient` directly? The kwargs you pass override the environment variables. The env vars only take precedence through the [pytest fixture path](10-pytest-fixtures.md). See [Client config](30-configuration.md) for the full reference.
 
 ## See also
 

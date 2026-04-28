@@ -42,7 +42,7 @@ The asymmetry on `/session/heartbeat` is deliberate: it accepts any session that
 
 | Do | Don't |
 |---|---|
-| Bind the server behind a VPN ([Headscale](../40-deployment/20-headscale-quick-setup.md), WireGuard, Tailscale). | Expose `:8000` to the public internet. |
+| Bind the server behind a network enclosure — VPN ([Headscale](../40-deployment/20-headscale-quick-setup.md) is the recommended one; managed Tailscale, WireGuard, OpenVPN, ZeroTier, etc. all work) or an internal-only VLAN with IP allowlists. | Expose `:8000` to the public internet. |
 | Use `--host` to bind to a specific interface when the host has a public NIC. | Leave `--host 0.0.0.0` on a multi-homed host without a firewall. |
 | Restrict network reachability with host or cloud firewall rules. | Rely on `X-Session-ID` as a secret — it's returned by an unauthenticated `POST /session`. |
 | Use a reverse proxy (nginx, Caddy) with TLS + mutual auth if you must expose across hosts. | Assume HTTPS by itself protects the endpoints — the service still trusts any caller able to complete the session handshake. |
@@ -65,7 +65,7 @@ If a future requirement demands real auth, the right shape is to *replace* `X-Se
 
 ## See also
 
-- **[Headscale VPN — Quick setup](../40-deployment/20-headscale-quick-setup.md)** — the recommended VPN enclosure, in five commands.
+- **[Headscale VPN — Quick setup](../40-deployment/20-headscale-quick-setup.md)** — the recommended VPN enclosure in five commands; the page's [Other approaches](../40-deployment/20-headscale-quick-setup.md#other-approaches) section covers managed Tailscale, WireGuard, IP allowlists, and mTLS at a reverse proxy.
 - **[REST API](40-rest-api.md)** — the contract table that the gate enforces.
 - **[Session Queue](../10-concepts/20-session-queue.md)** — the FIFO state machine ACTIVE-only gating sits on top of.
 - **[Invariants → X-Session-ID is the only access boundary](../50-contributing/20-invariants.md#x-session-id-is-the-only-access-boundary-on-lab)** — the rule, in the contributor's voice.

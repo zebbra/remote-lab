@@ -10,6 +10,9 @@ crosslink_references: []
 
 *Configuration surface for a deployed Headscale tailnet — ACLs, OIDC, system settings, troubleshooting, full command summary.*
 
+!!! info "**Reference for the opinionated path**"
+    This page is Headscale-specific — ACL syntax, Headplane configuration, the Compose layout we ship. If you're picking your enclosure and haven't decided yet, start at [Headscale VPN — Quick setup → Other approaches](20-headscale-quick-setup.md#other-approaches) for the family of options (managed Tailscale, WireGuard, IP allowlists, mTLS, …). The lab service is unaware of which one you pick.
+
 For the five-command happy path, see [Headscale VPN — Quick setup](20-headscale-quick-setup.md). This page covers the configuration surface you reach for once the tailnet is running — ACLs, user management, the Compose+config layout, troubleshooting, and a quick command summary.
 
 ## Repository layout

@@ -69,7 +69,6 @@ nav:
   - Client config: 20-client/30-configuration.md
 - Run the service:
   - Run the service: 30-server/index.md
-  - Start it: 30-server/05-start.md
   - Operator runbook: 30-server/10-administration.md
   - Server config: 30-server/20-configuration.md
   - Security model: 30-server/30-security.md
@@ -79,8 +78,8 @@ nav:
   - Deploy & Operate: 40-deployment/index.md
   - Pick a deployment: 40-deployment/05-pick-deployment.md
   - Netlab host: 40-deployment/10-netlab-host-setup.md
-  - 'VPN: quick setup': 40-deployment/20-headscale-quick-setup.md
-  - 'VPN: reference': 40-deployment/30-headscale-reference.md
+  - 'Headscale: quick': 40-deployment/20-headscale-quick-setup.md
+  - Headscale reference: 40-deployment/30-headscale-reference.md
   - Vendor setup: 40-deployment/40-vendor-setup.md
 - Concepts:
   - Concepts: 10-concepts/index.md

@@ -15,17 +15,51 @@ crosslink_references: [remote-lab]
 
 ## What you need
 
-- The Worker SDK already in your project (`pip install neops-worker-sdk`).
+- A Worker SDK installation in your project (see install block below if you don't have it yet).
 - A reachable Remote Lab Manager — see [Run locally](20-local.md) if you don't have one yet.
 - `pytest` already in your test environment.
+
+If you still need the Worker SDK itself:
+
+=== "uv (recommended)"
+
+    ```bash
+    uv add neops-worker-sdk
+    ```
+
+=== "Poetry"
+
+    ```bash
+    poetry add neops-worker-sdk
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install neops-worker-sdk
+    ```
 
 ## Two setup steps
 
 **1. Install the Remote Lab client** alongside the Worker SDK:
 
-```bash
-pip install neops-remote-lab
-```
+=== "uv (recommended)"
+
+    ```bash
+    uv add neops-remote-lab
+    ```
+
+=== "Poetry"
+
+    ```bash
+    poetry add neops-remote-lab
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install neops-remote-lab
+    ```
 
 The package ships both the pytest plugin (`remote_lab_fixture`) and the HTTP client (`RemoteLabClient`); pytest discovers the plugin automatically.
 
