@@ -8,37 +8,21 @@ crosslink_references: []
 
 # Quickstart
 
-You have a pytest suite that needs a real router — not a mock, not a container
-hand-rolled per test, but a [Netlab](https://netlab.tools/) topology reachable
-from your local machine with the same identity every time. This guide takes
-you from nothing to a passing lab-backed test against a running Remote Lab
-Manager.
+*A pytest suite, a real Netlab topology, three lines of test code.*
 
-By the end you will have installed the client package, pointed it at a server,
-written a minimal topology, and run a pytest that acquires a lab, lists its
-devices, and tears it down cleanly — all with three lines of test code.
+By the end of this page: client installed, `REMOTE_LAB_URL` pointed at a server, a minimal topology booted, a test passing.
 
-!!! info "Before you start"
-    You need three things:
-
-    - **Ubuntu 22.04+** (or similar) with **Python 3.11+** and `pipx` available.
-    - **`pytest`** installed in your project's virtual environment.
-    - **A reachable Remote Lab Manager** — its base URL goes into the
-      `REMOTE_LAB_URL` environment variable in step 2.
-
-!!! tip "Don't have a remote server yet?"
-    On Ubuntu you can run the server locally and point your tests at
-    `http://localhost:8000`. The deep-dive in
-    [Local development server](20-local-server.md) walks through the rootless
-    Netlab + Containerlab install and a one-command launch. You can finish
-    that page and come straight back here.
+!!! tip "Wrong page?"
+    Don't have a Remote Lab Manager to point at? [Local development server](20-local.md) installs Netlab + Containerlab rootless on Ubuntu and starts a server on `localhost:8000` — finish that and come back. Driving from a non-Python stack? See the [REST quickstart](30-curl.md). Wiring this into CI? See the [CI quickstart](40-ci.md).
 
 ---
 
 ## 1. Install the client package
 
-Install `neops-remote-lab` into the same environment as your tests. The package
-ships both the pytest plugin and the HTTP client; no separate install is needed.
+!!! info "Before you start"
+    Ubuntu 22.04+ (or similar) with Python 3.11+ and `pipx` available; `pytest` already in your project's virtualenv; a reachable Remote Lab Manager (its base URL is `REMOTE_LAB_URL` in step 2).
+
+Install `neops-remote-lab` into the same environment as your tests. The package ships both the pytest plugin and the HTTP client; no separate install is needed.
 
 === "uv (recommended)"
 
@@ -46,9 +30,7 @@ ships both the pytest plugin and the HTTP client; no separate install is needed.
     uv add neops-remote-lab
     ```
 
-    Adds the package to your `pyproject.toml` and locks it in `uv.lock`.
-    See the [uv docs](https://docs.astral.sh/uv/concepts/projects/dependencies/)
-    for project workflows.
+    Adds the package to your `pyproject.toml` and locks it in `uv.lock`. See the [uv docs](https://docs.astral.sh/uv/concepts/projects/dependencies/) for project workflows.
 
 === "Poetry"
 
@@ -56,8 +38,7 @@ ships both the pytest plugin and the HTTP client; no separate install is needed.
     poetry add neops-remote-lab
     ```
 
-    Adds the package to your `pyproject.toml` `[tool.poetry.dependencies]`
-    and locks it in `poetry.lock`.
+    Adds the package to your `pyproject.toml` `[tool.poetry.dependencies]` and locks it in `poetry.lock`.
 
 === "pip"
 
@@ -65,13 +46,7 @@ ships both the pytest plugin and the HTTP client; no separate install is needed.
     pip install neops-remote-lab
     ```
 
-    Installs into the active virtualenv. Pin in `requirements.txt` (or
-    your equivalent) for reproducibility.
-
-!!! success "Expected output (any of the three)"
-    ```
-    Successfully installed neops-remote-lab-<version>
-    ```
+    Installs into the active virtualenv. Pin in `requirements.txt` for reproducibility.
 
 Verify the package and fixture import cleanly:
 
@@ -81,13 +56,11 @@ python -c "from neops_remote_lab.testing.fixture import remote_lab_fixture; prin
 
 !!! success "Expected output"
     ```
+    Successfully installed neops-remote-lab-<version>
     OK
     ```
 
-A successful import means the pytest plugin's entry point is registered (the
-package's `[project.entry-points.pytest11]` declares `neops-remote-lab` →
-`neops_remote_lab.pytest_plugins`) and `remote_lab_fixture` is reachable from
-your test code.
+A successful import means the pytest plugin's entry point is registered (the package's `[project.entry-points.pytest11]` declares `neops-remote-lab` → `neops_remote_lab.pytest_plugins`) and `remote_lab_fixture` is reachable from your test code.
 
 ---
 
@@ -128,9 +101,9 @@ cannot help you debug transport.
 
 ## 3. Write a minimal topology
 
-The topology is a Netlab YAML file. `LabManager` enforces the `.yml` extension
-internally — `.yaml` will fail when the server attempts to boot — so name the
-file `.yml` even though the HTTP surface accepts both.
+The topology is a Netlab YAML file — either `.yml` or `.yaml`,
+case-insensitive. We use `.yml` in our examples for consistency, but pick
+whichever your project already uses.
 
 Create `tests/topologies/demo.yml`:
 
@@ -209,29 +182,7 @@ nothing else holds it, tears the topology down. <!-- trace: neops_remote_lab/tes
 
 ## What just happened
 
-Five things, in order:
-
-1. **pytest loaded the plugin.** `neops_remote_lab.testing.pytest_order_plugin`
-   registered the `remote_lab_fixture` factory and installed the
-   collection-time guard that rejects tests with more than one lab fixture.
-2. **The `remote_lab_client` session-scoped fixture connected.** It read
-   `REMOTE_LAB_URL`, created a session on the server, and waited for the
-   session to reach ACTIVE state — joining a FIFO queue if someone else held
-   the host.
-3. **Your test asked for `demo_lab`.** The generated fixture uploaded
-   `demo.yml` via multipart POST to `/lab`, polling every five seconds if the
-   server responded `423 Locked` (another test in the run holding the host).
-4. **Netlab brought the topology up.** The server returned a list of
-   `DeviceInfoDto` objects once `netlab up` completed. Your test body ran
-   against those.
-5. **Teardown ran.** The fixture called `release()`, which on a non-reuse lab
-   triggers teardown when the reference count hits zero. The session stays
-   alive until the pytest process exits — `atexit` cleanup then closes it.
-
-For the full picture of the session queue, heartbeat timeouts, and the
-reference-counted lab lifecycle, read [Architecture](../10-concepts/10-architecture.md),
-[Session queue](../10-concepts/20-session-queue.md), and [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) in
-that order.
+Curious what just happened? [Runtime walk-through](../10-concepts/10-architecture.md#runtime-walk-through-what-happens-during-a-test) animates the components against this exact test.
 
 ---
 
@@ -245,10 +196,6 @@ that order.
 - **Driving the server from Python without pytest** — the client class is
   documented in [RemoteLabClient reference](../20-client/20-python-client.md).
 - **Stable public API** — `remote_lab_fixture` is the stable contract
-  consumed directly by `neops-worker-sdk-py`. Its signature and semantics
-  will not break within a major version.
+  consumed directly by the [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/).
+  Its signature and semantics will not break within a major version.
 
-!!! warning "Authentication is not enforced"
-    The server does not validate Bearer tokens — `X-Session-ID` of an active
-    session is the only access boundary on `/lab/*` endpoints. Treat the
-    Remote Lab Manager as internal-trust infrastructure behind your VPN.

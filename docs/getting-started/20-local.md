@@ -8,44 +8,17 @@ crosslink_references: [remote-lab]
 
 # Local development server
 
-You don't need a remote VM to develop against `neops-remote-lab`. On Ubuntu
-(or any Linux host with rootless Docker), the server runs locally and your
-tests point at `http://localhost:8000`. This page is the on-ramp for that
-workflow — install once, then `neops-remote-lab` becomes a process you start
-when you want a lab and stop when you don't.
+*Run the Remote Lab Manager on your laptop on `localhost:8000`. Foreground process; install once, start when you want a lab, `Ctrl+C` when you don't.*
 
-If you already have a Remote Lab Manager reachable on a network you control
-(a shared zebbra VM, a colleague's host, anything that responds to
-`/healthz`), the [Quickstart](10-quickstart.md) is what you want — skip
-this page and set `REMOTE_LAB_URL` to the remote URL there.
+Run the Remote Lab Manager on your laptop on `localhost:8000`. Foreground process; install once, start when you want a lab, `Ctrl+C` when you don't.
 
-!!! info "What this page does and doesn't cover"
-    **Does cover:** installing the server, the Netlab + Containerlab
-    prerequisites, starting the server in the foreground, pointing
-    `REMOTE_LAB_URL` at it, tearing down between sessions.
+!!! tip "Wrong page?"
+    Already have a Remote Lab Manager you can reach? Skip this and use [Quickstart](10-pytest.md) directly. Standing up a multi-user shared host? Jump to [Operator runbook](../30-server/10-administration.md).
 
-    **Doesn't cover:** running the server under `systemd` (that's
-    [Administration → Running as a system service](../30-server/30-administration.md#running-as-a-system-service)),
-    enclosing the host in a VPN (that's
-    [Headscale VPN](../40-deployment/20-headscale-vpn.md)), or the multi-user
-    operator runbook (that's
-    [Administration](../30-server/30-administration.md) end-to-end).
-
----
-
-## Prerequisites
-
-You need three things on the local host:
-
-- **Ubuntu 22.04+** (or another Linux with rootless Docker). macOS works
-  for the *client* side of `neops-remote-lab` but not for the *server* —
-  Containerlab and Netlab need Linux to spin up real network containers.
-- **Python 3.12+** with `pipx` available (`sudo apt install pipx` on
-  Ubuntu 24.04+; `pipx ensurepath` to put `~/.local/bin` on `PATH`).
-- **Netlab and Containerlab installed rootlessly.** This is non-trivial on
-  a fresh machine; the canonical walkthrough is
-  [Netlab host setup](../40-deployment/10-netlab-host-setup.md). Run that
-  page once, then come back here.
+!!! info "Before you start"
+    - **Ubuntu 22.04+** (or another Linux with rootless Docker). macOS works for the *client* side but not the *server* — Containerlab and Netlab need Linux.
+    - **Python 3.12+** with `pipx` available (`sudo apt install pipx` on Ubuntu 24.04+; `pipx ensurepath` to put `~/.local/bin` on `PATH`).
+    - **Netlab and Containerlab installed rootlessly.** Non-trivial on a fresh machine; the canonical walkthrough is [Netlab host setup](../40-deployment/10-netlab-host-setup.md). Run that page once, then come back.
 
 Verify Netlab is reachable before installing the server:
 
@@ -135,7 +108,7 @@ INFO     | remote-lab-server | Uvicorn running on http://0.0.0.0:8000
 
 If you see `Another Remote Lab Manager instance is already running.`
 instead, a previous server is still holding the singleton lock — see
-[Administration → Stale-lock recovery](../30-server/30-administration.md#stale-lock-recovery).
+[Administration → Stale-lock recovery](../30-server/10-administration.md#stale-lock-recovery).
 
 Confirm the server is reachable from a second terminal:
 
@@ -174,8 +147,8 @@ fails fast at session setup if it's missing. <!-- trace: neops_remote_lab/testin
 Drop it into a `.env` if you load one with `python-dotenv` or `direnv`,
 so you don't have to remember the export each session.
 
-From here, follow the [Quickstart](10-quickstart.md) from
-[step 3 (Write a minimal topology)](10-quickstart.md#3-write-a-minimal-topology)
+From here, follow the [Quickstart](10-pytest.md) from
+[step 3 (Write a minimal topology)](10-pytest.md#3-write-a-minimal-topology)
 onward. The test code is identical to the remote case — `pytest` doesn't
 know or care whether the server is on the same host or across the
 network.
@@ -206,7 +179,7 @@ netlab status default     # "No active lab instance"
 
 If a container, lockfile, or netlab default instance is still alive, the
 server didn't tear down cleanly — see
-[Administration → Forced cleanup of a stuck lab](../30-server/30-administration.md#forced-cleanup-of-a-stuck-lab).
+[Administration → Forced cleanup of a stuck lab](../30-server/10-administration.md#forced-cleanup-of-a-stuck-lab).
 
 ---
 
@@ -217,11 +190,11 @@ quickly, exploring topology shapes. It's the wrong shape when:
 
 - **More than one developer or CI job needs the lab.** The one-server-
   per-host invariant means a second developer cannot run their own server
-  on your machine; a shared VM (with [Headscale VPN](../40-deployment/20-headscale-vpn.md)
+  on your machine; a shared VM (with [Headscale VPN](../40-deployment/20-headscale-quick-setup.md)
   in front of it) is the multi-user shape.
 - **You need the lab to outlive your shell session.** Local-dev assumes
   you stop the server when you stop working. A long-lived service belongs
-  under [systemd on a dedicated host](../30-server/30-administration.md#running-as-a-system-service).
+  under [systemd on a dedicated host](../30-server/10-administration.md#running-as-a-system-service).
 - **Test runs are heavy enough to interfere with your laptop.** Containerlab
   is greedy with CPU and RAM during `netlab up`; offloading to a
   dedicated VM keeps your editor responsive.
@@ -235,14 +208,14 @@ change on the consumer side.
 
 ## Where to go next
 
-- **[Quickstart](10-quickstart.md)** — write your first test against the
+- **[Quickstart](10-pytest.md)** — write your first test against the
   server you just started.
 - **[Architecture](../10-concepts/10-architecture.md)** — the high-level
   picture of how the local server is structured (it's the same server you
   would run on a shared host; only the network topology differs).
-- **[Administration](../30-server/30-administration.md)** — the operator
+- **[Operator runbook](../30-server/10-administration.md)** — the operator
   reference, including stale-lock recovery, the security posture you sign
   up for, and the systemd unit if you want the server to come back after
   reboot.
-- **[Headscale VPN](../40-deployment/20-headscale-vpn.md)** — when local
+- **[Headscale VPN](../40-deployment/20-headscale-quick-setup.md)** — when local
   is no longer enough, the recommended VPN enclosure for a shared host.

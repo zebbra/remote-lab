@@ -1,37 +1,14 @@
 ---
-title: Administration
+title: Operator runbook
 description: Operator runbook for the Remote Lab Manager — starting the server, lock recovery, troubleshooting, and security posture.
 tags: [how-to, operator, security]
 crosslink_defines: []
 crosslink_references: []
 ---
 
-# Administration
+# Operator runbook
 
-Operator runbook for keeping the Remote Lab Manager healthy on a shared host.
-Read the [Security posture](#security-posture) section before exposing the
-server on any network you do not fully control.
-
-!!! info "Prerequisites"
-    - Familiarity with the [architecture](../10-concepts/10-architecture.md) and [REST API](10-rest-api.md).
-    - Shell access to the lab host with permission to read `/tmp`, kill processes, and restart the `neops-remote-lab` service.
-    - `netlab` CLI installed and on `PATH`. If it is missing, the server exits before binding the port. <!-- trace: neops_remote_lab/__main__.py:206 -->
-
----
-
-## Installing the server
-
-!!! note "Netlab host setup comes first"
-    This section assumes the Netlab CLI is already installed and runnable
-    on the lab host. If you are starting from a fresh VM, complete
-    [Netlab host setup](../40-deployment/10-netlab-host-setup.md) first — the server
-    launcher will refuse to start without `netlab` on `PATH`. <!-- trace: neops_remote_lab/__main__.py:206 -->
-
-The server ships as the `neops-remote-lab` Python distribution. Install
-it as an isolated tool so the CLI lands on `PATH` without polluting the
-system Python (Python 3.12+ required). The distribution declares a
-`neops-remote-lab` console script that points at
-`neops_remote_lab.__main__:main`. <!-- trace: pyproject.toml:34 -->
+*Install, run under `systemd`, recover from a stale lock, unstick a wedged lab. The day-1 and day-N operator handbook for a shared host.*
 
 === "uv (recommended)"
 
@@ -78,6 +55,9 @@ If `neops-remote-lab --help` errors with `command not found`, your
 tool's `bin` directory is not on `PATH` — run `uv tool update-shell`,
 `pipx ensurepath`, or add the symlink target manually depending on which
 installer you used.
+
+!!! info "Before you start"
+    Netlab CLI must already be on `PATH` — the launcher refuses to start without it. <!-- trace: neops_remote_lab/__main__.py:206 --> If the host is fresh, run [Netlab host setup](../40-deployment/10-netlab-host-setup.md) first. You'll also want shell access with permission to read `/tmp`, kill processes, and restart the service.
 
 Once the CLI is reachable, continue with [Starting the server](#starting-the-server)
 for a one-shot foreground run, or [Running as a system service](#running-as-a-system-service)
@@ -217,50 +197,6 @@ neops-remote-lab --host 0.0.0.0 --port 8000
 
 ---
 
-## Security posture
-
-!!! danger "The service has no authentication — treat it as internal-trust"
-    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
-    authentication. No endpoint enforces an `Authorization` header.
-
-### The only access boundary
-
-The sole boundary on `/lab/*` and `/session/heartbeat` is the `X-Session-ID`
-header — and only for a session that is currently in the ACTIVE state in the
-FIFO queue. <!-- trace: neops_remote_lab/server.py:390 -->
-
-- Unknown session ids → `404 Not Found`
-- Waiting (not-yet-ACTIVE) session ids → `423 Locked`
-- Anyone who can create a session (`POST /session`, no auth) can eventually
-  reach ACTIVE by waiting in the queue.
-
-This is explicitly called out as an invariant in [`AGENTS.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/AGENTS.md).
-The service is designed for **internal** CI networks, not for the public
-internet.
-
-### Operational guidance
-
-| Do | Don't |
-|---|---|
-| Bind the server behind a VPN (Headscale, WireGuard, Tailscale). | Expose `:8000` to the public internet. |
-| Use `--host` to bind to a specific interface when the host has a public NIC. | Leave `--host 0.0.0.0` on a multi-homed host without a firewall. |
-| Restrict network reachability with host/cloud firewall rules. | Rely on `X-Session-ID` as a secret — it's returned by an unauthenticated `POST /session`. |
-| Use a reverse proxy (nginx, Caddy) with TLS + mutual auth if you must expose across hosts. | Assume HTTPS by itself protects the endpoints — the service still trusts any caller able to complete the session handshake. |
-
-### When you expose the service
-
-If your deployment requires network reachability beyond a single VPN, layer
-these controls in front of the server:
-
-1. **Network-level ACLs** — restrict TCP 8000 to known caller subnets.
-2. **mTLS at a reverse proxy** — each caller presents a client certificate.
-3. **Rate limiting** on `POST /session` — prevents queue-flooding.
-
-None of this replaces the need to treat the service as internal; it reduces
-the blast radius of a compromised caller.
-
----
-
 ## Routine operations
 
 ### Checking server health
@@ -277,7 +213,7 @@ curl -s "http://$LAB_HOST:8000/debug/health" | jq .
 ```
 
 Returns uptime, queue length, and session count. Intended for debugging only —
-see the note in the [REST API reference](10-rest-api.md#endpoints-not-documented-here).
+see the note in the [REST API reference](40-rest-api.md).
 
 ### Log monitoring
 
@@ -320,6 +256,11 @@ Remember: **only one operator should be doing this at a time**. The Netlab
 
 ## Troubleshooting
 
+!!! info "Looking for client-side debugging or HTTP error codes?"
+    This troubleshooting table is for operators of the lab host. For
+    client-side debugging, log patterns, and the HTTP-error-code
+    reference, see [Debugging](50-debugging.md).
+
 | Symptom | Likely cause | Recovery |
 |---|---|---|
 | `Another Remote Lab Manager instance is already running.` on startup | Filelock held by another (possibly dead) process | Inspect `/tmp/neops_remote_lab_server.meta.json`; if PID is not alive, delete the lock + meta file and retry. See [Stale-lock recovery](#stale-lock-recovery). |
@@ -335,8 +276,9 @@ Remember: **only one operator should be doing this at a time**. The Netlab
 
 ## See also
 
-- [REST API](10-rest-api.md) — endpoint reference for operator scripting
-- [Configuration](20-configuration.md) — flags and environment variables
-- [Architecture](../10-concepts/10-architecture.md) — where the single-instance + one-lab invariants come from
-- [Session queue](../10-concepts/20-session-queue.md) — FIFO semantics and 423 Locked flow
-- [Headscale + Tailscale VPN setup](../40-deployment/20-headscale-vpn.md) — common deployment model for private reachability
+- **[REST API](40-rest-api.md)** — endpoint reference for operator scripting.
+- **[Server config](20-configuration.md)** — flags and environment variables.
+- **[Security model](30-security.md)** — the threat model the operational guidance above is built on top of.
+- **[Architecture](../10-concepts/10-architecture.md)** — where the single-instance + one-lab invariants come from.
+- **[Session queue](../10-concepts/20-session-queue.md)** — FIFO semantics and 423 Locked flow.
+- **[Headscale: quick setup](../40-deployment/20-headscale-quick-setup.md)** — the recommended VPN enclosure (alternatives in the page's *Other approaches* section).

@@ -8,15 +8,9 @@ crosslink_references: []
 
 # Architecture
 
-Only a single Netlab topology can run on a host at any given time. When several
-developers or CI jobs want to test against the same virtual network, they need a
-queue, a heartbeat, and someone to tear the lab down when the last test walks
-away. `neops-remote-lab` is that queue.
+*The three components and the two guards. **One server per host, one lab per host** — everything else falls out of those two rules.*
 
-> **Why a server?** Netlab is a host-local tool. Running it inside each test
-> runner would mean one lab per runner — expensive, and it collides with the
-> one-lab-per-host rule anyway. A small HTTP service in front of Netlab lets
-> many clients share one lab host safely.
+Multiple developers and CI jobs need a queue, a heartbeat, and someone to tear the lab down when the last test walks away. `neops-remote-lab` is that queue.
 
 ## Three components, one process per host
 
@@ -68,7 +62,19 @@ the only way to skip ahead is to wait for the head to release or time out.
 exist (404 if unknown) and accepts heartbeats from both WAITING and ACTIVE
 sessions, which lets a queued client reset its WAITING timeout before it is
 promoted. <!-- trace: neops_remote_lab/server.py:488 --> See
-[Session queue](20-session-queue.md) for the promotion and timeout rules.
+[Session Queue](20-session-queue.md) for the promotion and timeout rules.
+
+## Runtime walk-through — what happens during a test {#runtime-walk-through-what-happens-during-a-test}
+
+The diagram above summarizes the wire flow. The narrative below animates the same sequence against a small pytest run, so a reader following the [Quickstart](../getting-started/10-pytest.md) can map their actual log output back to the components.
+
+1. **pytest loads the plugin.** `neops_remote_lab.testing.pytest_order_plugin` registers the `remote_lab_fixture` factory and installs the collection-time guard that rejects tests with more than one lab fixture.
+2. **The `remote_lab_client` session-scoped fixture connects.** It reads `REMOTE_LAB_URL`, creates a session on the server, and waits for the session to reach ACTIVE state — joining a FIFO queue if someone else holds the host.
+3. **The test asks for its lab fixture.** The generated fixture uploads the topology via multipart `POST /lab`, polling every five seconds if the server responded `423 Locked` (another test in the run holding the host with a different topology).
+4. **Netlab brings the topology up.** The server returns a list of `DeviceInfoDto` objects once `netlab up` completed. The test body runs against those.
+5. **Teardown runs.** The fixture calls `release()`, which on a non-reuse lab triggers teardown when the reference count hits zero. The session stays alive until the pytest process exits — `atexit` cleanup then closes it.
+
+For the state machines behind those steps, read [Session Queue](20-session-queue.md), [Lab Lifecycle](30-lab-lifecycle.md), and [Topology Format](40-topology-format.md) in that order.
 
 ## The one-server-per-host guard
 
@@ -84,7 +90,7 @@ address, and the command that started it — then exits with status 1.
     and probing whether the recorded PID is still alive; when the PID is gone
     it clears the stale metadata and proceeds. If both are stuck (live PID for a
     process that is actually hung), kill the PID manually. See
-    [Administration](../30-server/30-administration.md).
+    [Operator runbook](../30-server/10-administration.md).
 
 ## The one-lab-per-host guard
 
@@ -105,7 +111,7 @@ configurations. The server runs them off the event loop so the rest of the API
 — heartbeats, status polls from other sessions, health checks — keeps
 responding while a `netlab up` is in flight. The mechanics are documented for
 contributors in
-[Invariants & Internals](../50-contributing/20-invariants.md#async-and-blocking-discipline).
+[Internals: Async discipline](../50-contributing/30-internals-async.md#async-and-blocking-discipline).
 
 ## How Netlab is invoked
 
@@ -120,50 +126,7 @@ cleanup attempts.
 
 ## Ecosystem position
 
-```mermaid
-flowchart LR
-    subgraph consumer ["Consumer repositories (tests)"]
-        worker_tests["neops-worker-sdk-py tests"]
-        fb_tests["function-block test suites"]
-    end
-    subgraph fixture ["remote_lab_fixture factory"]
-        fx[remote_lab_fixture]
-    end
-    subgraph client ["neops-remote-lab client"]
-        rlc[RemoteLabClient]
-    end
-    subgraph server ["neops-remote-lab server (one per host)"]
-        srv[FastAPI]
-        mgr[LabManager]
-    end
-    subgraph host ["Lab host"]
-        nl[Netlab CLI]
-        clab[Containerlab / libvirt]
-    end
-    worker_tests --> fx
-    fb_tests --> fx
-    fx --> rlc
-    rlc -- "HTTP + X-Session-ID" --> srv
-    srv --> mgr
-    mgr -- "run_netlab()" --> nl
-    nl --> clab
-```
-
-`remote_lab_fixture` is the **stable public API**. Consumer repositories —
-notably [`neops-worker-sdk-py`](https://github.com/zebbra/neops-worker-sdk-py) — import it directly and treat its call signature
-as a contract. Changing its arguments is a breaking change. The REST surface
-and `RemoteLabClient` are lower-level and may evolve more freely, but the
-fixture uses them both, so any incompatible change is detected immediately by
-the fixture's own tests.
-
-!!! info "No HTTP authentication"
-    The `X-Session-ID` header is the only access boundary on `/lab/*`
-    (ACTIVE sessions only; non-active sessions receive `423 Locked`).
-    `/session/heartbeat` accepts any session that exists — WAITING or
-    ACTIVE — and is not part of the ACTIVE gate. Deploy this service on an
-    internal-trust network only — the Headscale/Tailscale setup under
-    [Headscale VPN](../40-deployment/20-headscale-vpn.md) is the expected
-    enclosure.
+`remote_lab_fixture` is the **stable public API**. The [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) imports it directly to give [function-block](https://docs.neops.io/neops-worker-sdk-py/docs/function-blocks/) tests a real topology ([integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)). For the broader neops vocabulary and which concepts apply to Remote Lab, see [How Remote Lab fits with neops](../99-appendix/neops-ecosystem.md).
 
 ## Where to go next
 
@@ -171,5 +134,5 @@ the fixture's own tests.
   stale-session sweep that keeps a crashed client from blocking the queue.
 - [Lab lifecycle](30-lab-lifecycle.md) — SHA-based topology identity, reference
   counting, the `try_acquire` vs `acquire` distinction, and `atexit` teardown.
-- [Topology format](40-topology-format.md) — the YAML shape and the `.yml`
-  extension trap.
+- [Topology format](40-topology-format.md) — the YAML shape, vendor
+  defaults, and the `extra_files` upload contract.

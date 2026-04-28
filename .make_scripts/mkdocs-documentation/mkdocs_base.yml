@@ -43,6 +43,10 @@ markdown_extensions:
       # Make the build fail if a snippet can't be found.
       check_paths: true
       restrict_base_path: false
+      # auto_append: include abbreviations.md on every page so `*[X]: ...`
+      # tooltips work site-wide without per-page boilerplate.
+      auto_append:
+        - includes/abbreviations.md
       # https://github.com/mkdocs/mkdocs/issues/2154
       # https://github.com/mkdocs/mkdocs/issues/3453
       base_path:

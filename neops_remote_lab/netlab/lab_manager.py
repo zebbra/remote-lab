@@ -64,11 +64,12 @@ def prepare_workdir(src: Path) -> Path:
     """
     tmpdir = Path(tempfile.mkdtemp(prefix=f"netlab_topo_{src.stem}_"))
 
-    # only accept yml files
-    if src.is_file() and src.suffix.lower() == ".yml":
+    # accept .yml and .yaml (case-insensitive); both are valid Netlab topology
+    # extensions and Netlab itself does not care which suffix you use.
+    if src.is_file() and src.suffix.lower() in (".yml", ".yaml"):
         shutil.copy2(src, tmpdir / src.name)
     else:
-        raise ValueError("Topology must be a .yml file")
+        raise ValueError("Topology must be a .yml or .yaml file")
     # TODO support directories with a `topology.yml` file inside
 
     _log.debug("Topology copied to %s", tmpdir)

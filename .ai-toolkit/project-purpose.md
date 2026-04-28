@@ -7,7 +7,7 @@
 
 neops-remote-lab has three co-equal audiences. Each needs its own framing in the docs; do not collapse them into a generic "developer" voice.
 
-### 1. SDK consumer (primary by volume)
+### 1. Neops SDK consumer (primary by volume)
 
 Python developers writing pytest-based tests for neops function blocks. Intermediate pytest and fixture fluency, comfortable with environment variables, often first-time users of Netlab, Headscale/Tailscale, and the one-lab-per-host model.
 
@@ -36,15 +36,26 @@ Python engineers on the zebbra team modifying the `neops-remote-lab` codebase it
 - **What they don't know (until they read):** the invariants around queue / session / filelock / atexit / `_run_blocking()`; which Netlab invocation paths are allowed; which dependencies carry CVE pins.
 - **What they expect from docs:** an invariants reference and contribution-flow content inside the docs tree, not only in AGENTS.md. They may arrive via the user-facing docs as well as AGENTS.md.
 
+### 4. External API user (any stack)
+
+Network-automation engineer at a non-neops organization, mid-to-senior, who reaches the project through OSS channels (a SwiNOG-style conference talk, GitHub discovery, a colleague's recommendation, a search for "Netlab as a service" / "remote lab broker" / "lab-as-a-service") and wants to drive a real Netlab topology from whatever automation harness they already run — possibly Python without pytest, possibly Go, possibly shell, possibly Robot Framework. Test/QA engineers and platform/DevX engineers also self-identify here. Existing three audiences keep their primary positions; this audience is appended, not promoted.
+
+- **Arrival context:** cold-start. No neops context, no familiarity with `neops-worker-sdk-py`, possibly no familiarity with pytest patterns. Found the project, read the README, wants to evaluate whether the HTTP surface fits their existing pipeline.
+- **What they know walking in:** networking deeply (BGP, OSPF, vendor configs, the difference between FRR and a real NOS); Netlab and Containerlab as concepts; HTTP/REST APIs at general competence; at least one of Python / Go / shell at scripting depth; their own CI tooling (Jenkins, GitLab CI, GitHub Actions, Drone, etc.).
+- **What they don't know:** the neops worker-SDK and function-block model (and don't need to); the session-queue / heartbeat semantics (need to learn); the SHA-256 content-hash topology identity rule; the no-auth security posture and why a VPN is non-negotiable.
+- **What they expect from docs:** a landing page that reads value-prop-first without forcing them through neops vocabulary; the REST API treated as a first-class consumer surface, not just an internal mechanism; concrete examples in shapes other than pytest (cURL minimum; light pointers to "any HTTP client works"); a quickstart they can complete in their stack of choice without installing the Python client; CI integration guidance (pipeline examples, queue tuning) for when they wire it into their existing harness; a debugging reference they can grep when something breaks.
+
 ## Job-to-be-done
 
 The three audiences have genuinely different JTBDs. Writers must pick the frame that matches the page.
 
-**SDK consumer** uses remote-lab to get pytest — local and CI — talking to a running remote lab so function-block tests pass against real topologies. The local task flavors into onboarding, debugging, or deepening understanding. **Outer motivator: ship a working function block to production with confidence it survives real networking, not mocks.** Green CI is a facet of this, not a separate motivator. Senior readers additionally want reference-grade internal knowledge so they can reason about edge cases before they hit them.
+**Neops SDK consumer** uses remote-lab to get pytest — local and CI — talking to a running remote lab so function-block tests pass against real topologies. The local task flavors into onboarding, debugging, or deepening understanding. **Outer motivator: ship a working function block to production with confidence it survives real networking, not mocks.** Green CI is a facet of this, not a separate motivator. Senior readers additionally want reference-grade internal knowledge so they can reason about edge cases before they hit them.
 
-**Operator** runs a Remote Lab host smoothly, maintains it, debugs it when something breaks, and handles the surrounding VPN / Netlab plumbing. **Outer motivator: provide remote-lab as reliable team-scoped infrastructure** so SDK consumers and CI can actually run their tests, and so the operator is not the bottleneck during incidents.
+**Operator** runs a Remote Lab host smoothly, maintains it, debugs it when something breaks, and handles the surrounding VPN / Netlab plumbing. **Outer motivator: provide remote-lab as reliable team-scoped infrastructure** so Neops SDK consumers and CI can actually run their tests, and so the operator is not the bottleneck during incidents.
 
-**Contributor** extends or fixes remote-lab without breaking (a) the SDK consumer's `remote_lab_fixture` contract or (b) the stability operators depend on. **Outer motivator: keep remote-lab trustworthy as the SDK's test substrate.**
+**Contributor** extends or fixes remote-lab without breaking (a) the Neops SDK consumer's `remote_lab_fixture` contract or (b) the stability operators depend on. **Outer motivator: keep remote-lab trustworthy as the SDK's test substrate.**
+
+**External API user** wants exclusive, programmatic access to a real Netlab topology over HTTP, callable from whatever automation harness they already run. The framing is plural by design — this audience came in via a SwiNOG-style talk where the room contained "make integration tests routine in CI", "centralize per-developer Netlab installs", "pre-deploy config validation", and "general lab-as-a-service" all at once. **Outer motivator: get real-network behavior into their existing automation pipeline without standing up and operating Netlab themselves.**
 
 ## Role in neops
 
@@ -61,17 +72,17 @@ The three audiences have genuinely different JTBDs. Writers must pick the frame 
 
 Eight journeys. Three per primary audience, two for contributors. Consumer and operator journeys are co-equal; contributor journeys are narrower but present.
 
-### A. First-time onboarding (SDK consumer)
+### A. First-time onboarding (Neops SDK consumer)
 - **Trigger:** Writing tests for a function block; need remote-lab working from a laptop and from CI.
 - **Steps:** Install the package → set `REMOTE_LAB_URL` → connect to the VPN (or start a local server) → declare a `remote_lab_fixture` pointing at a topology → run `pytest`.
 - **Success signal:** `pytest` passes against a real topology, from both locations.
 
-### B. Debugging a failing test (SDK consumer)
+### B. Debugging a failing test (Neops SDK consumer)
 - **Trigger:** A specific symptom — hang in queue, `423 Locked`, containers unreachable, `filelock` error, stale session.
 - **Steps:** Identify the failure class → check the matching recovery path → confirm root cause against server logs or queue state.
 - **Success signal:** User can classify and act on the failure without reading server source.
 
-### C. Going deeper — reference (SDK consumer)
+### C. Going deeper — reference (Neops SDK consumer)
 - **Trigger:** Senior engineer wants to understand session queueing, one-lab-per-host, ref-counting, heartbeat semantics, atexit cleanup, content-hash identity — before trusting the system.
 - **Steps:** Read architecture / invariants pages → trace the fixture-to-server flow → follow outbound links to Netlab for orchestration-layer details.
 - **Success signal:** Engineer can predict server behavior in edge cases without running it.
@@ -102,11 +113,16 @@ Eight journeys. Three per primary audience, two for contributors. Consumer and o
 - **Steps:** Identify pin reason (`# CVE-*` comments in `pyproject.toml`) → bump to a version that preserves the fix → regenerate `uv.lock` → `make audit` → `make check`.
 - **Success signal:** Pin comments preserved or updated, `make audit` clean, no behavior regression.
 
+### I. Driving a remote lab from a non-Python automation harness (External API user)
+- **Trigger:** Existing CI/CD or test harness in Go, Bash, Robot Framework, Ansible, or another stack needs exclusive access to a Netlab topology.
+- **Steps:** Find/stand up a Remote Lab Manager → set the base URL → POST /session → poll until ACTIVE → POST /lab with a topology → drive the devices → POST /lab/release → DELETE /session.
+- **Success signal:** Their existing pipeline gets a fresh-or-shared lab on every run; teardown is automatic; they never imported a Python package.
+
 ## Non-obvious truths
 
 Invariants and gotchas that are not obvious from code or a README skim. Classified by audience — show each audience only what affects them.
 
-### For SDK consumers
+### For Neops SDK consumers
 - **Topology identity is the SHA-256 of file content, not the filename.** Two files with different names and identical content are the same topology; `reuse=True` matches. Edit one byte and it is a new topology; `reuse=True` will not match. Most systems key on filename — this one does not.
 - **One `remote_lab_fixture` per test — enforced at *collection* time.** `pytest_order_plugin` rejects the test during collection, so a two-fixture test does not appear as a runtime failure.
 - **Authentication is stubbed.** `X-Session-ID` is the only gate on `/lab/*`; non-active sessions receive `423 Locked`. The `REMOTE_LAB_TOKEN` / Bearer path in `client.py` is commented out. Treat the service as internal-trust.
@@ -127,7 +143,7 @@ Invariants and gotchas that are not obvious from code or a README skim. Classifi
 
 ## Differentiators
 
-**Core differentiator:** an **on-demand, lifecycle-managed, queue-brokered Netlab broker** with a **pytest-native fixture** baked in, designed for the neops function-block testing flow. The SDK consumer does not write `up`/`down` scripts; the fixture handles spawn, teardown, and exclusivity. Tests don't know about infrastructure.
+**Core differentiator:** an **on-demand, lifecycle-managed, queue-brokered Netlab broker** with a **pytest-native fixture** baked in, designed for the neops function-block testing flow. The Neops SDK consumer does not write `up`/`down` scripts; the fixture handles spawn, teardown, and exclusivity. Tests don't know about infrastructure.
 
 **Why not the alternatives:**
 - **Run Netlab locally.** Requires Netlab install and real compute per machine; does not scale to CI; does not share the expensive setup across a team.
@@ -145,7 +161,7 @@ Invariants and gotchas that are not obvious from code or a README skim. Classifi
 
 ## Anti-patterns
 
-### SDK consumer — don't
+### Neops SDK consumer — don't
 - **Declare two `remote_lab_fixture`s in one test** — rejected at collection.
 - **Rely on filename identity** — content hash is the key.
 - **Hardcode `X-Session-ID`** — let the session fixture manage it.
@@ -166,11 +182,17 @@ Invariants and gotchas that are not obvious from code or a README skim. Classifi
 - **Drop the `*Dto` suffix on Pydantic request/response models**.
 - **Remove `# CVE-*` comments on dep upgrades** — preserve or replace with a newer safe version and re-run `make audit`.
 
+### External API user — don't
+- **Skip the heartbeat in long-running clients** — a 5-minute pause without polling/heartbeat means the session goes stale and the lab gets reaped from under you.
+- **Talk to the service over a public network** — there's no auth; the `X-Session-ID` is not a secret. Internal-trust only; deploy behind a VPN or trusted network.
+- **Treat `reuse=true` as cheap when your test mutates device configs** — reuse means another caller may attach to the same lab and see your mutations.
+- **Hardcode the SHA-256 topology hash anywhere** — it's a server-side identity; clients never need to compute or send it.
+
 ## Voice and tone
 
 - **Second-person, active voice.** Address the reader directly.
 - **Opinionated, not deferential.** "One-lab rule," not "we recommend running at most one lab." The invariants are real; the writing should sound like we know them.
-- **Tight for task-flow, structured for reference.** SDK consumer onboarding and CI-green paths are short, scannable, code-forward. Operator deep-dives are structured with headers, tables, sequence diagrams — operators value structure and will read it.
+- **Tight for task-flow, structured for reference.** Neops SDK consumer onboarding and CI-green paths are short, scannable, code-forward. Operator deep-dives are structured with headers, tables, sequence diagrams — operators value structure and will read it.
 - **Contributor register is tighter and more technical.** Same voice, assumes the reader has read the overview, links back to AGENTS.md where relevant. Think "AGENTS.md as a chapter inside the docs," not a separate dialect.
 - **Dense outbound linking.** Link to Netlab, Containerlab, Headscale, Tailscale, and worker-sdk docs. Treat external docs as first-class references; link out rather than re-explain.
 - **Primary example style: `remote_lab_fixture` + Python pytest code.** Use curl to *showcase* the REST surface (what endpoints look like, what happens under the hood), not as the teaching onramp.
@@ -185,8 +207,8 @@ The docs on this branch are at a strong v2-ish level — near-complete coverage 
 
 ### Structural gaps — what must be added for Monday
 
-- **Contributor content is still missing from the docs tree.** SDK consumers have `quickstart.md` + `pytest-fixtures.md`; operators have `administration.md`; contributors have `AGENTS.md` and nothing else inside `docs/`. The invariants a contributor needs before touching queue / session / filelock / atexit code are not surfaced in the user-facing docs. An **"Invariants" or "Contributing" page** is the missing piece — enforced conventions (`_run_blocking()`, `connector.run_netlab()`, `*Dto` suffix, CVE pin comments, no-async-in-atexit), the G + H contributor journeys, branch/`make check`/PR flow.
-- **`index.md`'s audience mapping drifts from this purpose.md.** The "Who uses this?" grid has four cards (test authors, concepts explorers, integrators, operators); this purpose.md names three audiences (SDK consumer, operator, contributor). "Concepts explorers" is better modeled as **Journey C** on the SDK consumer path, not a separate audience. "Integrators" overlaps SDK consumer. **No contributor card.** Reconcile to three audiences; point the contributor card at the new Invariants / Contributing page.
+- **Contributor content is still missing from the docs tree.** Neops SDK consumers have `quickstart.md` + `pytest-fixtures.md`; operators have `administration.md`; contributors have `AGENTS.md` and nothing else inside `docs/`. The invariants a contributor needs before touching queue / session / filelock / atexit code are not surfaced in the user-facing docs. An **"Invariants" or "Contributing" page** is the missing piece — enforced conventions (`_run_blocking()`, `connector.run_netlab()`, `*Dto` suffix, CVE pin comments, no-async-in-atexit), the G + H contributor journeys, branch/`make check`/PR flow.
+- **`index.md`'s audience mapping drifts from this purpose.md.** The "Who uses this?" grid has four cards (test authors, concepts explorers, integrators, operators); this purpose.md names three audiences (Neops SDK consumer, operator, contributor). "Concepts explorers" is better modeled as **Journey C** on the Neops SDK consumer path, not a separate audience. "Integrators" overlaps SDK consumer. **No contributor card.** Reconcile to three audiences; point the contributor card at the new Invariants / Contributing page.
 - **Journey D's local-dev side-path is not explicit anywhere.** The purpose.md calls out that Ubuntu developers can run the server locally and point `REMOTE_LAB_URL=http://localhost:8000`. `configuration.md` lists `REMOTE_LAB_URL` as "required" with no default; `quickstart.md` assumes a reachable `$LAB_HOST`; neither teaches the localhost path. Add the side-path to `quickstart.md` (before-you-start) and to `configuration.md` or `administration.md` (install).
 
 ### Link / reference bugs to fix

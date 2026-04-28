@@ -6,9 +6,17 @@ crosslink_defines: [netlab, containerlab]
 crosslink_references: [remote-lab]
 ---
 
-# Rootless Netlab + Containerlab on Ubuntu
+# Netlab host setup
 
-*A concise, CI-ready installation and configuration guide*
+*Rootless Netlab + Containerlab on Ubuntu — concise, CI-ready installation and configuration.*
+
+The Remote Lab Manager refuses to start without `netlab` on `PATH`. This
+page is the **prerequisite for everything else in deployment**: install
+[Netlab](https://netlab.tools/) and [Containerlab](https://containerlab.dev/)
+rootless on Ubuntu, validate the install with `netlab test clab`, then
+move on to [Vendor setup](40-vendor-setup.md) (per-vendor install walkthroughs)
+and [Headscale: quick setup](20-headscale-quick-setup.md) (how clients
+reach the lab).
 
 ---
 
@@ -59,7 +67,7 @@ Install it as an isolated tool — the same shape used for the
     `netlab` CLI on `PATH`. Re-login (or source your shell's RC file)
     after the first `pipx ensurepath`.
 
-=== "pip (not recommended on Ubuntu 24.04+)"
+=== "pip (last resort)"
 
     ```bash
     python -m venv ~/.venvs/networklab
@@ -93,9 +101,11 @@ All systems (Ansible, Docker, libvirt, etc.) must pass.
 
 ---
 
-If you're authoring tests against Remote Lab, see [Pytest fixtures](../20-client/10-pytest-fixtures.md) for the public fixture API, or [Quickstart](../getting-started/10-quickstart.md) to run your first lab-backed test.
+If you're authoring tests against Remote Lab, see [Pytest fixtures](../20-client/10-pytest-fixtures.md) for the public fixture API, or [Quickstart](../getting-started/10-pytest.md) to run your first lab-backed test.
 
-For consumers integrating via `neops-worker-sdk-py`, that repo owns the `remote_lab_fixture` consumer surface.
+For consumers integrating via the [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/),
+that project owns the `remote_lab_fixture` consumer surface — see its
+[Remote lab testing guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/).
 
 ## 2. – Configure Rootless Containerlab
 
@@ -209,18 +219,7 @@ No `sudo`, no password prompt — ideal for CI.
 
 ## 4. – Pick a router/switch image to run
 
-Once `netlab test clab` passes, you have a working lab host that can boot
-the open-source [FRR](https://netlab.tools/platforms/frr/) image out of
-the box. For everything else — open-source vendor stacks like
-[Nokia SR Linux](https://netlab.tools/platforms/srlinux/), licensed
-images like [Cisco IOL](https://netlab.tools/platforms/cisco_iol/), or
-adding any other Netlab-supported platform — see the dedicated
-[Vendors & images](30-vendor-images.md) guide.
-
-The vendor page covers when each platform is the right call, the FRR
-limitations to know about before you commit, the SR Linux setup (free,
-public registry, no license), the Cisco IOL build path (license
-required), and a generic recipe for adding any other Netlab platform.
+Once `netlab test clab` passes, the host can boot the open-source [FRR](https://netlab.tools/platforms/frr/) image out of the box. For deciding **which** vendor fits your tests (FRR vs SR Linux vs Cisco IOL, with limitations and trade-offs), see [Topology Format → Vendor defaults](../10-concepts/40-topology-format.md#vendor-defaults-which-device-to-use). For the install walkthroughs (image pull, license setup, vrnetlab build), see [Vendor setup](40-vendor-setup.md).
 
 ---
 

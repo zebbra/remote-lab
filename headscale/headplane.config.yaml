@@ -3,9 +3,18 @@ server:
   host: "0.0.0.0"
   port: 3000
 
-  # The secret used to encode and decode web sessions
-  # Ensure that this is exactly 32 characters long
-  cookie_secret: "Fcpk2h5vALp4LxharpXlTQ40AyGzGRDA"
+  # The secret used to encode and decode web sessions.
+  # Must be exactly 32 characters long.
+  #
+  # The committed value below is a placeholder that will not work — Headplane
+  # will refuse to start until you replace it. Generate a random secret and
+  # substitute it in (the docs walk through this in one command):
+  #
+  #   sed -i.bak "s/CHANGE_ME_GENERATE_RANDOM_SECRET/$(openssl rand -hex 16)/" \
+  #     headscale/headplane.config.yaml && rm headscale/headplane.config.yaml.bak
+  #
+  # See docs/40-deployment/20-headscale-quick-setup.md for the full walkthrough.
+  cookie_secret: "CHANGE_ME_GENERATE_RANDOM_SECRET"
 
   # Should the cookies only work over HTTPS?
   # Set to false if running via HTTP without a proxy

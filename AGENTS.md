@@ -18,7 +18,7 @@ Load-bearing and usually not obvious from the code:
 - **One server instance per host.** A `filelock` guard in `__main__.py` enforces this and logs the conflicting PID/user/host.
 - **One lab per host.** Netlab limitation, enforced both process-wide (`LabManager` singleton) and cross-process (`FileLock`). `LabManager.try_acquire()` is non-blocking and returns `None` when busy (used by the server); `LabManager.acquire()` polls and blocks (used by local test fixtures). Using the wrong one from the wrong context will deadlock or busy-spin.
 - **Topology identity is the SHA-256 of file content**, never the filename. Two files with different names but identical content are the same topology; `reuse=True` + reference counting lets multiple tests share one lab, which is torn down when refcount drops to zero.
-- **`.yml` extension is required.** The HTTP surface accepts `.yaml` too, but `LabManager` enforces `.yml` internally.
+- **Topology files: `.yml` and `.yaml` both accepted** (case-insensitive) at every layer — HTTP upload, `LabManager.prepare_workdir`. Anything else raises `ValueError`.
 - **`atexit` is a real teardown path.** `LabManager` registers a silent cleanup with logging disabled (closed-stream errors). Do **not** add async code to the cleanup path — it will deadlock at process exit.
 - **Authentication is not implemented.** `REMOTE_LAB_TOKEN` / Bearer auth is commented out in `client.py`; the only access boundary on `/lab/*` endpoints is the `X-Session-ID` header of an active session (non-active sessions receive `423 Locked`). Treat the service as internal-trust.
 - **CVE-pinned dependencies.** Several `pyproject.toml` pins carry `# CVE-*` comments. Preserve them on dep upgrades and re-run `make audit`.

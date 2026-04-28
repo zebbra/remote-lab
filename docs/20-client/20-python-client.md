@@ -8,18 +8,16 @@ crosslink_references: []
 
 # RemoteLabClient Reference
 
-`RemoteLabClient` is the Python interface to the Remote Lab Manager HTTP API.
-Use it directly when you need to drive a lab from a script, a notebook, or any
-non-pytest context. Inside tests you should use [`remote_lab_fixture`](10-pytest-fixtures.md) —
-the fixture wraps this client, adds lifecycle hooks, and is the stable contract
-consumed by `neops-worker-sdk-py`.
+*The lower-level HTTP client the pytest fixture wraps. Use it directly from scripts, notebooks, or any non-pytest context.*
 
-!!! warning "No HTTP authentication"
-    `neops-remote-lab` ships without HTTP authentication, so the client
-    sends no `Authorization` header. The server's only access boundary is
-    the `X-Session-ID` header of an active session; non-active sessions
-    receive `423 Locked`. Treat the Remote Lab Manager as internal-trust
-    infrastructure behind a VPN.
+`RemoteLabClient` is the **Python interface** to the Remote Lab Manager
+HTTP API. Use it directly when you need to drive a lab from a script,
+a notebook, or any non-pytest context.
+
+*Inside tests, use [`remote_lab_fixture`](10-pytest-fixtures.md)
+instead* — the fixture wraps this client, adds lifecycle hooks, and is
+the stable contract consumed by the
+[Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/).
 
 ---
 
@@ -89,6 +87,8 @@ stateDiagram-v2
     HOLDING_LAB --> [*]: close() (forces teardown)
     ACTIVE --> ACTIVE: heartbeat (implicit)
 ```
+
+*Client states; the constructor blocks until ACTIVE; `acquire`/`release` flip into HOLDING_LAB.*
 
 The session is kept alive by server-side timers: if no request touches the
 session for 300 seconds the server marks it stale, tears down any held lab,
@@ -273,10 +273,24 @@ python scripts/smoke.py
 
 ---
 
+## Configuration
+
+Each constructor argument falls back to a corresponding environment variable:
+
+| Constructor arg | Falls back to |
+|---|---|
+| `base_url` | `REMOTE_LAB_URL` |
+| `request_timeout` | `REMOTE_LAB_REQUEST_TIMEOUT` |
+| `session_timeout` | `REMOTE_LAB_SESSION_TIMEOUT` |
+| `lab_acquisition_timeout` | `REMOTE_LAB_ACQUISITION_TIMEOUT` |
+
+!!! warning "**Constructor kwargs win when set**"
+    Instantiating `RemoteLabClient` directly? The kwargs you pass override the environment variables. The env vars only take precedence through the [pytest fixture path](10-pytest-fixtures.md). See [Client config](30-configuration.md) for the full reference.
+
 ## See also
 
-- [Pytest fixtures](10-pytest-fixtures.md) — the preferred interface for test code.
-- [Session queue](../10-concepts/20-session-queue.md) — the FIFO model that `_wait_for_active_session` polls.
-- [Lab lifecycle](../10-concepts/30-lab-lifecycle.md) — reference counting, SHA identity, reuse semantics.
-- [REST API](../30-server/10-rest-api.md) — every endpoint the client wraps, plus a few it doesn't.
-- [Configuration](../30-server/20-configuration.md) — environment variables that tune the constructor's defaults.
+- **[Pytest fixtures](10-pytest-fixtures.md)** — the preferred interface for test code.
+- **[Client config](30-configuration.md)** — environment variables that drive the constructor's defaults via the fixture.
+- **[Session queue](../10-concepts/20-session-queue.md)** — the FIFO model that `_wait_for_active_session` polls.
+- **[Lab lifecycle](../10-concepts/30-lab-lifecycle.md)** — reference counting, SHA identity, reuse semantics.
+- **[REST API](../30-server/40-rest-api.md)** — every endpoint the client wraps, plus a few it doesn't.

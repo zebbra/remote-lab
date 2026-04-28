@@ -1,21 +1,14 @@
 ---
-title: Session Queue
+title: Session queue
 description: FIFO session model — how WAITING sessions are promoted to ACTIVE, how heartbeats keep them alive, and when the server evicts them.
 tags: [concept, server, lifecycle, testing]
 crosslink_defines: []
 crosslink_references: []
 ---
 
-# Session Queue
+# Session queue
 
-Only one lab runs per host, so only one client can drive it at a time. The
-session queue is the mechanism that decides who goes next, and it is the only
-thing standing between well-behaved cooperation and a deadlocked test suite.
-
-> **Why a queue?** Netlab topologies take minutes to bring up. A queue lets a
-> waiting client poll for its turn at whatever cadence it likes — and lets the
-> server keep answering health checks and status requests for everyone else —
-> while only one client at a time actually drives Netlab.
+*FIFO. That's the whole queue.* New sessions go to the tail; the head is whoever can talk to Netlab right now; everyone else polls until promotion. The state machine, the heartbeats, and the eviction timeouts below are all implementations of that one rule.
 
 ## The state machine
 
@@ -29,6 +22,8 @@ stateDiagram-v2
     WAITING --> [*]: 600s without movement
     ACTIVE --> [*]: 300s without heartbeat
 ```
+
+*Two states; promotion at the head, eviction on timeout — that's the whole queue.*
 
 The queue itself is a plain Python list in the server process; the head is the
 ACTIVE session (if any), and the rest are WAITING in insertion order.
@@ -60,9 +55,10 @@ If a client three places back gets impatient and `DELETE`s its session, that
 slot is removed without rearranging anyone else's position.
 
 > **Why no priority scheme?** A priority queue needs a reason to prefer one
-> test over another. None of the consumer projects — most importantly
-> `neops-worker-sdk-py` — surface that intent to the server, so the server
-> doesn't try to guess. First-come, first-served is the only fair default.
+> test over another. None of the consumer projects — most importantly the
+> [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) — surface
+> that intent to the server, so the server doesn't try to guess.
+> First-come, first-served is the only fair default.
 
 ## The access boundary
 
@@ -171,6 +167,38 @@ Expected sequence during a busy queue:
 
 `RemoteLabClient` does this automatically with exponential backoff on
 retriable errors. See [RemoteLabClient](../20-client/20-python-client.md).
+
+## Queue contention under CI load
+
+When multiple runners point at one Remote Lab server, each creates its own session and enters the FIFO queue. The server promotes exactly one session to ACTIVE at a time; everyone else waits.
+
+**What each client does while waiting:**
+
+<!-- trace: neops_remote_lab/client.py:197 -->
+
+- On `POST /lab`, if the server returns `423 Locked` (another session holds the lab with a different topology), `RemoteLabClient.acquire()` sleeps 5 s and retries in a loop. The loop is bounded by `lab_acquisition_timeout` (default 600 s / `REMOTE_LAB_ACQUISITION_TIMEOUT`); after that the client raises.
+- While the session is still `WAITING` in the queue, `GET /session/{id}` polls every 5 s until promotion. The poll itself refreshes `last_seen_at`, so polling waiters do not go stale.
+
+### Choosing CI concurrency
+
+For `N` concurrent runners all expecting to run tests against one server, the back-of-envelope queue-depth worst case is:
+
+```
+queue_depth_wait ≈ N × (avg_lab_hold_time + teardown_cost)
+```
+
+If `avg_lab_hold_time + teardown_cost` is 5 minutes and you run 8 concurrent jobs, the 8th job waits up to ~40 minutes. Compare to the server's `_WAITING_SESSION_TIMEOUT` (600 s) — if the tail wait exceeds that, the server drops the session and your client sees a timeout error. Two ways out:
+
+1. **Lower concurrency** to keep the worst-case wait under `_WAITING_SESSION_TIMEOUT`.
+2. **Raise both timeouts together** — client `REMOTE_LAB_SESSION_TIMEOUT` and server `_WAITING_SESSION_TIMEOUT` must agree (the server-side constant is at the moment a code change, not a knob; coordinate with the operator).
+
+### Shared topologies collapse the queue
+
+If multiple CI jobs target the **same** topology with `reuse=true`, they do **not** serialize on `netlab up` — the server reuses the running lab and acquire becomes a refcount increment. **This is the single biggest contention mitigation.** A fleet of 20 tests sharing one topology pays Netlab boot cost once and queues only at the session layer (which is much cheaper). See [Pytest Fixtures → reuse](../20-client/10-pytest-fixtures.md) for the fixture-level switch and [Lab Lifecycle → Reuse](30-lab-lifecycle.md#reuse-the-refcount-increments) for the underlying mechanism.
+
+### Per-request timeout, not wall-clock
+
+`REMOTE_LAB_ACQUISITION_TIMEOUT` is passed as the `timeout=` kwarg on each individual `POST /lab` call (`client.py:192`); it is **not** a wall-clock bound on the `while True:` 423-retry loop. A loaded server that returns `423 Locked` quickly will make the client spin forever at 5-second intervals. To fail fast, wrap the acquire in a pytest-level timeout or use CI-level job timeouts (see [CI quickstart](../getting-started/40-ci.md)).
 
 ## Common pitfalls
 

@@ -1,6 +1,6 @@
 ---
-title: Remote Lab
-description: FastAPI service plus pytest11 plugin that gives integration tests exclusive access to a real Netlab topology via a FIFO queue.
+title: Neops Remote Lab
+description: FastAPI service exposing exclusive, queue-brokered access to a real Netlab topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.
 tags: [concept, overview]
 crosslink_defines: [remote-lab]
 crosslink_references: []
@@ -8,58 +8,70 @@ crosslink_references: []
 
 # Neops Remote Lab
 
-*A FastAPI service and pytest11 plugin that gives your tests exclusive access to a real [Netlab](https://netlab.tools/) topology — without stepping on anyone else's.*
+*A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.*
 
-Network-automation tests want real devices, not mocks. But [Netlab](https://netlab.tools/) only lets
-one topology run per host, so a shared lab host turns into a collision
-playground the moment more than one engineer — or more than one CI job —
-presses *run*. `neops-remote-lab` fronts that host with a small HTTP service
-and a pytest fixture: every test asks for a session, waits its turn in a FIFO
-queue, gets the lab, then tears it down when the last consumer walks away.
+`neops-remote-lab` fronts a Netlab host with a small HTTP service and a pytest fixture. Every test asks for a session, waits in a FIFO queue, gets the lab, then tears it down when the last consumer walks away.
 
 <!-- trace: neops_remote_lab/server.py:390 -->
 <!-- trace: neops_remote_lab/netlab/lab_manager.py:43 -->
 
-## Where it sits in the neops ecosystem
+## Pick your path
 
-This repository ships two cooperating surfaces: a **FastAPI server**
-(`neops_remote_lab.server`) that runs on the lab host, and a **pytest11
-plugin** (`neops_remote_lab.testing.fixture`) that runs inside your test
-suite. The plugin's `remote_lab_fixture` factory is the **stable public API** —
-[**neops-worker-sdk-py**](https://github.com/zebbra/neops-worker-sdk-py) imports it
-directly, so its call signature is a contract you can rely on across releases:
-you can focus on your test code without worrying that an upstream change will
-quietly rearrange the fixture under you.
+<div class="grid cards" markdown>
 
-<!-- trace: AGENTS.md:3 -->
+-   :material-test-tube:{ .lg .middle } &nbsp; **Worker SDK developers**
 
-!!! note "Two audiences, one project"
-    If you are writing tests, you will only touch the pytest side
-    (`remote_lab_fixture`, `RemoteLabClient`). If you are running the
-    service on a shared host, you will mostly live in the FastAPI side and
-    the Netlab + VPN deployment pages. Both sides share the same vocabulary
-    ("session", "lab", "reuse") and the same FIFO contract.
+    ---
 
-!!! danger "Internal-trust service — no HTTP authentication"
-    `neops-remote-lab` ships **without** HTTP authentication. The only
-    access boundary on `/lab/*` endpoints is the `X-Session-ID` header of an
-    ACTIVE session; non-active sessions receive `423 Locked`. The
-    `/session/heartbeat` endpoint is gated less tightly — it only requires
-    the session to exist (404 if unknown) and accepts heartbeats from
-    WAITING sessions too, which is how a client keeps its queue slot alive
-    before promotion. **Deploy only on a Headscale tailnet or another
-    private network.** See
-    [Administration → Security posture](30-server/30-administration.md#security-posture)
-    for the full threat model and
-    [Headscale VPN](40-deployment/20-headscale-vpn.md) for the recommended enclosure.
-    <!-- trace: neops_remote_lab/server.py:488 -->
+    *A real Netlab device for your function-block tests.*
+
+    - Install + `REMOTE_LAB_URL` — two steps, then the [Worker SDK testing guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/) takes over
+    - Multi-vendor topology patterns (FRR, Nokia SR Linux, Cisco IOL)
+    - The pytest fixture the Worker SDK imports as a stable API
+
+    [Plug into Worker SDK :material-arrow-right:](getting-started/15-worker-sdk.md)
+
+-   :material-server:{ .lg .middle } &nbsp; **Operators**
+
+    ---
+
+    *Run the service on a shared host.*
+
+    - 30-second foreground launch + `/healthz` sanity check
+    - Pick the deployment shape — laptop, VM, multi-tenant, or CI runner pool
+    - `systemd` unit, stale-lock recovery, stuck-lab cleanup runbook
+
+    [Run the service :material-arrow-right:](30-server/index.md)
+
+-   :material-source-branch:{ .lg .middle } &nbsp; **Contributors**
+
+    ---
+
+    *Change the codebase safely.*
+
+    - The 30-minute path to your first PR
+    - Eight invariants every change must preserve
+    - Internals deep-dives (async, locking, atexit, test stubbing) and an anti-patterns grep target for review
+
+    [Contribute :material-arrow-right:](50-contributing/index.md)
+
+-   :material-api:{ .lg .middle } &nbsp; **External API users**
+
+    ---
+
+    *Drive the lab from any HTTP-capable stack.*
+
+    - Six cURL calls end-to-end — no Python required
+    - Full REST contract with per-endpoint examples
+    - Wire into GitHub Actions, GitLab CI, or Jenkins
+
+    [Drive from cURL :material-arrow-right:](getting-started/30-curl.md)
+
+</div>
 
 ## Session-and-lab lifecycle
 
-Every test follows the same four-step lifecycle: **create a session** (which
-joins the queue), **wait to become active**, **upload a topology and
-acquire the lab**, then **release** on teardown. Client B waits behind
-Client A without ever touching a lock.
+Every test follows the same four-step lifecycle: **create a session** (which joins the queue), **wait to become active**, **upload a topology and acquire the lab**, then **release** on teardown. Client B waits behind Client A without ever touching a lock.
 
 <!-- trace: neops_remote_lab/server.py:390 -->
 
@@ -97,93 +109,49 @@ sequenceDiagram
     Server-->>ClientB: (next poll) status=ACTIVE, position=0
 ```
 
-*Session-and-lab lifecycle: FIFO queue → exclusive access → shared teardown
-when the last user leaves.* The promotion rules, stale-session timeouts, and
-heartbeat cadence are detailed in
-[Session queue](10-concepts/20-session-queue.md); the
-SHA-256-keyed reuse counting is covered in
-[Lab lifecycle](10-concepts/30-lab-lifecycle.md).
+*FIFO queue → exclusive access → shared teardown when the last user leaves.* The promotion rules, stale-session timeouts, and heartbeat cadence live in [Session Queue](10-concepts/20-session-queue.md); SHA-256-keyed reuse counting in [Lab Lifecycle](10-concepts/30-lab-lifecycle.md).
 
-## Who uses this?
+## Where it sits in the neops ecosystem
 
-<div class="grid cards" markdown>
+`neops-remote-lab` is the test substrate for the wider neops platform. The [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) imports `remote_lab_fixture` directly. If you're new to neops, [How Remote Lab fits with neops](99-appendix/neops-ecosystem.md) maps the surrounding pieces; if you're not on neops at all, this section is safely skippable.
 
--   **SDK consumers** — you want a fixture that gives you a real device
+<!-- trace: AGENTS.md:3 -->
 
-    ---
-
-    Declare `remote_lab_fixture("path/to/topology.yml")` in `conftest.py`,
-    write your test, run `pytest`. Session, queue, and lifecycle disappear
-    into the fixture. When you want to drive the service from a script
-    instead, the same package ships a `RemoteLabClient` you can call directly.
-
-    [Open Getting Started →](getting-started/index.md)
-
--   **Operators** — you want to run this on a shared host
-
-    ---
-
-    Startup sequence, single-instance filelock recovery, stale-lab
-    cleanup, the [Headscale enclosure](40-deployment/20-headscale-vpn.md),
-    and the security posture you sign up for.
-
-    [Open the Server reference →](30-server/index.md)
-
--   **Contributors** — you want to change the codebase
-
-    ---
-
-    Invariants you must preserve, the conventions code review enforces
-    (`*Dto` suffix, `_run_blocking()` discipline, `connector.run_netlab()`
-    as the only Netlab path), the CVE-pinned dependencies, and the
-    branch-to-PR flow.
-
-    [Open AGENTS.md on GitHub →](https://github.com/zebbra/neops-remote-lab/blob/develop/AGENTS.md)
-
-</div>
+!!! danger "No HTTP authentication"
+    `neops-remote-lab` ships **without** bearer-token, OAuth, or mTLS
+    authentication. The only access boundary on `/lab/*` is the
+    `X-Session-ID` of an ACTIVE session. **Deploy behind a VPN.** See
+    [Security model](30-server/30-security.md) for the full posture.
+    <!-- trace: neops_remote_lab/server.py:488 -->
 
 ## Reading paths
 
 Pick the route that matches your current question.
 
 !!! tip "New to the project — you want your first passing test"
-    [Quickstart](getting-started/10-quickstart.md) → [Pytest fixtures](20-client/10-pytest-fixtures.md) →
-    [Topology format](10-concepts/40-topology-format.md).
-    You will install the client, write a three-line test, and see it pass.
+    [Quickstart](getting-started/10-pytest.md) → [Pytest Fixtures](20-client/10-pytest-fixtures.md) → [Topology Format](10-concepts/40-topology-format.md). Install, three-line test, see it pass.
 
 !!! info "Concepts first — you want to understand before you build"
-    [Architecture](10-concepts/10-architecture.md) → [Session queue](10-concepts/20-session-queue.md) →
-    [Lab lifecycle](10-concepts/30-lab-lifecycle.md) → [Topology format](10-concepts/40-topology-format.md).
-    These four pages cover every invariant the system enforces and why.
+    [Architecture](10-concepts/10-architecture.md) → [Session Queue](10-concepts/20-session-queue.md) → [Lab Lifecycle](10-concepts/30-lab-lifecycle.md) → [Topology Format](10-concepts/40-topology-format.md). Every invariant the system enforces and why.
 
 !!! info "Standing up the host — you are deploying the service"
-    [Netlab host setup](40-deployment/10-netlab-host-setup.md) →
-    [Headscale VPN](40-deployment/20-headscale-vpn.md) →
-    [Administration](30-server/30-administration.md) → [Configuration](30-server/20-configuration.md).
-    Install Netlab, enclose the host in a private tailnet, then configure
-    and operate the server.
+    [Netlab host setup](40-deployment/10-netlab-host-setup.md) → [Headscale: quick setup](40-deployment/20-headscale-quick-setup.md) → [Operator runbook](30-server/10-administration.md) → [Configuration](30-server/20-configuration.md). Install Netlab, enclose the host in a private tailnet, configure and operate the server.
 
 !!! info "Wiring in a new client — you are integrating a consumer"
-    [REST API](30-server/10-rest-api.md) → [Python client](20-client/20-python-client.md) →
-    [Pytest fixtures](20-client/10-pytest-fixtures.md).
-    The API reference is authoritative; the Python client is a thin
-    wrapper over it; the fixture is the stable consumer surface.
+    [REST API](30-server/40-rest-api.md) → [Python Client](20-client/20-python-client.md) → [Pytest Fixtures](20-client/10-pytest-fixtures.md). The API reference is authoritative; the Python client is a thin wrapper; the fixture is the stable consumer surface.
+
+!!! info "Driving from a non-Python stack — you are integrating into an existing harness"
+    [REST quickstart](getting-started/30-curl.md) → [CI quickstart](getting-started/40-ci.md) → [Debugging](30-server/50-debugging.md). Stand up a session and a lab end-to-end with cURL, then wire it into your CI runner of choice.
+
+!!! info "Looking for runnable examples"
+    [Cookbook](99-appendix/cookbook.md). Pytest, Python (no-pytest), cURL, topology, and deployment recipes — every link goes to GitHub so the recipe survives docs-site rebuilds.
 
 ## External references
 
-- [Netlab](https://netlab.tools/) — the upstream lab orchestrator this
-  service wraps. Authoritative reference for topology YAML, providers, and
-  vendor kinds.
-- [neops-worker-sdk-py](https://github.com/zebbra/neops-worker-sdk-py) — the primary
-  consumer of this package; imports `remote_lab_fixture` as a stable API.
-- [Containerlab](https://containerlab.dev/) — the container runtime Netlab
-  drives by default in this project (`provider: clab`).
-- [Headscale](https://headscale.net/) — the open-source Tailscale control
-  plane used for the recommended VPN enclosure
-  ([deployment guide](40-deployment/20-headscale-vpn.md)).
-- [Material for MkDocs reference](https://squidfunk.github.io/mkdocs-material/reference/)
-  and [pymdown-extensions Snippets](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/)
-  — theme and extension docs backing this site.
-- Project [`README.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/README.md) and
-  [`AGENTS.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/AGENTS.md) — repository-level
-  conventions, invariants, and agent context.
+- [neops platform docs](https://docs.neops.io/) — the umbrella site for the wider platform.
+- [Netlab](https://netlab.tools/) — the upstream lab orchestrator this service wraps. Authoritative reference for topology YAML, providers, and vendor kinds.
+- [Worker SDK](https://docs.neops.io/neops-worker-sdk-py/docs/) — the primary consumer; imports `remote_lab_fixture` as a stable API ([integration guide](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)).
+- [Containerlab](https://containerlab.dev/) — the container runtime Netlab drives by default in this project (`provider: clab`).
+- [Headscale](https://headscale.net/) — the open-source Tailscale control plane used for the recommended VPN enclosure ([deployment guide](40-deployment/20-headscale-quick-setup.md)).
+- [Material for MkDocs reference](https://squidfunk.github.io/mkdocs-material/reference/) and [pymdown-extensions Snippets](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/) — theme and extension docs backing this site.
+- Project [`README.md`](https://github.com/zebbra/remote-lab/blob/develop/README.md) and [`AGENTS.md`](https://github.com/zebbra/remote-lab/blob/develop/AGENTS.md) — repository-level conventions, invariants, and agent context.
