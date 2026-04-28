@@ -116,6 +116,7 @@ def ensure_docs_dir():
 # referenced from extra_css in the project's mkdocs_custom.yml).
 MANAGED_DOCS_ASSETS = [
     "assets/extra.css",
+    "assets/extra.js",
 ]
 
 

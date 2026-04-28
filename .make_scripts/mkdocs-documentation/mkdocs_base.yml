@@ -34,6 +34,14 @@ theme:
 extra_css:
   - assets/extra.css
 
+# Shared scripting — extra.js is a "managed asset" same as extra.css.
+# Provides the tab-aware TOC behaviour (synthetic per-tab parents in the
+# right sidebar, deep-link tab activation, URL pollution guard) for any
+# project using pymdownx.tabbed with alternate_style: true. No-op on pages
+# without tabbed content.
+extra_javascript:
+  - assets/extra.js
+
 hooks:
   - .make_scripts/mkdocs-documentation/hooks/inline_nav_include.py
   - .make_scripts/mkdocs-documentation/hooks/fix_symlinks.py

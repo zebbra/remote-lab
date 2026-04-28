@@ -1,55 +1,137 @@
 /* ─────────────────────────────────────────────────────────────────
  * Tabbed content (pymdownx.tabbed with alternate_style: true)
  *
- * Adds a subtle container, a distinct label-row background, and a
- * shaded content area so each tab group reads as a single visual unit.
- * Without this, content tabs visually bleed into surrounding prose.
+ * Goal: minimal but distinguishable. Subtle outer box, slim labels,
+ * dark+heavy active label, accent-coloured moving underline.
+ *
+ * pymdownx alternate_style puts inputs as siblings of .tabbed-labels
+ * (not adjacent to each label), so the active label has to be
+ * targeted via the nth-child positional pattern Material uses
+ * internally — `input:nth-child(N):checked ~ .tabbed-labels > :nth-child(N)`.
+ * That's why this file lists positions 1..8 explicitly.
  * ───────────────────────────────────────────────────────────────── */
 
+/* Container — subtle outer box so the pane reads as a unit. The
+ * labels row scrolls naturally with content; we deliberately do NOT
+ * make it sticky (sticky-positioning under Material's auto-hiding
+ * header is a source of subtle racing bugs).
+ *
+ * scroll-margin-top mirrors the value Material uses on :target
+ * elements (3.6rem mobile, 6rem on desktop where the header is
+ * lifted with the tab bar). When scrollIntoView lands on the
+ * tabbed-set, the labels row clears Material's sticky header
+ * instead of disappearing behind it. */
 .md-typeset .tabbed-set {
-  border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: .4rem;
-  margin: 1.4em 0;
-  overflow: hidden;
+  margin: 1.2em 0;
   background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: .35rem;
+  overflow: hidden;
+  scroll-margin-top: 3.6rem;
 }
 
+@media screen and (min-width: 76.25em) {
+  .md-header--lifted ~ .md-container .md-typeset .tabbed-set {
+    scroll-margin-top: 6rem;
+  }
+}
+
+/* Label row — slim, no fill, single divider line at the bottom. */
 .md-typeset .tabbed-set > .tabbed-labels {
   display: flex;
-  background: var(--md-code-bg-color);
+  gap: 0;
+  margin: 0;
+  padding: 0 .25rem;
+  background: var(--md-default-bg-color);
+  box-shadow: none;
   border-bottom: 1px solid var(--md-default-fg-color--lightest);
 }
 
+/* Tighten Material's chunky default label padding + font size. */
 .md-typeset .tabbed-set > .tabbed-labels > label {
-  flex: 1;
-  text-align: center;
+  padding: .35rem .85rem;
+  font-size: .72rem;
   font-weight: 600;
-  opacity: .55;
-  padding: .65rem 1.1rem;
-  font-size: .82rem;
-  transition: opacity .15s ease;
+  white-space: nowrap;
 }
 
-.md-typeset .tabbed-set > .tabbed-labels > label:hover {
-  opacity: .8;
+/* Active label — heavier weight (Material already handles colour
+ * via its own nth-child rules, painting active in default-fg-color
+ * and inactive in default-fg-color--light). */
+.md-typeset .tabbed-set > input:first-child:checked ~ .tabbed-labels > :first-child,
+.md-typeset .tabbed-set > input:nth-child(2):checked ~ .tabbed-labels > :nth-child(2),
+.md-typeset .tabbed-set > input:nth-child(3):checked ~ .tabbed-labels > :nth-child(3),
+.md-typeset .tabbed-set > input:nth-child(4):checked ~ .tabbed-labels > :nth-child(4),
+.md-typeset .tabbed-set > input:nth-child(5):checked ~ .tabbed-labels > :nth-child(5),
+.md-typeset .tabbed-set > input:nth-child(6):checked ~ .tabbed-labels > :nth-child(6),
+.md-typeset .tabbed-set > input:nth-child(7):checked ~ .tabbed-labels > :nth-child(7),
+.md-typeset .tabbed-set > input:nth-child(8):checked ~ .tabbed-labels > :nth-child(8) {
+  font-weight: 800;
 }
 
-/* Active tab — selected label gets full opacity and an indicator line. */
-.md-typeset .tabbed-set > input:checked + label {
-  opacity: 1;
-  color: var(--md-accent-fg-color);
+/* Active indicator — keep Material's JS-driven moving underline,
+ * but recolour from default-fg to the accent for a pop of colour. */
+.js .md-typeset .tabbed-set > .tabbed-labels:before {
+  background: var(--md-accent-fg-color);
 }
 
-/* Tab content area — slightly inset so tab boundary is unambiguous. */
+/* Content area — small inset so code blocks and prose breathe inside
+ * the bordered container. */
 .md-typeset .tabbed-set > .tabbed-content {
-  padding: .9rem 1.2rem;
+  padding: .8rem 1rem;
 }
 
-/* Dark mode polish — the lightest fg color is too pale on dark; nudge. */
+/* Trim the default top margin of code blocks inside the tab so they
+ * don't double-pad against the content's top inset. */
+.md-typeset .tabbed-set > .tabbed-content .tabbed-block > pre:first-child,
+.md-typeset .tabbed-set > .tabbed-content .tabbed-block > div:first-child {
+  margin-top: 0;
+}
+
+/* Dark mode — divider + border use a slightly heavier token. */
 [data-md-color-scheme="slate"] .md-typeset .tabbed-set {
   border-color: var(--md-default-fg-color--lighter);
 }
 
 [data-md-color-scheme="slate"] .md-typeset .tabbed-set > .tabbed-labels {
   border-bottom-color: var(--md-default-fg-color--lighter);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ * Tab-aware TOC entries (rendered by extra.js).
+ *
+ * Synthetic parent entries created from a tab label use `--tab` modifier
+ * classes. Style them slightly differently from real heading entries so
+ * the reader can tell at a glance that "Nokia SR Linux" is a tab, not
+ * an H3. Italic + a small chevron prefix does the trick.
+ * ───────────────────────────────────────────────────────────────── */
+
+.md-nav__link--tab {
+  font-style: italic;
+  opacity: .8;
+}
+
+.md-nav__link--tab::before {
+  content: "▸ ";
+  margin-right: .15rem;
+  opacity: .55;
+}
+
+.md-nav__link--tab:hover {
+  opacity: 1;
+}
+
+/* Hide the children of any synthetic tab-group whose tab isn't
+ * currently active. Keeps Material's scroll-spy from highlighting
+ * headings in hidden tabs (which all collapse to the same scroll
+ * position when their parent .tabbed-block is display:none). */
+.md-nav__item--tab-inactive > .md-nav {
+  display: none;
+}
+
+/* Active-tab marker — a small chevron rotation so the user can tell
+ * at a glance which tab's children are showing. */
+.md-nav__item--tab-active > .md-nav__link--tab::before {
+  content: "▾ ";
+  opacity: .8;
 }
