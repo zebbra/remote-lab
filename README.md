@@ -7,13 +7,11 @@
 [![Status: developer preview](https://img.shields.io/badge/status-developer--preview-orange)](#)
 
 > [!IMPORTANT]
-> **Developer Preview Disclaimer**
+> **Developer preview — not production-ready.**
 >
-> This repository is an early-stage developer preview and is not production-ready.
-> While we are currently finalizing an open-source friendly license, all rights are
-> reserved in the interim. We encourage you to explore the code, experiment with it,
-> and share your feedback via issues or discussions. Use of this software is at your
-> own risk and provided "as-is" without warranty.
+> - **License:** an open-source friendly license is in the works; until then, all rights are reserved.
+> - **Use:** at your own risk, "as-is", without warranty.
+> - **Feedback welcome:** explore the code, experiment, and open issues or discussions.
 
 *A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.*
 
