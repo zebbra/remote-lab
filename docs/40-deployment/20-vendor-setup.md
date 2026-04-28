@@ -242,3 +242,5 @@ If you have not installed Netlab + Containerlab yet, start with [Netlab host](10
 - **[netlab.tools/platforms](https://netlab.tools/platforms/)** — authoritative per-platform reference for every device Netlab supports.
 - **[containerlab.dev/manual/kinds](https://containerlab.dev/manual/kinds/)** — authoritative per-kind reference for the underlying container runtime.
 - **[Worker SDK → Remote lab testing](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)** — once your platform boots, the consumer that drives `remote_lab_fixture` against it.
+
+Next: **[Network enclosure →](25-network-enclosure.md)** to put a security boundary around the host, then **[Run the service →](../30-server/index.md)**.
