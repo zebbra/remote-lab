@@ -17,7 +17,6 @@ keywords = [
 ]
 dependencies = [
   "python-dotenv>=1.2.2,<2", # CVE-2026-28684 fix
-  "neops-workflow-engine-client>=0.42.0b0,<0.43.0",
   "fastapi>=0.116.0",
   "starlette>=0.49.1", # CVE-2025-62727 fix
   "uvicorn>=0.29.0,<0.30",
