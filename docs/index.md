@@ -8,9 +8,26 @@ crosslink_references: []
 
 # Neops Remote Lab
 
-*A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.*
+*Three lines of pytest, one shared lab host, no race conditions.* `neops-remote-lab` fronts a [Netlab](https://netlab.tools/) host with a small HTTP service and a pytest fixture. Every test asks for a session, waits in a FIFO queue, gets the lab, then tears it down when the last consumer walks away.
 
-`neops-remote-lab` fronts a Netlab host with a small HTTP service and a pytest fixture. Every test asks for a session, waits in a FIFO queue, gets the lab, then tears it down when the last consumer walks away.
+```bash
+pip install neops-remote-lab
+```
+
+```python title="tests/conftest.py"
+from neops_remote_lab.testing.fixture import remote_lab_fixture
+
+demo = remote_lab_fixture("tests/topologies/demo.yml")
+```
+
+```python title="tests/test_demo.py"
+def test_lab_has_two_devices(demo):
+    assert len(demo) == 2
+```
+
+That's it — the queue, the topology upload, the heartbeat, the teardown all live behind the fixture. Drive it from any HTTP-capable stack via the [REST API](30-server/40-rest-api.md) too.
+
+[On PyPI](https://pypi.org/project/neops-remote-lab/) · [Source](https://github.com/zebbra/remote-lab) · [Worker SDK uses it as a stable contract](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)
 
 <!-- trace: neops_remote_lab/server.py:390 -->
 <!-- trace: neops_remote_lab/netlab/lab_manager.py:43 -->

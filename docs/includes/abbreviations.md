@@ -9,6 +9,7 @@
 *[EULA]: End-User License Agreement
 *[EVPN]: Ethernet VPN
 *[FB]: Function Block — see Function Block tooltip
+*[FIFO]: First-In, First-Out — the queue discipline `neops-remote-lab` uses to serialize lab access
 *[FRR]: FRRouting
 *[GHCR]: GitHub Container Registry
 *[gNMI]: gRPC Network Management Interface
