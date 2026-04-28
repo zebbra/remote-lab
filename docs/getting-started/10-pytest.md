@@ -108,7 +108,7 @@ whichever your project already uses.
 Create `tests/topologies/demo.yml`:
 
 ```yaml title="tests/topologies/demo.yml" linenums="1"
---8<-- "examples/quickstart/demo.yml"
+--8<-- "../examples/quickstart/demo.yml"
 ```
 
 1. `clab` selects Containerlab as the underlying launcher. This project is a
@@ -133,7 +133,7 @@ to use it. Keep them separate — the factory call belongs at module scope so
 pytest can discover the fixture name before collection runs.
 
 ```python title="tests/conftest.py" linenums="1"
---8<-- "examples/quickstart/conftest.py"
+--8<-- "../examples/quickstart/conftest.py"
 ```
 
 1. The package registers its pytest plugin on install, so `remote_lab_fixture`
@@ -143,7 +143,7 @@ pytest can discover the fixture name before collection runs.
    at import time — you find the typo before a single test runs. <!-- trace: neops_remote_lab/testing/fixture.py:72 -->
 
 ```python title="tests/test_demo.py" linenums="1"
---8<-- "examples/quickstart/test_demo.py"
+--8<-- "../examples/quickstart/test_demo.py"
 ```
 
 1. The fixture name `demo_lab` matches the variable in `conftest.py`.
