@@ -154,7 +154,7 @@ HTTP/1.1 204 No Content
 ## Polling from a client's perspective
 
 ```bash title="examples/curl/poll_until_active.sh"
---8<-- "examples/curl/poll_until_active.sh"
+--8<-- "../examples/curl/poll_until_active.sh"
 ```
 
 Expected sequence during a busy queue:

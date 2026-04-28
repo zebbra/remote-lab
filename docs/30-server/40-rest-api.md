@@ -309,7 +309,7 @@ All `/lab/*` endpoints require `X-Session-ID` for an ACTIVE session — see the 
 Combine the endpoints above into a full session:
 
 ```bash title="examples/curl/end_to_end_session.sh"
---8<-- "examples/curl/end_to_end_session.sh"
+--8<-- "../examples/curl/end_to_end_session.sh"
 ```
 
 ---

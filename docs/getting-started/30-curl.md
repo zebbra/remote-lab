@@ -253,7 +253,7 @@ can end it.
 canonical reference — drop it into your CI as-is:
 
 ```bash title="examples/curl/end_to_end_session.sh"
---8<-- "examples/curl/end_to_end_session.sh"
+--8<-- "../examples/curl/end_to_end_session.sh"
 ```
 
 Run it against your server:

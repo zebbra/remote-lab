@@ -28,7 +28,7 @@ some links. Here is the smallest useful starting point — two FRR routers on
 one link:
 
 ```yaml title="minimal_frr.yml"
---8<-- "examples/topologies/minimal_frr.yml"
+--8<-- "../examples/topologies/minimal_frr.yml"
 ```
 
 Expected Netlab output on `netlab up`:
