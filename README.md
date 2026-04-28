@@ -15,9 +15,9 @@
 [![Docs](https://img.shields.io/badge/docs-neops.io-blue)](https://docs.neops.io/neops-remote-lab/docs/)
 [![Status: developer preview](https://img.shields.io/badge/status-developer--preview-orange)](#)
 
-*A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — FIFO scheduling, content-hash-keyed lab reuse, reference-counted teardown, multi-vendor support (FRR, Nokia SR Linux, Cisco IOL).*
+*A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.*
 
-*Drive it from a pytest11 plugin (Python), the bundled REST API (any stack), or both.*
+`neops-remote-lab` fronts a Netlab host with a small HTTP service and a pytest fixture. Every consumer asks for a session, waits in a FIFO queue, gets the lab, and tears it down when the last consumer walks away. Topologies are identified by their SHA-256 content hash, so byte-identical files share the running lab — and FRR, Nokia SR Linux, and Cisco IOL all work out of the box.
 
 [On PyPI](https://pypi.org/project/neops-remote-lab/) · [Docs](https://docs.neops.io/neops-remote-lab/docs/) · [Worker SDK consumes it as a stable contract](https://docs.neops.io/neops-worker-sdk-py/docs/testing/30-remote-lab/)
 

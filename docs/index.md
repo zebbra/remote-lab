@@ -8,9 +8,9 @@ crosslink_references: []
 
 # Neops Remote Lab
 
-*A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — FIFO scheduling, content-hash-keyed lab reuse, reference-counted teardown, multi-vendor support (FRR, Nokia SR Linux, Cisco IOL).*
+*A FastAPI service exposing exclusive, queue-brokered access to a real [Netlab](https://netlab.tools/) topology — drive it from a pytest11 plugin (Python), the bundled [REST API](30-server/40-rest-api.md) (any stack), or both.*
 
-*Drive it from a pytest11 plugin (Python), the bundled [REST API](30-server/40-rest-api.md) (any stack), or both.*
+`neops-remote-lab` fronts a Netlab host with a small HTTP service and a pytest fixture. Every consumer asks for a session, waits in a FIFO queue, gets the lab, and tears it down when the last consumer walks away. Topologies are identified by their SHA-256 content hash, so byte-identical files share the running lab — and FRR, Nokia SR Linux, and Cisco IOL all work out of the box.
 
 === "uv (recommended)"
 
