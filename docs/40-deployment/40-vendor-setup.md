@@ -27,7 +27,7 @@ If you have not installed Netlab + Containerlab yet, start with [Netlab host](10
     ### Minimal FRR topology
 
     ```yaml title="examples/topologies/minimal_frr.yml"
-    --8<-- "examples/topologies/minimal_frr.yml"
+    --8<-- "../examples/topologies/minimal_frr.yml"
     ```
 
     `netlab up` pulls `frrouting/frr` from Docker Hub on first run, then uses the cached image afterward.
@@ -68,7 +68,7 @@ If you have not installed Netlab + Containerlab yet, start with [Netlab host](10
     Per-topology selection works the same as for any other Netlab device:
 
     ```yaml title="examples/topologies/minimal_srlinux.yml"
-    --8<-- "examples/topologies/minimal_srlinux.yml"
+    --8<-- "../examples/topologies/minimal_srlinux.yml"
     ```
 
     ### Verify

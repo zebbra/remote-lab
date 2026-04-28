@@ -73,7 +73,7 @@ unit file looks like this — save it at
 `/etc/systemd/system/neops-remote-lab.service`:
 
 ```ini title="/etc/systemd/system/neops-remote-lab.service"
---8<-- "examples/systemd/neops-remote-lab.service"
+--8<-- "../examples/systemd/neops-remote-lab.service"
 ```
 
 Install, enable, and start it:
@@ -239,7 +239,7 @@ without releasing), take the lab down via the REST API using any ACTIVE
 session:
 
 ```bash title="examples/scripts/force_cleanup.sh"
---8<-- "examples/scripts/force_cleanup.sh"
+--8<-- "../examples/scripts/force_cleanup.sh"
 ```
 
 As a last resort (server unreachable or wedged), clean up Netlab directly on

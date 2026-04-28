@@ -270,11 +270,11 @@ With the plugin:     test_a(lab1), test_c(lab1), test_b(lab2)
 ## End-to-end example
 
 ```python title="tests/conftest.py" linenums="1"
---8<-- "examples/pytest_fixtures/conftest.py"
+--8<-- "../examples/pytest_fixtures/conftest.py"
 ```
 
 ```python title="tests/test_frr_ospf.py" linenums="1"
---8<-- "examples/pytest_fixtures/test_frr_ospf.py"
+--8<-- "../examples/pytest_fixtures/test_frr_ospf.py"
 ```
 
 Run the whole file:

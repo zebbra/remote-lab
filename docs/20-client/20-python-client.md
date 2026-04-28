@@ -209,7 +209,7 @@ want to hit an endpoint the client does not wrap).
 your own `try`/`finally` or a small contextmanager:
 
 ```python title="A context manager wrapper you can copy" linenums="1"
---8<-- "examples/scripts/contextmanager_wrapper.py"
+--8<-- "../examples/scripts/contextmanager_wrapper.py"
 ```
 
 Using this wrapper makes a script resilient to exceptions between acquire
@@ -254,7 +254,7 @@ Implication: `acquire()` (which POSTs) has its own explicit polling loop for
 ## End-to-end example
 
 ```python title="examples/scripts/smoke.py" linenums="1"
---8<-- "examples/scripts/smoke.py"
+--8<-- "../examples/scripts/smoke.py"
 ```
 
 Run with:

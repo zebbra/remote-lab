@@ -86,12 +86,12 @@ Quick validation:
 netlab test clab
 ```
 
-See [Netlab Installation & Rootless Containerlab](./docs/netlab_configuration.md) for step‑by‑step instructions and troubleshooting.
+See [Netlab Installation & Rootless Containerlab](./docs/40-deployment/10-netlab-host-setup.md) for step‑by‑step instructions and troubleshooting.
 
 ### Headscale and Tailscale
 Use **Headscale (control plane) with Tailscale clients** to route traffic between your local machine/CI and the lab subnets. You can also bring your own VPN (e.g., WireGuard); the only requirement is that your test runner can reach the lab subnet(s). Headscale/Headplane may run on the Remote Lab VM or any reachable host.
 
-See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) for deployment, access, and client enrollment.
+See [Headscale + Headplane with Docker Compose](./docs/40-deployment/20-headscale-quick-setup.md) for deployment, access, and client enrollment.
 
 
 ## Quick Start
@@ -100,7 +100,7 @@ See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) f
 #### 1. Configure Headscale and Tailscale OR your own VPN solution (e.g. WireGuard)
 In order to connect to the Remote Lab subnet(s) from your local machine, you need to configure a VPN solution.
 
-See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) for more details.
+See [Headscale + Headplane with Docker Compose](./docs/40-deployment/20-headscale-quick-setup.md) for more details.
 
 #### 2. Start the Remote Lab Server
 
@@ -127,7 +127,7 @@ neops-remote-lab --host 0.0.0.0 --port 8000 --log-level info
 #### 1. Setup your local machine to connect to the Remote Lab subnet(s)
 Your network needs to be able to reach the Remote Lab subnet(s). After you configured Headscale on your Remote Lab VM, you can connect to it from your local machine.
 
-See [Headscale + Headplane with Docker Compose](./docs/headscale_headplane.md) for more details.
+See [Headscale + Headplane with Docker Compose](./docs/40-deployment/20-headscale-quick-setup.md) for more details.
 
 #### 2. Configure Your Tests (in your project)
 In projects that use `neops-remote-lab`, set the Remote Lab Manager URL:
