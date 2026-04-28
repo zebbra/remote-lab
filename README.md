@@ -23,39 +23,20 @@
 
 ## Install
 
-For the **Python client / pytest fixture** (library install):
+For the **Python client / pytest fixture** (library install) — pick whichever your project uses:
 
-=== "uv (recommended)"
-
-    ```bash
-    uv add neops-remote-lab
-    ```
-
-=== "Poetry"
-
-    ```bash
-    poetry add neops-remote-lab
-    ```
-
-=== "pip"
-
-    ```bash
-    pip install neops-remote-lab
-    ```
+```bash
+uv add neops-remote-lab        # uv (recommended)
+poetry add neops-remote-lab    # Poetry
+pip install neops-remote-lab   # pip
+```
 
 For the **runnable server CLI** (isolated install):
 
-=== "uv (recommended)"
-
-    ```bash
-    uv tool install neops-remote-lab
-    ```
-
-=== "pipx"
-
-    ```bash
-    pipx install neops-remote-lab
-    ```
+```bash
+uv tool install neops-remote-lab   # uv (recommended)
+pipx install neops-remote-lab      # pipx
+```
 
 > Picking between the two? Library install is what most consumers want — it gives you the pytest fixture and `RemoteLabClient`. CLI install is for operators standing up the server itself.
 
