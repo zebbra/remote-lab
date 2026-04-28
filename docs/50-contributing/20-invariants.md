@@ -129,4 +129,4 @@ If you need to exercise two topologies in the same test process, use `reuse_lab=
 - **[Internals: LabManager singleton & locking](40-internals-lab-manager.md)** — `try_acquire` vs `acquire`, GLOBAL_LOCK, stale-state recovery — the mechanics behind one-lab-per-host.
 - **[Internals: atexit + lifespan](50-internals-atexit.md)** — why teardown stays synchronous and silent.
 - **[Internals: CI test stubbing](60-internals-test-stubbing.md)** — how `LabManager` is shaped to make CI tests possible without `netlab`.
-- **[`AGENTS.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/AGENTS.md)** — the same invariants in repo-root form, plus the rest of the agent bootstrap context.
+- **[`AGENTS.md`](https://github.com/zebbra/remote-lab/blob/develop/AGENTS.md)** — the same invariants in repo-root form, plus the rest of the agent bootstrap context.

@@ -112,7 +112,7 @@ theme:
 # --8<-- [end:theme]
 
 # --8<-- [start:repo]
-repo_url: https://github.com/zebbra/neops-remote-lab
+repo_url: https://github.com/zebbra/remote-lab
 edit_uri: edit/main/docs
 # --8<-- [end:repo]
 

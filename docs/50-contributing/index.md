@@ -74,8 +74,8 @@ What you will not find here: a "how to call the API" tutorial — that's the [Qu
 |---|---|---|
 | [Invariants](20-invariants.md) + the four Internals pages | The rules and the mechanics that enforce them. | Before modifying server, queue, or lab-manager code; before reasoning about edge cases as a power consumer. |
 | [Anti-patterns](70-anti-patterns.md) | A one-page grep target for code review. | When reviewing a PR that touches the load-bearing surface. |
-| [`AGENTS.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/AGENTS.md) | The same invariants in repo-root form, alongside agent-bootstrap context. | When working with an AI assistant, or when you want a one-screen recap with no narrative. |
-| [`README.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/README.md) | Project overview, install, quick orientation. | First contact. |
+| [`AGENTS.md`](https://github.com/zebbra/remote-lab/blob/develop/AGENTS.md) | The same invariants in repo-root form, alongside agent-bootstrap context. | When working with an AI assistant, or when you want a one-screen recap with no narrative. |
+| [`README.md`](https://github.com/zebbra/remote-lab/blob/develop/README.md) | Project overview, install, quick orientation. | First contact. |
 | Source code itself | The truth. Trace comments in this section's pages point at the relevant lines. | When the docs and the code disagree — file a docs issue and trust the code. |
 
 ## What to read next

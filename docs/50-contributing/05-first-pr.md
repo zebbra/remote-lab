@@ -12,11 +12,11 @@ crosslink_references: []
 
 ## The path
 
-- [ ] **`git clone` the repo.** `git clone git@github.com:zebbra/neops-remote-lab.git`. Branch from `develop`, not `main` — every PR targets `develop`.
-- [ ] **Read [`AGENTS.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/AGENTS.md).** One screen. Lists the conventions code review enforces — `*Dto` suffix, `_run_blocking()` for blocking I/O in async handlers, `connector.run_netlab()` as the only Netlab path, CVE-pinned deps. Skim this **before** your first commit.
+- [ ] **`git clone` the repo.** `git clone git@github.com:zebbra/remote-lab.git`. Branch from `develop`, not `main` — every PR targets `develop`.
+- [ ] **Read [`AGENTS.md`](https://github.com/zebbra/remote-lab/blob/develop/AGENTS.md).** One screen. Lists the conventions code review enforces — `*Dto` suffix, `_run_blocking()` for blocking I/O in async handlers, `connector.run_netlab()` as the only Netlab path, CVE-pinned deps. Skim this **before** your first commit.
 - [ ] **Run `make check`.** Green on a fresh clone means your dev environment is set up. If it isn't, [Dev setup](10-dev-setup.md) walks the diagnose-and-fix path. *Do not skip this step* — you need it green to know whether your changes broke something.
 - [ ] **Read [Invariants](20-invariants.md).** The eight rules a PR cannot violate. Each entry is 5–10 lines. Read all eight; the one that bites you on your first PR is rarely the one you'd guess.
-- [ ] **Pick a [good-first-issue](https://github.com/zebbra/neops-remote-lab/labels/good%20first%20issue).** Or a typo, or a doc fix, or anything you've already noticed while reading these docs. The first PR is about the *flow*, not about a heroic feature.
+- [ ] **Pick a [good-first-issue](https://github.com/zebbra/remote-lab/labels/good%20first%20issue).** Or a typo, or a doc fix, or anything you've already noticed while reading these docs. The first PR is about the *flow*, not about a heroic feature.
 - [ ] **Open a PR.** CI runs `make check` (lint + typecheck + tests). When it's green, ask for review.
 
 ## What CI is going to check
@@ -79,6 +79,6 @@ After your first PR is in, [Anti-patterns](70-anti-patterns.md) is the one-page 
 
 ## See also
 
-- **[`AGENTS.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/AGENTS.md)** — the same invariants in repo-root form, alongside agent-bootstrap context. Read this if you're working with an AI assistant.
-- **[`README.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/README.md)** — project overview, install, quick orientation.
+- **[`AGENTS.md`](https://github.com/zebbra/remote-lab/blob/develop/AGENTS.md)** — the same invariants in repo-root form, alongside agent-bootstrap context. Read this if you're working with an AI assistant.
+- **[`README.md`](https://github.com/zebbra/remote-lab/blob/develop/README.md)** — project overview, install, quick orientation.
 - **[Architecture](../10-concepts/10-architecture.md)** — the high-level picture. The Internals pages assume you've read this.

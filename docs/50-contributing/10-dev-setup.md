@@ -28,7 +28,7 @@ to keep tests host-agnostic. See
 ## Clone and install
 
 ```bash
-git clone git@github.com:zebbra/neops-remote-lab.git
+git clone git@github.com:zebbra/remote-lab.git
 cd neops-remote-lab
 ```
 

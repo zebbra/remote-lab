@@ -120,7 +120,7 @@ stale. If you walk away mid-wait without polling and without
 slot.
 
 !!! tip "There is a polling script in the repo"
-    [`examples/curl/poll_until_active.sh`](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/curl/poll_until_active.sh)
+    [`examples/curl/poll_until_active.sh`](https://github.com/zebbra/remote-lab/blob/develop/examples/curl/poll_until_active.sh)
     is the same loop with a few niceties (timeout, structured output).
     Drop it into your CI as-is.
 

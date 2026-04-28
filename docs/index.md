@@ -154,4 +154,4 @@ Pick the route that matches your current question.
 - [Containerlab](https://containerlab.dev/) — the container runtime Netlab drives by default in this project (`provider: clab`).
 - [Headscale](https://headscale.net/) — the open-source Tailscale control plane used for the recommended VPN enclosure ([deployment guide](40-deployment/20-headscale-quick-setup.md)).
 - [Material for MkDocs reference](https://squidfunk.github.io/mkdocs-material/reference/) and [pymdown-extensions Snippets](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/) — theme and extension docs backing this site.
-- Project [`README.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/README.md) and [`AGENTS.md`](https://github.com/zebbra/neops-remote-lab/blob/develop/AGENTS.md) — repository-level conventions, invariants, and agent context.
+- Project [`README.md`](https://github.com/zebbra/remote-lab/blob/develop/README.md) and [`AGENTS.md`](https://github.com/zebbra/remote-lab/blob/develop/AGENTS.md) — repository-level conventions, invariants, and agent context.

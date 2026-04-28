@@ -119,7 +119,7 @@ plugins:
     - includes/*
     regex:
     - .*\.(tmp|bin|tar)$
-repo_url: https://github.com/zebbra/neops-remote-lab
+repo_url: https://github.com/zebbra/remote-lab
 site_name: Neops Remote Lab
 theme:
   custom_dir: docs/override

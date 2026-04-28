@@ -24,7 +24,7 @@ The smallest working `remote_lab_fixture` example — three-line test against a 
     --8<-- "examples/quickstart/conftest.py"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/quickstart/conftest.py)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/quickstart/conftest.py)
 
 ??? example "View `examples/quickstart/test_demo.py`"
 
@@ -32,7 +32,7 @@ The smallest working `remote_lab_fixture` example — three-line test against a 
     --8<-- "examples/quickstart/test_demo.py"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/quickstart/test_demo.py)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/quickstart/test_demo.py)
 
 ??? example "View `examples/quickstart/demo.yml`"
 
@@ -40,7 +40,7 @@ The smallest working `remote_lab_fixture` example — three-line test against a 
     --8<-- "examples/quickstart/demo.yml"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/quickstart/demo.yml)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/quickstart/demo.yml)
 
 ### Shared-topology fixture
 
@@ -52,7 +52,7 @@ Multiple tests against one running lab via `reuse_lab=True` — the contention-c
     --8<-- "examples/pytest_fixtures/conftest.py"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/pytest_fixtures/conftest.py)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/pytest_fixtures/conftest.py)
 
 ??? example "View `examples/pytest_fixtures/test_frr_ospf.py`"
 
@@ -60,7 +60,7 @@ Multiple tests against one running lab via `reuse_lab=True` — the contention-c
     --8<-- "examples/pytest_fixtures/test_frr_ospf.py"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/pytest_fixtures/test_frr_ospf.py)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/pytest_fixtures/test_frr_ospf.py)
 
 ## Python (no pytest) recipes
 
@@ -74,7 +74,7 @@ End-to-end `RemoteLabClient` lifecycle: acquire, list devices, release, close.
     --8<-- "examples/scripts/smoke.py"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/scripts/smoke.py)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/scripts/smoke.py)
 
 ### Context-manager wrapper
 
@@ -86,7 +86,7 @@ A `with`-statement wrapper that guarantees `release` on exception. Copy-paste-re
     --8<-- "examples/scripts/contextmanager_wrapper.py"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/scripts/contextmanager_wrapper.py)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/scripts/contextmanager_wrapper.py)
 
 ## cURL / shell recipes
 
@@ -100,7 +100,7 @@ The six-call lifecycle in one bash script — create, wait, acquire, inspect, re
     --8<-- "examples/curl/end_to_end_session.sh"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/curl/end_to_end_session.sh)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/curl/end_to_end_session.sh)
 
 ### Poll-until-active
 
@@ -112,7 +112,7 @@ A timeout-bounded poll loop that survives queue contention.
     --8<-- "examples/curl/poll_until_active.sh"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/curl/poll_until_active.sh)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/curl/poll_until_active.sh)
 
 ### Force-cleanup
 
@@ -124,7 +124,7 @@ Operator script: take the lab down via `DELETE /lab?force=true` using any ACTIVE
     --8<-- "examples/scripts/force_cleanup.sh"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/scripts/force_cleanup.sh)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/scripts/force_cleanup.sh)
 
 ## Topology recipes
 
@@ -138,7 +138,7 @@ Two FRR routers, one link — fastest possible boot, the default for CI.
     --8<-- "examples/topologies/minimal_frr.yml"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/topologies/minimal_frr.yml)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/topologies/minimal_frr.yml)
 
 ### Minimal SR Linux
 
@@ -150,7 +150,7 @@ Two-spine, two-leaf SR Linux fabric — the smallest Nokia-NOS example.
     --8<-- "examples/topologies/minimal_srlinux.yml"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/topologies/minimal_srlinux.yml)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/topologies/minimal_srlinux.yml)
 
 ### Multi-vendor (FRR + SR Linux)
 
@@ -162,7 +162,7 @@ Per-node `device:` selection: an SR Linux spine with two FRR leaves. Useful when
     --8<-- "examples/topologies/multi_vendor_frr_srlinux.yml"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/topologies/multi_vendor_frr_srlinux.yml)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/topologies/multi_vendor_frr_srlinux.yml)
 
 ## Deployment artifacts
 
@@ -176,7 +176,7 @@ Drop-in `neops-remote-lab.service` for running the server under systemd.
     --8<-- "examples/systemd/neops-remote-lab.service"
     ```
 
-    [View on GitHub :material-arrow-right:](https://github.com/zebbra/neops-remote-lab/blob/develop/examples/systemd/neops-remote-lab.service)
+    [View on GitHub :material-arrow-right:](https://github.com/zebbra/remote-lab/blob/develop/examples/systemd/neops-remote-lab.service)
 
 ## Worker SDK function-block test
 
