@@ -45,8 +45,8 @@ jobs:
       - name: Type-check
         run: uv run pyrefly check
 
-      - name: Security audit
-        run: uv run pip-audit --strict --progress-spinner=off --vulnerability-service osv
+      - name: Security audit (runtime deps)
+        run: make audit
 
       - name: Run tests
         run: uv run pytest

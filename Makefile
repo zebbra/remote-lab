@@ -19,6 +19,21 @@ test:
 	uv run pytest
 
 audit:
-	uv run pip-audit --strict --progress-spinner=off --vulnerability-service osv
+	# Audits the *runtime* dependency closure, not the dev environment.
+	# Rationale: pip-audit pulls `pip-api` -> `pip`, and the latest pip
+	# carries CVE-2026-3219 with no fixed version available. The service
+	# never invokes pip on user input, so scanning the audit toolchain
+	# itself produces noise without security signal. Exporting the
+	# `--no-dev` requirements first scopes the scan to what actually ships.
+	# Use `make audit-dev` to scan the dev environment as well.
+	uv export --no-dev --no-emit-project --format requirements-txt -o /tmp/neops-remote-lab-prod-reqs.txt
+	uv run pip-audit -r /tmp/neops-remote-lab-prod-reqs.txt \
+		--strict --progress-spinner=off --vulnerability-service osv
+
+audit-dev:
+	# Full-environment scan including dev tooling. Carries the pip CVE
+	# above; document any new ignore here with a justification.
+	uv run pip-audit --strict --progress-spinner=off --vulnerability-service osv \
+		--ignore-vuln CVE-2026-3219
 
 check: lint typeCheck audit test
