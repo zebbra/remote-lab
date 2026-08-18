@@ -1,19 +1,19 @@
 tag-major:
-	.make_scripts/release-management/tag_major.sh
+	uv run .make_scripts/release-management/release.py major
 tag-major-beta:
-	.make_scripts/release-management/tag_major_beta.sh
+	uv run .make_scripts/release-management/release.py major-beta
 tag-minor:
-	.make_scripts/release-management/tag_minor.sh
+	uv run .make_scripts/release-management/release.py minor
 tag-minor-beta:
-	.make_scripts/release-management/tag_minor_beta.sh
+	uv run .make_scripts/release-management/release.py minor-beta
 tag-patch:
-	.make_scripts/release-management/tag_patch.sh
+	uv run .make_scripts/release-management/release.py patch
 tag-patch-beta:
-	.make_scripts/release-management/tag_patch_beta.sh
+	uv run .make_scripts/release-management/release.py patch-beta
 tag-latest-beta:
-	.make_scripts/release-management/tag_latest_beta.sh
+	uv run .make_scripts/release-management/release.py latest-beta
 sync-release-assets:
-	.make_scripts/release-management/sync_release_assets.sh
+	gh release download --repo zebbra/release-management --pattern sync_release_assets.sh --output - | /bin/sh
 check-for-releases:
 	.make_scripts/release-management/check_for_releases.sh
 tag-major-minor-ruleset:
