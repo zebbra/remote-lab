@@ -1,5 +1,6 @@
+include $(dir $(lastword $(MAKEFILE_LIST)))no-default-goal.mk
 sync-infrastructure-assets:
-	.make_scripts/project-infrastructure/sync_infrastructure_assets.sh
+	gh release download --repo zebbra/project-infrastructure --pattern sync_infrastructure_assets.sh --output - | /bin/sh
 github-set-branch-protections:
 	.make_scripts/project-infrastructure/github_set_branch_protections.sh
 github-set-default-branch:

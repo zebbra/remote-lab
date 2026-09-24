@@ -5,45 +5,40 @@ on:
     types: [opened, labeled, unlabeled, synchronize]
 
 concurrency:
-  group: enforce-label
+  # Scoped per PR: a repo-wide group lets two active PRs cancel each other's runs
+  # of this required check, leaving both stuck on "cancelled".
+  group: enforce-label-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   enforce-label:
-    runs-on: hetzner
+    # The rule is applied here rather than through zebbra/actions: that repository
+    # is private, and a public repository cannot resolve an action from a private
+    # one. The other neops repositories are private and keep using the shared
+    # action.
+    #
+    # GitHub-hosted rather than `hetzner`: this repository is public, so a pull
+    # request from a fork would otherwise reach the self-hosted runner. The check
+    # reads the event payload and needs nothing else.
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - if: github.event_name == 'pull_request'
+      - name: Require exactly one release-note label
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
         run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
-          sudo apt-get install -y gh
-          
-          # Get the labels for the current PR
-          LABELS=$(gh pr view $PR_NUMBER --json labels --jq '.labels[].name')
+          set -euo pipefail
+          allowed="pr-breaking-change pr-new-feature pr-bugfix pr-security pr-other"
+          tr ' ' '\n' <<<"$allowed" > /tmp/allowed
+          present=$(jq -r '.[]' <<<"$LABELS" | grep -Fx -f /tmp/allowed || true)
+          count=$(printf '%s' "$present" | grep -c . || true)
 
-          # Define the required label types
-          VALID_LABELS=("pr-bugfix" "pr-breaking-change" "pr-other" "pr-new-feature" "pr-security")
-
-          # Flag to track if a valid label is found
-          VALID_LABEL_FOUND=false
-
-          # Check if any of the PR's labels match the required labels
-          for label in $LABELS; do
-            for valid_label in "${VALID_LABELS[@]}"; do
-              if [[ "$label" == "$valid_label" ]]; then
-                VALID_LABEL_FOUND=true
-                break 2
-              fi
-            done
-          done
-
-          # If no valid label is found, fail the workflow
-          if [[ "$VALID_LABEL_FOUND" == "false" ]]; then
-            echo "Error: PR must have one of the following labels: ${VALID_LABELS[*]}"
-            exit 1
+          if [ "$count" -eq 1 ]; then
+            echo "OK: $present"
+            exit 0
           fi
+          if [ "$count" -eq 0 ]; then
+            echo "::error::No release-note label. Add exactly one of: $allowed"
+          else
+            echo "::error::$count release-note labels ($(tr '\n' ' ' <<<"$present")); exactly one is allowed."
+          fi
+          exit 1
