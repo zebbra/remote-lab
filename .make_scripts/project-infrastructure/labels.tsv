@@ -1,0 +1,16 @@
+# name	color	description
+triaged	228B22	Accepted: valid and belongs in this repo
+needs-info	d876e3	Needs more information before it can be planned
+effort/XS	c5def5	Effort XS: about 0.25 person-days
+effort/S	a2c4f0	Effort S: about 1 person-day
+effort/M	6fa8e8	Effort M: about 2.5 person-days
+effort/L	3b82d9	Effort L: about 7.5 person-days
+effort/XL	1d4ed8	Effort XL: about 15 person-days
+complexity/low	c2e0c6	Complexity: low
+complexity/medium	fbca04	Complexity: medium
+complexity/high	d93f0b	Complexity: high
+pr-breaking-change	ffa500	PR introduces breaking change
+pr-new-feature	ffa500	PR introduces new feature/s
+pr-bugfix	ffa500	PR introduces a bugfix
+pr-security	ffa500	PR introduces a security improvement
+pr-other	ffa500	PR does something not covered by other labels

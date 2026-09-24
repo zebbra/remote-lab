@@ -24,6 +24,7 @@ gh release --repo ${ZEBBRA_PROJECT_INFRASTRUCTURE_SCRIPTS:-zebbra/project-infras
 
 (cd $tmp_download_folder && unzip *.zip && echo -e "\r✅ Unzip complete")
 \cp $tmp_download_folder/**/scripts/* .make_scripts/project-infrastructure/
+\cp $tmp_download_folder/**/assets/labels.tsv .make_scripts/project-infrastructure/
 
 mkdir .github 2>/dev/null || true
 
@@ -58,16 +59,15 @@ else
   echo "✅ Created CODEOWNERS file"
 fi
 
-if [ -d .github/workflows ]; then
-  echo "✅ Workflows folder already exists"
-  rm -f .github/workflows/enforce-pr-label.yml
-  \cp $tmp_download_folder/**/assets/enforce-pr-label.yml .github/workflows/
-  echo "✅ Updated Workflows folder"
+# A public repository cannot use an action from the private zebbra/actions repository
+if [ "$(gh repo view --json visibility --jq .visibility)" = "PUBLIC" ]; then
+  enforce_pr_label_workflow=enforce-pr-label-public.yml
 else
-  mkdir .github/workflows
-  \cp $tmp_download_folder/**/assets/enforce-pr-label.yml .github/workflows/
-  echo "✅ Created Workflows folder"
+  enforce_pr_label_workflow=enforce-pr-label.yml
 fi
+mkdir -p .github/workflows
+\cp $tmp_download_folder/**/assets/$enforce_pr_label_workflow .github/workflows/enforce-pr-label.yml
+echo "✅ Updated .github/workflows/enforce-pr-label.yml ($enforce_pr_label_workflow)"
 
 MAKEFILE=./Makefile || true
 
@@ -100,7 +100,13 @@ cd .make_scripts/project-infrastructure
 find . -type f -iname "*.sh" -exec chmod +x {} \;
 
 
-# Function to check if any issue has the specified label
+
+# Labels are matched exactly: `gh label list` without --limit returns only 30, and a
+# plain grep would match "change" inside "pr-breaking-change".
+label_exists() {
+  gh label list --limit 1000 --json name --jq '.[].name' | grep -qxF "$1"
+}
+
 check_issues_for_label() {
   local label="$1"
   issues_with_label=$(gh issue list --label "$label" --json number,title --jq '.[] | "\t\(.number) - \(.title)"')
@@ -112,103 +118,29 @@ check_issues_for_label() {
   fi
 }
 
-# Add triaged labels for issues
-if ! gh label list | grep -q "triaged"; then
-  gh label create triaged --description "Issue is being worked on" --color 228B22
-else
-  gh label edit triaged --description "Issue is being worked on" --color 228B22 
-fi
+delete_label_if_present() {
+  if label_exists "$1"; then
+    check_issues_for_label "$1"
+    gh label delete "$1" --yes
+  fi
+}
 
-# Remove labels from prior tool versions
-if gh label list | grep -q "untriaged"; then
-  check_issues_for_label "untriaged"
-  gh label delete "untriaged" --yes
-fi
+ensure_label() {
+  if label_exists "$1"; then
+    gh label edit "$1" --color "$2" --description "$3"
+  else
+    gh label create "$1" --color "$2" --description "$3"
+  fi
+}
 
-if gh label list | grep -q "change"; then
-  check_issues_for_label "change"
-  gh label delete "change" --yes || true
-fi
+# Labels from prior tool versions, and GitHub's defaults (replaced by issue types)
+for label in untriaged change other bug documentation duplicate enhancement "good first issue" \
+             "help wanted" invalid question wontfix; do
+  delete_label_if_present "$label"
+done
 
-if gh label list | grep -q "other"; then
-  check_issues_for_label "other"
-  gh label delete "other" --yes
-fi
-
-# Delete standard GH labels
-if gh label list | grep -q "bug"; then
-  check_issues_for_label "bug"
-  gh label delete "bug" --yes
-fi
-
-if gh label list | grep -q "documentation"; then
-  check_issues_for_label "documentation"
-  gh label delete "documentation" --yes
-fi
-
-if gh label list | grep -q "duplicate"; then
-  check_issues_for_label "duplicate"
-  gh label delete "duplicate" --yes
-fi
-
-if gh label list | grep -q "enhancement"; then
-  check_issues_for_label "enhancement"
-  gh label delete "enhancement" --yes
-fi
-
-if gh label list | grep -q "good first issue"; then
-  check_issues_for_label "good first issue"
-  gh label delete "good first issue" --yes
-fi
-
-if gh label list | grep -q "help wanted"; then
-  check_issues_for_label "help wanted"
-  gh label delete "help wanted" --yes
-fi
-
-if gh label list | grep -q "invalid"; then
-  check_issues_for_label "invalid"
-  gh label delete "invalid" --yes
-fi
-
-if gh label list | grep -q "question"; then
-  check_issues_for_label "question"
-  gh label delete "question" --yes
-fi
-
-if gh label list | grep -q "wontfix"; then
-  check_issues_for_label "wontfix"
-  gh label delete "wontfix" --yes
-fi
-
-# Add labels for PR's
-
-if ! gh label list | grep -q "pr-breaking-change"; then
-  gh label create pr-breaking-change --description "PR introduces breaking change" --color ffa500
-else
-  gh label edit pr-breaking-change --description "PR introduces breaking change" --color ffa500 
-fi
-
-if ! gh label list | grep -q "pr-new-feature"; then
-  gh label create pr-new-feature --description "PR introduces new feature/s" --color ffa500
-else
-  gh label edit pr-new-feature --description "PR introduces new feature/s" --color ffa500 
-fi
-
-if ! gh label list | grep -q "pr-bugfix"; then
-  gh label create pr-bugfix --description "PR introduces a bugfix" --color ffa500
-else
-  gh label edit pr-bugfix --description "PR introduces a bugfix" --color ffa500 
-fi
-
-if ! gh label list | grep -q "pr-security"; then
-  gh label create pr-security --description "PR introduces a security improvement" --color ffa500
-else
-  gh label edit pr-security --description "PR introduces a security improvement" --color ffa500 
-fi
-
-if ! gh label list | grep -q "pr-other"; then
-  gh label create pr-other --description "PR does something not covered by other labels" --color ffa500
-else
-  gh label edit pr-other --description "PR does something not covered by other labels" --color ffa500 
-fi
+# The label set lives in labels.tsv: name, colour, description, tab-separated
+while IFS="$(printf '\t')" read -r name color description; do
+  case "$name" in ''|'#'*) continue ;; esac
+  ensure_label "$name" "$color" "$description"
+done < labels.tsv
