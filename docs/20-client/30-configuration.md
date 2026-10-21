@@ -31,7 +31,7 @@ The `remote_lab_client` pytest fixture reads the same variable and raises `Runti
 
 ```bash
 # On the test-runner host
-export REMOTE_LAB_URL="http://lab.internal:8000"
+export REMOTE_LAB_URL="http://lab.example.com:8000"
 ```
 
 ## Optional: the three timeout variables

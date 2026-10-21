@@ -44,7 +44,7 @@ RemoteLabClient(
 
 | Name | Type | Default | Description |
 |---|---|---|---|
-| `base_url` | `str` | – | Base URL of the Remote Lab Manager (e.g. `http://lab.internal:8000`). If falsy, falls back to the `REMOTE_LAB_URL` environment variable. |
+| `base_url` | `str` | – | Base URL of the Remote Lab Manager (e.g. `http://lab.example.com:8000`). If falsy, falls back to the `REMOTE_LAB_URL` environment variable. |
 | `request_timeout` | `int` | `30` | Per-HTTP-request timeout in seconds for short operations (create session, release, heartbeat). |
 | `session_timeout` | `int` | `600` | Max seconds the constructor will wait for the session to reach ACTIVE state in the FIFO queue. |
 | `lab_acquisition_timeout` | `int` | `600` | Max seconds for a single `acquire()` POST. Netlab `up` can take minutes on cold caches, so this is deliberately long. |

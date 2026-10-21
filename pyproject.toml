@@ -32,6 +32,12 @@ dependencies = [
 [project.scripts]
 neops-remote-lab = "neops_remote_lab.__main__:main"
 
+[project.urls]
+Homepage = "https://github.com/zebbra/remote-lab"
+Repository = "https://github.com/zebbra/remote-lab"
+Documentation = "https://docs.neops.io/neops-remote-lab/docs/"
+Changelog = "https://github.com/zebbra/remote-lab/releases"
+
 [project.entry-points.pytest11]
 neops-remote-lab = "neops_remote_lab.pytest_plugins"
 
