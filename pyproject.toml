@@ -15,6 +15,12 @@ keywords = [
   "fastapi",
   "pytest",
 ]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: System :: Networking",
+  "Topic :: Software Development :: Testing",
+]
 dependencies = [
   "python-dotenv>=1.2.2,<2", # CVE-2026-28684 fix
   "fastapi>=0.116.0",
