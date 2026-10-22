@@ -57,7 +57,7 @@ jobs:
   wheel:
     name: Build Python wheel (no publish)
     needs: lint-test
-    runs-on: hetzner
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
