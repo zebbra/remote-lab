@@ -32,7 +32,7 @@ crosslink_references: []
 The server enforces the active-session check via a `_get_active_session` FastAPI dependency: unknown session ids raise `404`, non-active sessions raise `423 Locked`. <!-- trace: neops_remote_lab/server.py:381 -->
 
 ??? info "Conventions"
-    All cURL examples assume `$BASE_URL` is exported (e.g. `export BASE_URL="http://lab.internal:8000"`).
+    All cURL examples assume `$BASE_URL` is exported (e.g. `export BASE_URL="http://lab.example.com:8000"`).
 
     - **Content types** — JSON bodies are `application/json`; `POST /lab` is the only `multipart/form-data` endpoint.
     - **DTO suffix** — Pydantic 2 request/response models in the source are suffixed `*Dto` (e.g., `CreateSessionResponseDto`). Field order below matches the source models. See [Invariants → `*Dto` suffix](../50-contributing/20-invariants.md#dto-suffix).
