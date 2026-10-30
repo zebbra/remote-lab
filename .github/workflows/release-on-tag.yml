@@ -50,7 +50,7 @@ jobs:
 
       - name: Publish Python package
         env:
-          PYPI_TOKEN: ${{ secrets.PY_PI_TOKEN }}
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
           if [ -z "$PYPI_TOKEN" ]; then
             echo "PYPI_TOKEN secret token is not set. Exiting."
