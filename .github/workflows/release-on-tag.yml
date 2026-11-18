@@ -61,7 +61,7 @@ jobs:
   create-github-release:
     name: GitHub Release
     needs: [publish-pypi]
-    runs-on: ubuntu-latest
+    runs-on: hetzner
     permissions:
       contents: write
     steps:

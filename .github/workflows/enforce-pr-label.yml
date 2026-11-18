@@ -16,11 +16,7 @@ jobs:
     # is private, and a public repository cannot resolve an action from a private
     # one. The other neops repositories are private and keep using the shared
     # action.
-    #
-    # GitHub-hosted rather than `hetzner`: this repository is public, so a pull
-    # request from a fork would otherwise reach the self-hosted runner. The check
-    # reads the event payload and needs nothing else.
-    runs-on: ubuntu-latest
+    runs-on: hetzner
     steps:
       - name: Require exactly one release-note label
         env:
