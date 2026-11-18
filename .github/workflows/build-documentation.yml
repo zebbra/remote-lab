@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-documentation:
-    runs-on: ubuntu-latest
+    runs-on: hetzner
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
